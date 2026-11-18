@@ -19,14 +19,16 @@ const SHOTS = process.env.SHOTS;
 if (SHOTS) mkdirSync(SHOTS, { recursive: true });
 
 const results = [];
+const log = (l) => { console.log(l); };
 let failed = 0;
 async function check(name, fn) {
   try {
     await fn();
-    results.push(`✔ ${name}`);
+    results.push(`✔ ${name}`); log(`✔ ${name}`);
   } catch (e) {
     failed++;
-    results.push(`✘ ${name}\n    ${String(e.message ?? e).split('\n')[0]}`);
+    results.push(`✘ ${name}\n    ${String(e.message ?? e).split('\n').slice(0, 3).join(' | ')}`);
+    log(results[results.length - 1]);
   }
 }
 const assert = (cond, msg) => {
@@ -38,12 +40,21 @@ const browser = await chromium.launch();
 const { defaultBrowserType: _ignored, ...iphone } = devices['iPhone 13'];
 const ctx = await browser.newContext({ ...iphone, locale: 'fr-FR' });
 const page = await ctx.newPage();
+page.setDefaultTimeout(8000);
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
 page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
 
-const home = () => page.getByRole('button', { name: 'Retour à l’accueil' }).click();
+const home = async () => {
+  const btn = page.getByRole('button', { name: 'Retour à l’accueil' });
+  if (await btn.isVisible()) await btn.click();
+};
 const homeVisible = () => page.locator('.home:not([hidden])').isVisible();
+const settingsRoot = async () => {
+  await openApp('Réglages');
+  const back = page.getByRole('button', { name: 'Retour : Réglages' });
+  if (await back.isVisible()) await back.click();
+};
 const coach = () => page.locator('.coach-text');
 const openApp = (label) => page.getByRole('button', { name: new RegExp(`^${label}(,|$)`) }).first().click();
 
@@ -51,21 +62,21 @@ await page.goto(BASE);
 
 await check('Première ouverture : écran 1/3', async () => {
   await page.getByText('Certaines histoires méritent qu’on les examine.').waitFor();
-  assert(await page.getByText('1/3').isVisible(), 'indicateur 1/3 absent');
+  assert(await page.getByText('1 / 3').isVisible(), 'indicateur 1/3 absent');
   await shot(page, '01-intro-1');
 });
 
 await check('Navigation intro : continuer, retour, 3/3', async () => {
   await page.getByRole('button', { name: 'Continuer' }).click();
   await page.getByText('Votre téléphone est votre outil de travail.').waitFor();
-  assert(await page.getByText('2/3').isVisible(), '2/3 absent');
+  assert(await page.getByText('2 / 3').isVisible(), '2/3 absent');
   await shot(page, '02-intro-2');
   await page.getByRole('button', { name: 'Écran précédent' }).click();
-  await page.getByText('1/3').waitFor();
+  await page.getByText('1 / 3').waitFor();
   await page.getByRole('button', { name: 'Continuer' }).click();
   await page.getByRole('button', { name: 'Continuer' }).click();
   await page.getByText('Observez. Essayez. Faites le lien.').waitFor();
-  assert(await page.getByText('3/3').isVisible(), '3/3 absent');
+  assert(await page.getByText('3 / 3').isVisible(), '3/3 absent');
   assert(await page.getByText('Passer l’introduction').isVisible(), 'passer absent');
   await shot(page, '03-intro-3');
   await page.getByRole('button', { name: 'Prendre mon téléphone' }).click();
@@ -101,17 +112,15 @@ await check('Exercice : lancement et ouverture du message', async () => {
   await openApp('Mail');
   await page.locator('.mail-row', { hasText: 'Votre première observation' }).click();
   await page.locator('.mail-body', { hasText: 'Ouvrez-la et regardez le bureau' }).waitFor();
-  assert((await coach().textContent()).includes('photo jointe'), `guide: ${await coach().textContent()}`);
+  await page.locator('.coach-text', { hasText: 'photo jointe' }).waitFor();
   await shot(page, '05-tuto-mail');
-  await page.getByRole('button', { name: /Ouvrir bureau\.jpg/ }).click();
+  await page.getByRole('button', { name: /Ouvrir Le bureau/ }).click();
   await page.locator('.zoom-content').waitFor();
 });
 
 await check('Rechargement en cours d’exercice', async () => {
   await page.reload();
-  await coach().waitFor();
-  const t = await coach().textContent();
-  assert(t.includes('Rouvrez la photo'), `guide après rechargement: ${t}`);
+  await page.locator('.coach-text', { hasText: 'Rouvrez la photo' }).waitFor();
 });
 
 await check('Abandon puis reprise de l’exercice', async () => {
@@ -128,7 +137,7 @@ await check('Zoom de l’image (bouton, retour à l’image entière, molette)',
   await openApp('Mail');
   const msg = page.locator('.mail-row', { hasText: 'Votre première observation' });
   if (await msg.isVisible()) await msg.click();
-  await page.getByRole('button', { name: /Ouvrir bureau\.jpg/ }).click();
+  await page.getByRole('button', { name: /Ouvrir Le bureau/ }).click();
   const content = page.locator('.zoom-content');
   await content.waitFor();
   await page.waitForTimeout(400); // fin de l'animation d'ouverture
@@ -209,7 +218,7 @@ await check('Notes : création, sauvegarde, suppression annulable', async () => 
 });
 
 await check('Date et heure manuelles puis retour automatique', async () => {
-  await openApp('Réglages');
+  await settingsRoot();
   await page.getByRole('button', { name: /Date et heure/ }).click();
   await page.getByRole('switch', { name: 'Réglage automatique' }).click();
   await page.locator('input[type=date]').fill('2014-11-18');
@@ -345,6 +354,5 @@ await check('Aucune erreur JavaScript', async () => {
 });
 
 await browser.close();
-console.log(results.join('\n'));
 console.log(`\n${results.length - failed}/${results.length} vérifications réussies`);
 process.exit(failed ? 1 : 0);

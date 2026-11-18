@@ -4,6 +4,7 @@ import type { MediaDef, MediaVariant } from '../game/types';
 import { thumbOf } from '../game/selectors';
 
 export function NavBar({ back, onBack, title, right }: { back?: string; onBack?: () => void; title?: ReactNode; right?: ReactNode }) {
+  if (!onBack && !title && !right) return <div style={{ height: 8, flex: 'none' }} />;
   return (
     <header className="navbar">
       {onBack ? (
@@ -91,27 +92,25 @@ export function KindIcon({ kind, size = 18 }: { kind: MediaDef['kind']; size?: n
   return <Icon.Image size={size} />;
 }
 
-/** Vignette de pièce jointe. Aucun bouton lecture sur une image fixe. */
+/** Pièce jointe en ligne : vignette, nom, type. Aucun bouton lecture sur une image fixe. */
 export function AttachmentCard({ media, variant, onOpen }: { media: MediaDef; variant: MediaVariant; onOpen: () => void }) {
   const thumb = thumbOf(variant, media.kind);
-  const meta = [media.sizeLabel, KIND_LABEL[media.kind]].filter(Boolean).join(' · ');
+  const meta = [KIND_LABEL[media.kind], media.durationLabel, media.sizeLabel].filter(Boolean).join(' · ');
   return (
     <button className="attachment" onClick={onOpen} aria-label={`Ouvrir ${media.name}, ${KIND_LABEL[media.kind].toLowerCase()}`}>
-      <div className="attachment-thumb">
-        {thumb ? <img src={thumb} alt="" loading="lazy" /> : <KindIcon kind={media.kind} size={34} />}
+      <span className="attachment-thumb">
+        {thumb ? <img src={thumb} alt="" loading="lazy" /> : <KindIcon kind={media.kind} size={28} />}
         {(media.kind === 'video' || media.kind === 'audio') && (
           <span className="play" aria-hidden="true">
-            <Icon.Play size={18} />
+            <Icon.Play size={14} />
           </span>
         )}
-      </div>
-      <div className="attachment-info">
-        <KindIcon kind={media.kind} />
-        <div style={{ minWidth: 0 }}>
-          <div className="attachment-name">{media.name}</div>
-          <div className="attachment-size">{meta}</div>
-        </div>
-      </div>
+      </span>
+      <span className="attachment-info">
+        <span className="attachment-name" style={{ display: 'block' }}>{media.name}</span>
+        <span className="attachment-size">{meta}</span>
+      </span>
+      <Icon.Chevron className="chev" size={20} />
     </button>
   );
 }

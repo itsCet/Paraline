@@ -1,4 +1,4 @@
-import type { SVGProps } from 'react';
+import { useId, type ReactNode, type SVGProps } from 'react';
 import type { AppId } from '../game/types';
 
 type P = SVGProps<SVGSVGElement> & { size?: number };
@@ -45,6 +45,14 @@ export const Icon = {
   Save: (p: P) => (<svg {...base(p)}><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14" /></svg>),
   Compare: (p: P) => (<svg {...base(p)}><rect x="3" y="5" width="8" height="14" rx="1.5" /><rect x="13" y="5" width="8" height="14" rx="1.5" /></svg>),
   Eye: (p: P) => (<svg {...base(p)}><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" /><circle cx="12" cy="12" r="3" /></svg>),
+  Home: (p: P) => (<svg {...base(p)}><path d="M4.5 10.5L12 4l7.5 6.5V19a1 1 0 01-1 1H15v-5.5H9V20H5.5a1 1 0 01-1-1z" /></svg>),
+  ArrowRight: (p: P) => (<svg {...base(p)}><path d="M5 12h14M13 6l6 6-6 6" /></svg>),
+  ArrowLeft: (p: P) => (<svg {...base(p)}><path d="M19 12H5M11 6l-6 6 6 6" /></svg>),
+  Calendar: (p: P) => (<svg {...base(p)}><rect x="4" y="5.5" width="16" height="14.5" rx="2.5" /><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4M8.5 13.5h.01M12 13.5h.01M15.5 13.5h.01M8.5 16.5h.01M12 16.5h.01" /></svg>),
+  Sound: (p: P) => (<svg {...base(p)}><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" /><path d="M15.5 9a4 4 0 010 6M18 6.5a7.5 7.5 0 010 11" /></svg>),
+  Bolt: (p: P) => (<svg {...base(p)}><path d="M13 3L5 13.5h6L10.5 21 19 10.5h-6z" /></svg>),
+  Help: (p: P) => (<svg {...base(p)}><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.6 2.6 0 015 .9c0 1.7-2.5 2.1-2.5 3.6M12 17v.1" /></svg>),
+  Gear: (p: P) => (<svg {...base(p)}><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.6 1.6 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.6 1.6 0 00-1.8-.3 1.6 1.6 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.6 1.6 0 00-1-1.5 1.6 1.6 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.6 1.6 0 00.3-1.8 1.6 1.6 0 00-1.5-1H3a2 2 0 110-4h.1a1.6 1.6 0 001.5-1 1.6 1.6 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.6 1.6 0 001.8.3H9a1.6 1.6 0 001-1.5V3a2 2 0 114 0v.1a1.6 1.6 0 001 1.5 1.6 1.6 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.6 1.6 0 00-.3 1.8V9a1.6 1.6 0 001.5 1H21a2 2 0 110 4h-.1a1.6 1.6 0 00-1.5 1z" /></svg>),
   Message: (p: P) => (<svg {...base(p)}><path d="M20 12a7.5 7.5 0 01-11 6.6L4 20l1.4-4.3A7.5 7.5 0 1120 12z" /></svg>),
 };
 
@@ -81,10 +89,18 @@ export function StatusIcons({ airplane }: { airplane: boolean }) {
 /* Icônes d'applications                                                */
 /* ------------------------------------------------------------------ */
 
-export function LogoMark({ size = 40, color = '#E0A84A' }: { size?: number; color?: string }) {
+export function LogoMark({ size = 40, color }: { size?: number; color?: string }) {
+  // Identifiant unique : un dégradé défini dans un élément masqué ne s'afficherait pas ailleurs.
+  const id = `logo${useId().replace(/:/g, '')}`;
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
-      <g fill={color}>
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#f6c987" />
+          <stop offset="1" stopColor="#e19a3f" />
+        </linearGradient>
+      </defs>
+      <g fill={color ?? `url(#${id})`}>
         <path d="M24 88V14h52v26l-8 4V22H32v66z" />
         <path d="M68 51l8-4v41h-8z" />
       </g>
@@ -92,70 +108,72 @@ export function LogoMark({ size = 40, color = '#E0A84A' }: { size?: number; colo
   );
 }
 
+/** Icônes d'applications : tuile en dégradé doux et pictogramme au trait, sans effet 3D. */
+function Tile({ from, to, children }: { from: string; to: string; children: ReactNode }) {
+  const id = `t${from.slice(1)}${to.slice(1)}${useId().replace(/:/g, '')}`;
+  return (
+    <svg viewBox="0 0 60 60" aria-hidden="true">
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={from} />
+          <stop offset="1" stopColor={to} />
+        </linearGradient>
+      </defs>
+      <rect width="60" height="60" fill={`url(#${id})`} />
+      {children}
+    </svg>
+  );
+}
+
+const line = { fill: 'none', strokeWidth: 3.4, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+
 export function AppGlyph({ app }: { app: AppId }) {
   switch (app) {
     case 'mail':
       return (
-        <svg viewBox="0 0 60 60" aria-hidden="true">
-          <defs><linearGradient id="gm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#1fa3ff" /><stop offset="1" stopColor="#1463f3" /></linearGradient></defs>
-          <rect width="60" height="60" fill="url(#gm)" />
-          <rect x="11" y="17" width="38" height="26" rx="3" fill="#fff" />
-          <path d="M12 19l18 13 18-13" stroke="#1a73f5" strokeWidth="2.6" fill="none" strokeLinejoin="round" />
-        </svg>
+        <Tile from="#3f8cff" to="#2563eb">
+          <rect x="15" y="19" width="30" height="22" rx="4.5" stroke="#fff" {...line} />
+          <path d="M16.5 22l13.5 9.5L43.5 22" stroke="#fff" {...line} />
+        </Tile>
       );
     case 'messages':
       return (
-        <svg viewBox="0 0 60 60" aria-hidden="true">
-          <defs><linearGradient id="gs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#5ff777" /><stop offset="1" stopColor="#12bf3a" /></linearGradient></defs>
-          <rect width="60" height="60" fill="url(#gs)" />
-          <path d="M30 14c-10.5 0-19 6.7-19 15 0 4.7 2.8 8.9 7.1 11.7-.4 2.6-1.8 5-3.9 6.8 3.7-.2 7-1.6 9.6-3.9 1.9.4 4 .6 6.2.6 10.5 0 19-6.7 19-15.1S40.5 14 30 14z" fill="#fff" />
-        </svg>
+        <Tile from="#5fd97a" to="#22a845">
+          <path d="M30 16c-8.3 0-15 5.6-15 12.6 0 3.8 2 7.2 5.2 9.5-.3 2.2-1.4 4.2-3 5.6 3.2 0 6-1.1 8.1-2.9 1.5.4 3.1.6 4.7.6 8.3 0 15-5.6 15-12.8S38.3 16 30 16z" fill="#fff" />
+        </Tile>
       );
     case 'photos':
       return (
-        <svg viewBox="0 0 60 60" aria-hidden="true">
-          <rect width="60" height="60" fill="#fff" />
-          {['#f9b934', '#f5772e', '#ec3d4f', '#c34fd4', '#5a6cf0', '#2fb3ef', '#38c95c', '#b8d93a'].map((c, i) => (
-            <ellipse key={c} cx="30" cy="18.5" rx="6.5" ry="11" fill={c} opacity=".85" transform={`rotate(${i * 45} 30 30)`} style={{ mixBlendMode: 'multiply' }} />
+        <Tile from="#f7f6f2" to="#e9e7e1">
+          {['#f2b84b', '#ef7d57', '#e0567a', '#9d6be0', '#5b8cf0', '#4cc2c4', '#7ccf6a', '#c9d65a'].map((c, i) => (
+            <ellipse key={c} cx="30" cy="21.5" rx="4.6" ry="8.5" fill={c} opacity=".78" transform={`rotate(${i * 45} 30 30)`} />
           ))}
-        </svg>
+        </Tile>
       );
     case 'files':
       return (
-        <svg viewBox="0 0 60 60" aria-hidden="true">
-          <rect width="60" height="60" fill="#0d0d0f" />
-          <g transform="translate(12 11) scale(.36)" fill="#E0A84A">
-            <path d="M24 88V14h52v26l-8 4V22H32v66z" />
-            <path d="M68 51l8-4v41h-8z" />
-          </g>
-        </svg>
+        <Tile from="#2c2e36" to="#1d1e24">
+          <path d="M15.5 22.5a3 3 0 013-3h7l3 3.4h12.5a3 3 0 013 3V39a3 3 0 01-3 3h-22.5a3 3 0 01-3-3z" stroke="#efb35c" {...line} />
+        </Tile>
       );
     case 'notes':
       return (
         <svg viewBox="0 0 60 60" aria-hidden="true">
-          <rect width="60" height="60" fill="#fdfdfb" />
-          <rect width="60" height="17" fill="#fdd54a" />
-          <g stroke="#d9d6cc" strokeWidth="1.6">
-            <path d="M8 27h44M8 35h44M8 43h44M8 51h44" />
+          <rect width="60" height="60" fill="#f6f2e7" />
+          <rect width="60" height="16" fill="#f2c94c" />
+          <g stroke="#ddd6c4" strokeWidth="1.5">
+            <path d="M0 26h60M0 34h60M0 42h60M0 50h60" />
           </g>
-          <path d="M8 21h44" stroke="#e6b92e" strokeWidth="1" strokeDasharray="1.5 3" />
         </svg>
       );
     case 'settings':
       return (
-        <svg viewBox="0 0 60 60" aria-hidden="true">
-          <defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#a5a8ae" /><stop offset="1" stopColor="#6e7279" /></linearGradient></defs>
-          <rect width="60" height="60" fill="url(#gg)" />
-          <circle cx="30" cy="30" r="19" fill="#3a3d42" />
-          <g fill="#c9ccd1">
-            {Array.from({ length: 12 }, (_, i) => (
-              <rect key={i} x="28" y="10" width="4" height="8" rx="1.2" transform={`rotate(${i * 30} 30 30)`} />
-            ))}
+        <Tile from="#a3a6ad" to="#6f737b">
+          <g transform="translate(14 14) scale(1.333)" stroke="#fff" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.6 1.6 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.6 1.6 0 00-1.8-.3 1.6 1.6 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.6 1.6 0 00-1-1.5 1.6 1.6 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.6 1.6 0 00.3-1.8 1.6 1.6 0 00-1.5-1H3a2 2 0 110-4h.1a1.6 1.6 0 001.5-1 1.6 1.6 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.6 1.6 0 001.8.3H9a1.6 1.6 0 001-1.5V3a2 2 0 114 0v.1a1.6 1.6 0 001 1.5 1.6 1.6 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.6 1.6 0 00-.3 1.8V9a1.6 1.6 0 001.5 1H21a2 2 0 110 4h-.1a1.6 1.6 0 00-1.5 1z" />
           </g>
-          <circle cx="30" cy="30" r="13" fill="#c9ccd1" />
-          <circle cx="30" cy="30" r="9" fill="#3a3d42" />
-          <circle cx="30" cy="30" r="4" fill="#c9ccd1" />
-        </svg>
+        </Tile>
       );
   }
 }

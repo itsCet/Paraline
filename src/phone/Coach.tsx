@@ -14,10 +14,10 @@ export function Coach() {
   });
   return (
     <aside className="coach" aria-live="polite" aria-label="Exercice de prise en main">
-      <div style={{ minWidth: 0 }}>
-        <div className="coach-label">Exercice · exemple</div>
-        <div className="coach-text">{text}</div>
-      </div>
+      <p className="coach-text">
+        <span className="coach-label">Exercice · </span>
+        {text}
+      </p>
       <button className="coach-quit" onClick={() => {
           dispatch({ type: 'tutorial/dismiss' });
           nav.showToast('Exercice en pause. Reprise possible dans Réglages › Aide.');

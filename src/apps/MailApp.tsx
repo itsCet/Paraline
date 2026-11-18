@@ -6,7 +6,7 @@ import { TUTORIAL_MEDIA } from '../content/tutorial';
 import { AttachmentCard, Avatar, Empty, NavBar } from '../components/ui';
 import { Icon } from '../components/icons';
 
-type Filter = 'all' | 'review' | 'active';
+type Filter = 'all' | 'unread' | 'review' | 'postponed' | 'active' | 'solved';
 
 export function MailApp() {
   const { state, dispatch, cases } = useGame();
@@ -35,8 +35,11 @@ export function MailApp() {
     const q = query.trim().toLocaleLowerCase('fr');
     return items.filter((m) => {
       const status = m.caseId ? state.cases[m.caseId]?.status : undefined;
-      if (filter === 'review' && !(m.tutorial || (m.initial && (status === 'new' || status === 'postponed')))) return false;
+      if (filter === 'unread' && m.read) return false;
+      if (filter === 'review' && !(m.tutorial || (m.initial && status === 'new'))) return false;
+      if (filter === 'postponed' && !(m.initial && status === 'postponed')) return false;
       if (filter === 'active' && status !== 'active') return false;
+      if (filter === 'solved' && status !== 'solved') return false;
       if (!q) return true;
       return [m.fromName, m.subject, ...m.body].some((t) => t.toLocaleLowerCase('fr').includes(q));
     });
@@ -48,7 +51,7 @@ export function MailApp() {
     <>
       <NavBar />
       <div className="scroll">
-        <h1 className="large-title">Boîte de réception</h1>
+        <h1 className="large-title">Réception</h1>
         <label className="search">
           <Icon.Search size={18} />
           <span className="sr-only">Rechercher dans les e-mails</span>
@@ -58,8 +61,11 @@ export function MailApp() {
           {(
             [
               ['all', 'Tous'],
+              ['unread', 'Non lus'],
               ['review', 'À examiner'],
+              ['postponed', 'Reportées'],
               ['active', 'En cours'],
+              ['solved', 'Résolues'],
             ] as [Filter, string][]
           ).map(([f, l]) => (
             <button key={f} className="chip" aria-pressed={filter === f} onClick={() => setFilter(f)}>
@@ -72,7 +78,7 @@ export function MailApp() {
         ) : filtered.length === 0 ? (
           <Empty>{query ? 'Aucun résultat.' : 'Aucun message dans ce filtre.'}</Empty>
         ) : (
-          <ul className="list" style={{ paddingLeft: 12 }}>
+          <ul className="list">
             {filtered.map((m) => (
               <li key={m.id}>
                 <MailRow item={m} onOpen={() => setOpenId(m.id)} />
@@ -96,28 +102,31 @@ function StatusTag({ item }: { item: InboxItem }) {
 }
 
 function MailRow({ item, onOpen }: { item: InboxItem; onOpen: () => void }) {
+  const n = item.attachments.length;
   return (
     <button className="mail-row" onClick={onOpen} aria-label={`${item.read ? '' : 'Non lu. '}${item.fromName}, ${item.subject}`}>
-      {!item.read && <span className="dot" aria-hidden="true" />}
       <Avatar initials={item.initials} color={item.color} />
       <span style={{ flex: 1, minWidth: 0 }}>
         <span className="mail-head">
           <span className="mail-from">{item.fromName}</span>
-          <span className="mail-time">{item.timeLabel}</span>
+          {!item.tutorial && <span className="mail-time">{item.timeLabel}</span>}
         </span>
         <div className="mail-subject">{item.subject}</div>
-        <div className="mail-preview">{item.preview}</div>
-        {(item.attachments.length > 0 || item.tutorial || item.caseId) && (
-          <span className="mail-meta">
-            {item.attachments.length > 0 && (
-              <>
-                <Icon.Clip size={14} /> {item.attachments.length} pièce{item.attachments.length > 1 ? 's' : ''} jointe{item.attachments.length > 1 ? 's' : ''}
-              </>
-            )}
-            <StatusTag item={item} />
-          </span>
-        )}
+        {!item.tutorial && <div className="mail-preview">{item.preview}</div>}
+        <span className="mail-meta">
+          {item.tutorial && <span>Exemple</span>}
+          {item.tutorial && n > 0 && <span aria-hidden="true">·</span>}
+          {n > 0 && (
+            <span style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
+              {!item.tutorial && <Icon.Clip size={14} />}
+              {n} pièce{n > 1 ? 's' : ''} jointe{n > 1 ? 's' : ''}
+            </span>
+          )}
+          {!item.tutorial && <StatusTag item={item} />}
+        </span>
       </span>
+      {!item.read && <span className="dot" aria-hidden="true" />}
+      <Icon.Chevron className="chev" size={20} />
     </button>
   );
 }
@@ -131,23 +140,17 @@ function MailDetail({ item, onBack }: { item: InboxItem; onBack: () => void }) {
 
   return (
     <>
-      <NavBar back="Réception" onBack={onBack} />
+      <NavBar back="Retour" onBack={onBack} />
       <div className="scroll">
         <h1 className="mail-subject-lg">{item.subject}</h1>
         <div className="mail-sender">
           <Avatar initials={item.initials} color={item.color} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 600 }}>{item.fromName}</div>
-            <div className="row-sub">À moi · {item.timeLabel}</div>
+            <div className="row-sub">{item.tutorial ? 'Exemple · Prise en main' : `À moi · ${item.timeLabel}`}</div>
           </div>
-          <StatusTag item={item} />
+          {!item.tutorial && <StatusTag item={item} />}
         </div>
-        {item.tutorial && (
-          <div className="callout neutral" style={{ marginTop: 14 }}>
-            <Icon.Info size={18} />
-            <span>Message d’exemple pour l’exercice de prise en main. Ce n’est pas une enquête.</span>
-          </div>
-        )}
         <div className="mail-body">
           {item.body.map((para, i) => (
             <p key={i}>{para}</p>
@@ -156,7 +159,7 @@ function MailDetail({ item, onBack }: { item: InboxItem; onBack: () => void }) {
         {item.attachments.length > 0 && (
           <div className="attachments">
             {item.tutorial ? (
-              <AttachmentCard media={TUTORIAL_MEDIA} variant={TUTORIAL_MEDIA.variants.default} onOpen={() => nav.openViewer({ kind: 'tutorial' })} />
+              <AttachmentCard media={{ ...TUTORIAL_MEDIA, name: 'Le bureau', sizeLabel: undefined }} variant={TUTORIAL_MEDIA.variants.default} onOpen={() => nav.openViewer({ kind: 'tutorial' })} />
             ) : (
               def &&
               item.attachments.map((id) => {
@@ -169,6 +172,7 @@ function MailDetail({ item, onBack }: { item: InboxItem; onBack: () => void }) {
           </div>
         )}
 
+        {item.tutorial && <p className="footnote" style={{ marginTop: 0 }}>Message d’exemple, sans lien avec les enquêtes. La barre en bas de l’écran vous ramène à l’accueil.</p>}
         {def && p && item.initial && (
           <div className="mail-actions">
             {(p.status === 'new' || p.status === 'postponed') && (

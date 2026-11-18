@@ -226,7 +226,8 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
   const foundSpots = hotspots.filter((h) => found.includes(h.observationId));
 
   return (
-    <>
+    <div className="zoom-wrap">
+      <div className="zoom-stage">
       <div
         ref={areaRef}
         className={`zoom-area${view.z > 1 ? ' zoomed' : ''}`}
@@ -272,19 +273,23 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
         )}
         {ripple && <span key={ripple.id} className="tap-ripple" style={{ left: ripple.x, top: ripple.y }} />}
       </div>
+      </div>
       {controls && (
         <div className="zoom-controls">
           <button onClick={() => zoomAt(view.z / 1.5)} aria-label="Réduire" disabled={view.z <= 1}>
-            <Icon.Minus size={20} />
+            <Icon.Minus size={24} />
           </button>
+          <span className="zoom-level" aria-live="polite">
+            {Math.round(view.z * 100)} %
+          </span>
           <button onClick={() => zoomAt(view.z * 1.5)} aria-label="Agrandir" disabled={view.z >= MAX}>
-            <Icon.Plus size={20} />
+            <Icon.Plus size={24} />
           </button>
           <button onClick={() => setView({ z: 1, x: 0, y: 0 })} aria-label="Image entière" disabled={view.z === 1}>
-            <Icon.Expand size={18} />
+            <Icon.Reset size={22} />
           </button>
         </div>
       )}
-    </>
+    </div>
   );
 }

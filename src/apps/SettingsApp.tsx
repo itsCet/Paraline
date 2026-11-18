@@ -11,16 +11,16 @@ type Page = 'root' | 'datetime' | 'sound' | 'a11y' | 'help' | 'apps' | 'save';
 const TITLES: Record<Page, string> = {
   root: 'Réglages',
   datetime: 'Date et heure',
-  sound: 'Son',
+  sound: 'Audio',
   a11y: 'Accessibilité',
   help: 'Aide',
   apps: 'Les applications',
   save: 'Sauvegarde',
 };
 
-function SettingsIcon({ bg, children }: { bg: string; children: ReactNode }) {
+function SettingsIcon({ children }: { bg?: string; children: ReactNode }) {
   return (
-    <span className="settings-icon" style={{ background: bg }} aria-hidden="true">
+    <span className="row-ico" aria-hidden="true">
       {children}
     </span>
   );
@@ -56,8 +56,8 @@ export function SettingsApp() {
             <h1 className="large-title">Réglages</h1>
             <div className="group">
               <div className="row">
-                <SettingsIcon bg="#ff9f0a">
-                  <Icon.Plane size={18} />
+                <SettingsIcon>
+                  <Icon.Plane size={24} />
                 </SettingsIcon>
                 <span className="row-main">
                   <div className="row-title">Mode avion</div>
@@ -65,17 +65,17 @@ export function SettingsApp() {
                 <Switch label="Mode avion" checked={s.airplane} onChange={(v) => set({ airplane: v })} />
               </div>
             </div>
-            {s.airplane && <p className="footnote">Échanges suspendus. L’historique et les fichiers restent consultables.</p>}
+            <p className="footnote">
+              {s.airplane ? 'Échanges suspendus. L’historique et les fichiers restent consultables.' : 'Ces réglages concernent uniquement le téléphone du jeu.'}
+            </p>
             <div className="group" style={{ marginTop: 20 }}>
-              <Row to="datetime" icon={<SettingsIcon bg="#636366"><ClockGlyph /></SettingsIcon>} label="Date et heure" value={s.clockAuto ? 'Automatique' : 'Manuel'} />
-              <Row to="sound" icon={<SettingsIcon bg="#ff375f"><Icon.Audio size={18} /></SettingsIcon>} label="Son" value={s.sound ? `${Math.round(s.volume * 100)} %` : 'Désactivé'} />
-              <Row to="a11y" icon={<SettingsIcon bg="#0a84ff"><Icon.Eye size={18} /></SettingsIcon>} label="Accessibilité" />
+              <Row to="datetime" icon={<SettingsIcon><Icon.Calendar size={26} /></SettingsIcon>} label="Date et heure" value={s.clockAuto ? 'Automatique' : `${s.manualTime} (manuel)`} />
+              <Row to="sound" icon={<SettingsIcon><Icon.Sound size={26} /></SettingsIcon>} label="Audio" value={s.sound ? 'Activé' : 'Désactivé'} />
+              <Row to="a11y" icon={<SettingsIcon><Icon.Bolt size={26} /></SettingsIcon>} label="Accessibilité" />
+              <Row to="help" icon={<SettingsIcon><Icon.Help size={26} /></SettingsIcon>} label="Aide" />
+              <Row to="save" icon={<SettingsIcon><Icon.Gear size={26} /></SettingsIcon>} label="Sauvegarde" />
             </div>
-            <div className="group" style={{ marginTop: 20 }}>
-              <Row to="help" icon={<SettingsIcon bg="#30b0c7"><Icon.Info size={18} /></SettingsIcon>} label="Aide" />
-              <Row to="save" icon={<SettingsIcon bg="#8e8e93"><Icon.Save size={18} /></SettingsIcon>} label="Sauvegarde" />
-            </div>
-            <p className="footnote">Les réglages concernent uniquement le téléphone du jeu. Aucune autorisation de votre appareil n’est demandée.</p>
+            <p className="footnote">Aucune autorisation de votre appareil n’est demandée.</p>
           </>
         )}
         {page === 'datetime' && <DateTimePage />}
@@ -174,15 +174,6 @@ export function SettingsApp() {
         {page === 'save' && <SavePage />}
       </div>
     </>
-  );
-}
-
-function ClockGlyph() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 7.5V12l3 2" strokeLinecap="round" />
-    </svg>
   );
 }
 

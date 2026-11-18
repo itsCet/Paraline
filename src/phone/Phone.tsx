@@ -14,9 +14,8 @@ import { FilesApp } from '../apps/FilesApp';
 import { NotesApp } from '../apps/NotesApp';
 import { SettingsApp } from '../apps/SettingsApp';
 import { unlockAudio } from '../game/sound';
+import { WALLPAPER } from '../content/assets';
 import type { AppId } from '../game/types';
-
-export const WALLPAPER = '/media/system/wallpaper-night.svg';
 
 const APPS: Record<AppId, () => ReactNode> = {
   mail: () => <MailApp />,
@@ -75,7 +74,7 @@ export function Phone() {
         ))}
         <MediaViewer />
       </main>
-      <HomeBar />
+      <HomeBar onHome={onHome} />
       <Banner />
       <ToastView />
       {!state.introDone && <Intro />}
@@ -83,20 +82,25 @@ export function Phone() {
   );
 }
 
-/** Barre de retour à l'accueil : appui ou balayage vers le haut. */
-function HomeBar() {
+/** Barre de retour à l'accueil : bouton maison, ou balayage vers le haut. */
+function HomeBar({ onHome }: { onHome: boolean }) {
   const nav = useNav();
   const start = useRef<number | null>(null);
   return (
     <div
-      className="homebar"
+      className={`homebar${onHome ? ' on-home' : ''}`}
       onPointerDown={(e) => (start.current = e.clientY)}
       onPointerUp={(e) => {
         if (start.current !== null && start.current - e.clientY > 24) nav.home();
         start.current = null;
       }}
     >
-      <button onClick={nav.home} aria-label="Retour à l’accueil" title="Accueil" />
+      {!onHome && (
+        <button className="home-btn" onClick={nav.home} aria-label="Retour à l’accueil" title="Accueil">
+          <Icon.Home size={24} />
+        </button>
+      )}
+      <span className="indicator" aria-hidden="true" />
     </div>
   );
 }

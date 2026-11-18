@@ -32,10 +32,14 @@ const assert = (c, m) => {
 const browser = await chromium.launch();
 const { defaultBrowserType: _d, ...iphone } = devices['iPhone 13'];
 const page = await (await browser.newContext({ ...iphone, locale: 'fr-FR' })).newPage();
+page.setDefaultTimeout(10000);
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
 const shot = (n) => SHOTS && page.screenshot({ path: `${SHOTS}/fx-${n}.png` });
-const home = () => page.getByRole('button', { name: 'Retour à l’accueil' }).click();
+const home = async () => {
+  const btn = page.getByRole('button', { name: 'Retour à l’accueil' });
+  if (await btn.isVisible()) await btn.click();
+};
 const openApp = (l) => page.getByRole('button', { name: new RegExp(`^${l}(,|$)`) }).first().click();
 const bubbles = (t) => page.locator('.bubble', { hasText: t }).count();
 
@@ -61,14 +65,16 @@ await check('Pièce jointe consultable avant acceptation ; action proposant d’
   await page.getByRole('button', { name: 'Ajouter au dossier' }).click();
   await page.getByText('Accepter l’enquête ?').waitFor();
   await page.getByRole('button', { name: 'Plus tard', exact: true }).click();
-  await page.getByRole('button', { name: 'Retour : Retour' }).click();
+  await page.locator('.viewer').getByRole('button', { name: 'Retour : Retour' }).click();
 });
 
 await check('Garder pour plus tard puis accepter', async () => {
   await page.getByRole('button', { name: 'Garder pour plus tard' }).click();
   await page.locator('.mail-row', { hasText: 'Pour plus tard' }).waitFor();
-  await page.getByRole('button', { name: 'À examiner' }).click();
-  assert((await page.locator('.mail-row').count()) === 1, 'filtre À examiner');
+  await page.getByRole('button', { name: 'Reportées', exact: true }).click();
+  assert((await page.locator('.mail-row').count()) === 1, 'filtre Reportées');
+  await page.getByRole('button', { name: 'À examiner', exact: true }).click();
+  assert((await page.locator('.mail-row').count()) === 0, 'filtre À examiner');
   await page.getByRole('button', { name: 'Tous', exact: true }).click();
   await page.getByPlaceholder('Rechercher').fill('introuvable');
   await page.getByText('Aucun résultat.').waitFor();
@@ -143,7 +149,7 @@ await check('Copie conservée puis variante modifiée par la date et l’heure m
   await page.locator('.photo-cell').first().click();
   await page.getByRole('button', { name: 'Enregistrer une copie' }).click();
   await page.getByRole('button', { name: 'Copie enregistrée' }).waitFor();
-  await page.getByRole('button', { name: 'Retour : Retour' }).click();
+  await page.locator('.viewer').getByRole('button', { name: 'Retour : Retour' }).click();
   await home();
   await openApp('Réglages');
   await page.getByRole('button', { name: /Date et heure/ }).click();
@@ -164,8 +170,8 @@ await check('Copie conservée puis variante modifiée par la date et l’heure m
   await page.getByRole('button', { name: 'Comparer' }).click();
   assert((await page.locator('.compare-side').count()) === 2, 'comparaison');
   await shot('compare');
-  await page.getByRole('button', { name: 'Retour : Retour' }).click();
-  await page.getByRole('button', { name: 'Retour : Retour' }).click();
+  await page.locator('.viewer').getByRole('button', { name: 'Retour : Retour' }).click();
+  await page.locator('.viewer').getByRole('button', { name: 'Retour : Retour' }).click();
 });
 
 await check('Persistance complète après rechargement', async () => {

@@ -35,3 +35,6 @@ export const ASSETS: AssetEntry[] = [
   },
   // Enquêtes : ajouter ici les médias de `public/media/cases/<id>/`.
 ];
+
+/** Fond d'écran par défaut (accueil et introduction). Remplacer par la photo définitive. */
+export const WALLPAPER = '/media/system/wallpaper-night.svg';

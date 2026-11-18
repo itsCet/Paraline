@@ -124,7 +124,7 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
 
   return (
     <div className="viewer" role="dialog" aria-modal="true" aria-label={r.media.name}>
-      <NavBar back="Retour" onBack={nav.closeViewer} title={r.isCopy ? `${r.media.name} (copie)` : r.media.name} />
+      <NavBar back="Retour" onBack={nav.closeViewer} title={isTutorial ? 'Le bureau' : r.isCopy ? `${r.media.name} (copie)` : r.media.name} />
       {r.media.kind === 'image' && (
         <div className="viewer-stage">
           <ZoomableImage
@@ -148,9 +148,15 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
       {(hotspots.length > 0 || canCopy || comparison) && (
         <section className="viewer-panel" aria-label="Examen">
           {hotspots.length > 0 && (
-            <div className="panel-card">
-              <h3>Un détail vous intrigue ?</h3>
-              <p>Touchez une zone de l’image.</p>
+            <div className={observationsHere.length ? 'panel-card' : undefined}>
+              {isTutorial ? (
+                <p className="viewer-hint">Touchez le tiroir entrouvert pour relever une observation.</p>
+              ) : (
+                <>
+                  <h3>Un détail vous intrigue ?</h3>
+                  <p>Touchez une zone de l’image.</p>
+                </>
+              )}
               {observationsHere.map((o) => (
                 <button key={o.id} className="obs-chip" onClick={() => setSheet(o.id)}>
                   <span className="thumb">

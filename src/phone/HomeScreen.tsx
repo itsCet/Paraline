@@ -1,7 +1,7 @@
 import { useGame } from '../game/store';
 import { useNav } from './nav';
 import { inbox, unreadMessages } from '../game/selectors';
-import { APP_LABELS, AppGlyph } from '../components/icons';
+import { APP_LABELS, AppGlyph, Icon, LogoMark } from '../components/icons';
 import type { PhoneTime } from '../game/clock';
 import type { AppId } from '../game/types';
 
@@ -36,7 +36,7 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
   );
 
   return (
-    <div className="home" hidden={hidden}>
+    <div className={`home${state.introDone && t.status === 'pending' ? ' has-offer' : ''}`} hidden={hidden}>
       <div className="home-clock">
         <div className="home-time">{time.hhmm}</div>
         <div className="home-date">{time.dayLabel}</div>
@@ -54,41 +54,45 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
         <span className="widget-body">
           {latest ? (
             <>
-              <span className="widget-meta">Nouveau message</span>
-              <div className="widget-title">{latest.fromName}</div>
-              <div className="widget-line" style={{ fontWeight: 600 }}>{latest.subject}</div>
+              <span className="widget-meta">Nouveau message · {latest.fromName}</span>
+              <div className="widget-title widget-line">{latest.subject}</div>
               <div className="widget-line widget-muted">{latest.preview}</div>
             </>
           ) : (
             <>
-              <div className="widget-title">Mail</div>
-              <div className="widget-muted">Aucune nouvelle demande</div>
+              <div className="widget-meta">Mail</div>
+              <div className="widget-title">Aucune nouvelle demande</div>
             </>
           )}
         </span>
+        <Icon.Chevron className="chev" size={22} />
       </button>
 
+      <nav className="grid" aria-label="Applications">
+        {(['mail', 'messages', 'photos', 'files', 'notes', 'settings'] as AppId[]).map((id) => icon(id))}
+      </nav>
       {state.introDone && t.status === 'pending' && (
         <section className="offer glass" aria-label="Exercice de prise en main">
-          <h2>Une minute pour prendre vos marques</h2>
+          <h2>
+            <LogoMark size={22} /> Une minute pour prendre vos marques
+          </h2>
           <p>Ouvrez un message, examinez une pièce jointe et enregistrez votre première observation.</p>
           <div className="offer-actions">
-            <button className="btn btn-primary btn-sm" onClick={() => dispatch({ type: 'tutorial/start' })}>
+            <button className="btn btn-primary btn-sm" style={{ minHeight: 40 }} onClick={() => dispatch({ type: 'tutorial/start' })}>
               Faire l’essai
             </button>
-            <button className="btn btn-secondary btn-sm" onClick={() => dispatch({ type: 'tutorial/dismiss' })}>
+            <button className="btn btn-ghost btn-sm" onClick={() => dispatch({ type: 'tutorial/dismiss' })}>
               Plus tard
             </button>
           </div>
         </section>
       )}
 
-      <nav className="grid" aria-label="Applications">
-        {(['photos', 'files', 'notes', 'settings'] as AppId[]).map((id) => icon(id))}
-      </nav>
+      <div className="home-spacer" />
       <nav className="dock glass" aria-label="Dock">
         {icon('mail', true)}
         {icon('messages', true)}
+        {icon('files', true)}
       </nav>
     </div>
   );

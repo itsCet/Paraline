@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../game/store';
 import { useNav } from './nav';
 import { AppGlyph, Icon, LogoMark } from '../components/icons';
+import { WALLPAPER } from '../content/assets';
 
-/** Première ouverture : trois écrans courts. */
+/** Première ouverture : trois écrans courts sur fond photographique. */
 export function Intro() {
-  const { dispatch } = useGame();
+  const { state, dispatch } = useGame();
   const nav = useNav();
   const [i, setI] = useState(0);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -29,6 +30,10 @@ export function Intro() {
       title: 'Votre téléphone est votre outil de travail.',
       body: (
         <>
+          <p>
+            Recevez des demandes par e-mail. Examinez les pièces jointes, échangez avec vos clients et rassemblez vos observations. Vous
+            choisissez les affaires que vous acceptez.
+          </p>
           <div className="intro-apps" aria-hidden="true">
             {(['mail', 'messages', 'files'] as const).map((a) => (
               <span className="app-icon" key={a}>
@@ -39,10 +44,6 @@ export function Intro() {
               </span>
             ))}
           </div>
-          <p>
-            Recevez des demandes par e-mail. Examinez les pièces jointes, échangez avec vos clients et rassemblez vos observations. Vous
-            choisissez les affaires que vous acceptez.
-          </p>
         </>
       ),
     },
@@ -61,45 +62,43 @@ export function Intro() {
   ];
   const s = screens[i];
   const last = i === screens.length - 1;
+  const wallpaper = state.overrides.wallpaper?.value ?? WALLPAPER;
 
   return (
-    <div className="intro" role="dialog" aria-modal="true" aria-label="Introduction">
+    <div className="intro" role="dialog" aria-modal="true" aria-label="Introduction" style={{ backgroundImage: `url(${wallpaper})` }}>
       <div className="intro-top">
         {i > 0 ? (
           <button className="navbar-back" onClick={() => setI(i - 1)} aria-label="Écran précédent">
-            <Icon.Back size={24} />
-            <span>Retour</span>
+            <Icon.Back size={26} />
           </button>
         ) : (
           <span />
         )}
-        <div className="intro-progress">
-          <span className="dots" aria-hidden="true">
-            {screens.map((_, k) => (
-              <i key={k} className={k === i ? 'on' : undefined} />
-            ))}
-          </span>
-          <span aria-label={`Écran ${i + 1} sur 3`}>{i + 1}/3</span>
-        </div>
+        <span className="pill" aria-label={`Écran ${i + 1} sur 3`}>
+          {i + 1} / 3
+        </span>
       </div>
       <div className="intro-body" key={i}>
-        {i === 0 && (
-          <div className="intro-brand" aria-hidden="true">
-            <LogoMark size={44} />
-            <div>
-              <div className="word">PARALINE</div>
-              <small>ENQUÊTES PARANORMALES</small>
-            </div>
-          </div>
-        )}
+        <div className="intro-brand" aria-hidden="true">
+          <span className="logo-tile">
+            <LogoMark size={40} />
+          </span>
+          <span className="word">PARALINE</span>
+        </div>
+        <div className="bars" aria-hidden="true">
+          {screens.map((_, k) => (
+            <i key={k} className={k === i ? 'on' : undefined} />
+          ))}
+        </div>
         <h1 tabIndex={-1} ref={titleRef} style={{ outline: 'none' }}>
           {s.title}
         </h1>
         {s.body}
       </div>
       <div className="intro-actions">
-        <button className="btn btn-primary btn-block" onClick={() => (last ? finish() : setI(i + 1))}>
-          {last ? 'Prendre mon téléphone' : 'Continuer'}
+        <button className="btn btn-primary btn-block wide" onClick={() => (last ? finish() : setI(i + 1))}>
+          <span>{last ? 'Prendre mon téléphone' : 'Continuer'}</span>
+          <Icon.ArrowRight size={24} />
         </button>
         <button className="btn btn-ghost btn-block" onClick={finish}>
           Passer l’introduction
