@@ -1,0 +1,95 @@
+import { useGame } from '../game/store';
+import { useNav } from './nav';
+import { inbox, unreadMessages } from '../game/selectors';
+import { APP_LABELS, AppGlyph } from '../components/icons';
+import type { PhoneTime } from '../game/clock';
+import type { AppId } from '../game/types';
+
+export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime }) {
+  const { state, dispatch, cases } = useGame();
+  const nav = useNav();
+  const mails = inbox(state, cases);
+  const unreadMail = mails.filter((m) => !m.read);
+  // Dernier message utile : le plus récent non lu, sinon aucune nouvelle demande.
+  const latest = unreadMail[0];
+  const badges: Partial<Record<AppId, number>> = { mail: unreadMail.length, messages: unreadMessages(state) };
+  const t = state.tutorial;
+  const coachTarget: AppId | null =
+    t.status === 'active' ? (t.step === 'openMail' || t.step === 'openMessage' ? 'mail' : t.step === 'openFiles' ? 'files' : null) : null;
+
+  const icon = (id: AppId, inDock = false) => (
+    <button
+      key={id}
+      className={`app-icon${coachTarget === id ? ' pulse' : ''}`}
+      onClick={() => {
+        if (id === 'mail') dispatch({ type: 'tutorial/step', step: 'openMessage' });
+        nav.open(id);
+      }}
+      aria-label={`${APP_LABELS[id]}${badges[id] ? `, ${badges[id]} non lu${badges[id]! > 1 ? 's' : ''}` : ''}`}
+    >
+      <span className="app-glyph">
+        <AppGlyph app={id} />
+      </span>
+      {badges[id] ? <span className="badge" aria-hidden="true">{badges[id]}</span> : null}
+      <span className={inDock ? 'label sr-only' : 'label'}>{APP_LABELS[id]}</span>
+    </button>
+  );
+
+  return (
+    <div className="home" hidden={hidden}>
+      <div className="home-clock">
+        <div className="home-time">{time.hhmm}</div>
+        <div className="home-date">{time.dayLabel}</div>
+        {state.overrides.homeMessage && <div className="home-note">{state.overrides.homeMessage.value}</div>}
+      </div>
+
+      <button
+        className="widget glass"
+        onClick={() => nav.open('mail', latest ? { mailId: latest.id, caseId: latest.caseId ?? undefined } : undefined)}
+        aria-label={latest ? `Mail : nouveau message de ${latest.fromName}, ${latest.subject}` : 'Mail : aucune nouvelle demande'}
+      >
+        <span className="widget-icon">
+          <AppGlyph app="mail" />
+        </span>
+        <span className="widget-body">
+          {latest ? (
+            <>
+              <span className="widget-meta">Nouveau message</span>
+              <div className="widget-title">{latest.fromName}</div>
+              <div className="widget-line" style={{ fontWeight: 600 }}>{latest.subject}</div>
+              <div className="widget-line widget-muted">{latest.preview}</div>
+            </>
+          ) : (
+            <>
+              <div className="widget-title">Mail</div>
+              <div className="widget-muted">Aucune nouvelle demande</div>
+            </>
+          )}
+        </span>
+      </button>
+
+      {state.introDone && t.status === 'pending' && (
+        <section className="offer glass" aria-label="Exercice de prise en main">
+          <h2>Une minute pour prendre vos marques</h2>
+          <p>Ouvrez un message, examinez une pièce jointe et enregistrez votre première observation.</p>
+          <div className="offer-actions">
+            <button className="btn btn-primary btn-sm" onClick={() => dispatch({ type: 'tutorial/start' })}>
+              Faire l’essai
+            </button>
+            <button className="btn btn-secondary btn-sm" onClick={() => dispatch({ type: 'tutorial/dismiss' })}>
+              Plus tard
+            </button>
+          </div>
+        </section>
+      )}
+
+      <nav className="grid" aria-label="Applications">
+        {(['photos', 'files', 'notes', 'settings'] as AppId[]).map((id) => icon(id))}
+      </nav>
+      <nav className="dock glass" aria-label="Dock">
+        {icon('mail', true)}
+        {icon('messages', true)}
+      </nav>
+    </div>
+  );
+}
