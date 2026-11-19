@@ -57,7 +57,11 @@ export function validateCase(c: CaseDefinition): string[] {
       if (a.type === 'examine' && a.mediaId && !media.has(a.mediaId)) err(`média inconnu pour ${o.id}`);
     }
   }
-  for (const s of c.steps) if (s.hints.length !== 3) err(`l'étape ${s.id} doit avoir trois niveaux d'aide`);
+  for (const s of c.steps) {
+    if (!c.obstacles?.length && s.hints?.length !== 3) err(`l'étape ${s.id} doit avoir trois niveaux d'aide`);
+  }
+  uniq('obstacle', (c.obstacles ?? []).map((o) => o.id));
+  for (const o of c.obstacles ?? []) if (o.hints.length !== 3) err(`l'obstacle ${o.id} doit avoir trois niveaux d'aide`);
 
   const checkCond = (cond: Condition): void => {
     if ('all' in cond) return cond.all.forEach(checkCond);
@@ -72,6 +76,8 @@ export function validateCase(c: CaseDefinition): string[] {
     if ('stepIs' in cond && !steps.has(cond.stepIs)) err(`condition : étape inconnue ${cond.stepIs}`);
     if ('ruleFired' in cond && !rules.has(cond.ruleFired)) err(`condition : règle inconnue ${cond.ruleFired}`);
     if ('manualTime' in cond && !/^\d{2}:\d{2}$/.test(cond.manualTime)) err(`heure invalide ${cond.manualTime}`);
+    if ('mediaVariant' in cond && !c.media.find((m) => m.id === cond.mediaVariant)?.variants[cond.is])
+      err(`condition : variante inconnue ${cond.mediaVariant}/${cond.is}`);
     if ('manualDate' in cond && !/^\d{4}-\d{2}-\d{2}$/.test(cond.manualDate)) err(`date invalide ${cond.manualDate}`);
   };
   const checkEffect = (e: Effect) => {
@@ -85,7 +91,24 @@ export function validateCase(c: CaseDefinition): string[] {
       if (!m?.variants[e.variantId]) err(`effet : variante inconnue ${e.mediaId}/${e.variantId}`);
     }
     if (e.type === 'phoneOverride' && e.until) checkCond(e.until);
+    if ((e.type === 'deliverMessage' || e.type === 'deliverMail') && e.holdUntil) checkCond(e.holdUntil);
   };
+  for (const o of c.obstacles ?? []) checkCond(o.solved);
+  for (const t of c.threads) {
+    if (t.presence) {
+      checkCond(t.presence.online);
+      if (t.presence.endedWhen) checkCond(t.presence.endedWhen);
+    }
+    if (t.archivedWhen) checkCond(t.archivedWhen);
+  }
+  // Les passages relevables d'un document doivent correspondre à des observations.
+  for (const m of c.media) {
+    for (const v of Object.values(m.variants)) {
+      for (const match of (v.html ?? '').matchAll(/data-obs="([^"]+)"/g)) {
+        if (!obs.has(match[1])) err(`document ${m.id} : observation inconnue ${match[1]}`);
+      }
+    }
+  }
   for (const r of c.rules) {
     checkCond(r.when);
     r.effects.forEach(checkEffect);

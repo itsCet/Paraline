@@ -9,6 +9,7 @@ export interface InboxItem {
   /** E-mail initial d'une affaire (sinon suivi ou exercice). */
   initial: boolean;
   tutorial: boolean;
+  draft: boolean;
   fromName: string;
   initials: string;
   color?: string;
@@ -31,9 +32,10 @@ function mailItem(def: CaseDefinition, m: MailDef, initial: boolean, state: Game
     caseId: def.id,
     initial,
     tutorial: false,
-    fromName: who.name,
-    initials: who.initials,
-    color: who.color,
+    draft: Boolean(m.draft),
+    fromName: m.draft ? 'Brouillon' : who.name,
+    initials: m.draft ? '✎' : who.initials,
+    color: m.draft ? '#3a3b42' : who.color,
     subject: m.subject,
     preview: m.preview ?? m.body[0] ?? '',
     timeLabel: m.timeLabel,
@@ -61,6 +63,7 @@ export function inbox(state: GameState, cases: CaseIndex): InboxItem[] {
       caseId: null,
       initial: false,
       tutorial: true,
+      draft: false,
       fromName: TUTORIAL_MAIL.from,
       initials: TUTORIAL_MAIL.initials,
       subject: TUTORIAL_MAIL.subject,

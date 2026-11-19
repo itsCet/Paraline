@@ -82,8 +82,8 @@ await check('Navigation intro : continuer, retour, 3/3', async () => {
   await page.getByRole('button', { name: 'Prendre mon téléphone' }).click();
 });
 
-await check('Accueil : widget vide et proposition d’exercice', async () => {
-  await page.getByText('Aucune nouvelle demande').waitFor();
+await check('Accueil : widget Mail (nouvelle demande) et proposition d’exercice', async () => {
+  await page.locator('.widget', { hasText: 'La caméra était débranchée' }).waitFor();
   await page.getByText('Une minute pour prendre vos marques').waitFor();
   await shot(page, '04-home');
 });
@@ -94,9 +94,9 @@ await check('Introduction mémorisée après rechargement', async () => {
   assert(!(await page.getByText('Certaines histoires').isVisible()), 'intro réaffichée');
 });
 
-await check('États vides des applications', async () => {
+await check('États avant acceptation (Messages et Dossiers vides)', async () => {
   await openApp('Mail');
-  await page.getByText('Aucune nouvelle demande pour le moment.').waitFor();
+  await page.locator('.mail-row', { hasText: 'Élise Morel' }).waitFor();
   await home();
   await openApp('Messages');
   await page.getByText('Vos échanges apparaîtront ici lorsque vous accepterez une enquête.').waitFor();
@@ -186,7 +186,7 @@ await check('Exercice : dossier puis fin', async () => {
   assert(await homeVisible(), 'pas de retour accueil');
   assert((await coach().count()) === 0, 'guide encore visible');
   await openApp('Mail');
-  await page.getByText('Aucune nouvelle demande pour le moment.').waitFor();
+  assert((await page.locator('.mail-row', { hasText: 'Votre première observation' }).count()) === 0, 'mail d’exercice encore présent');
   await home();
 });
 

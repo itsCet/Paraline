@@ -204,7 +204,26 @@ export function VideoPlayer({
 }
 
 /** Document HTML local (contenu de l'enquête, considéré comme fiable). */
-export function DocView({ variant, name }: { variant: MediaVariant; name: string }) {
+export function DocView({
+  variant,
+  name,
+  found = [],
+  onPassage,
+}: {
+  variant: MediaVariant;
+  name: string;
+  /** Passages déjà relevés (attribut `data-obs`). */
+  found?: string[];
+  onPassage?: (id: string) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const hasPassages = /data-obs=/.test(variant.html ?? '');
+  // Marque les passages déjà relevés, sans jamais signaler ceux qui ne le sont pas.
+  useEffect(() => {
+    ref.current?.querySelectorAll<HTMLElement>('[data-obs]').forEach((el) => {
+      el.classList.toggle('passage-found', found.includes(el.dataset.obs ?? ''));
+    });
+  });
   const [html, setHtml] = useState<string | null>(variant.html ?? null);
   const [error, setError] = useState(false);
   useEffect(() => {
@@ -223,8 +242,17 @@ export function DocView({ variant, name }: { variant: MediaVariant; name: string
   }, [variant]);
   return (
     <div className="viewer-stage">
-      <article className="doc-page" aria-label={name} tabIndex={0}>
-        {error ? <p>Document indisponible.</p> : html ? <div dangerouslySetInnerHTML={{ __html: html }} /> : <p>Chargement…</p>}
+      <article
+        className="doc-page"
+        aria-label={name}
+        tabIndex={0}
+        onClick={(e) => {
+          const el = (e.target as HTMLElement).closest<HTMLElement>('[data-obs]');
+          if (el?.dataset.obs && onPassage) onPassage(el.dataset.obs);
+        }}
+      >
+        {error ? <p>Document indisponible.</p> : html ? <div ref={ref} dangerouslySetInnerHTML={{ __html: html }} /> : <p>Chargement…</p>}
+        {hasPassages && onPassage && <p className="doc-hint">Touchez un passage pour le relever dans le dossier.</p>}
       </article>
     </div>
   );

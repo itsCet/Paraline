@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../game/store';
 import { useIntent, useNav } from '../phone/nav';
-import { availableReplies } from '../game/engine';
+import { availableReplies, evaluate, queueReady } from '../game/engine';
 import { resolveEntry } from '../game/reducer';
 import { character, resolveMedia } from '../game/selectors';
 import { Avatar, Empty, KindIcon, NavBar } from '../components/ui';
@@ -26,7 +26,12 @@ export function MessagesApp() {
       .filter((t) => (p.threads[t.id]?.length ?? 0) > 0 || availableReplies(def, state, t.id).length > 0)
       .map((t) => ({ def, t, entries: p.threads[t.id] ?? [], unread: (p.threads[t.id]?.length ?? 0) - (p.threadRead[t.id] ?? 0) }));
   });
-  threads.sort((a, b) => (b.entries[b.entries.length - 1]?.at ?? 0) - (a.entries[a.entries.length - 1]?.at ?? 0));
+  const archived = (d: CaseDefinition, t: CaseDefinition['threads'][number]) => !!t.archivedWhen && evaluate(t.archivedWhen, state, d.id);
+  threads.sort(
+    (a, b) =>
+      Number(archived(a.def, a.t)) - Number(archived(b.def, b.t)) ||
+      (b.entries[b.entries.length - 1]?.at ?? 0) - (a.entries[a.entries.length - 1]?.at ?? 0),
+  );
 
   const def = open && cases.byId.get(open.caseId);
   useEffect(() => nav.setScreen('messages', open ? 'thread' : 'list'), [open, nav]);
@@ -57,7 +62,10 @@ export function MessagesApp() {
                       <div className="mail-preview">
                         {msg ? (msg.from === 'player' ? `Vous : ${msg.text ?? ''}` : (msg.text ?? 'Pièce jointe')) : 'Nouvelle conversation'}
                       </div>
-                      <span className="mail-meta">{d.title}</span>
+                      <span className="mail-meta">
+                        {d.title}
+                        {archived(d, t) && <span className="tag neutral">Archivée</span>}
+                      </span>
                     </span>
                   </button>
                 </li>
@@ -80,9 +88,14 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
   const replies = availableReplies(def, state, threadId);
   const airplane = state.settings.airplane;
   const prepared = p?.preparedReply ? replies.find((r) => r.id === p.preparedReply) : undefined;
-  const typing =
-    !airplane &&
-    state.queue.some((q) => q.caseId === def.id && q.kind === 'message' && def.messages.find((m) => m.id === q.id)?.threadId === threadId);
+  const typing = state.queue.some(
+    (q) => q.caseId === def.id && q.kind === 'message' && queueReady(state, q) && def.messages.find((m) => m.id === q.id)?.threadId === threadId,
+  );
+  // Joignabilité particulière (contact qui n'émet que sous certaines conditions).
+  const presence = thread?.presence;
+  const isEnded = !!presence?.endedWhen && evaluate(presence.endedWhen, state, def.id);
+  const isOnline = !presence || (!isEnded && evaluate(presence.online, state, def.id));
+  const presenceLabel = presence ? (isEnded ? presence.endedLabel : isOnline ? undefined : presence.offlineLabel) : undefined;
   const visible = nav.app === 'messages' && !nav.viewer;
   const endRef = useRef<HTMLDivElement>(null);
   const sending = useRef<string | null>(null);
@@ -120,7 +133,7 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
             <Avatar initials={who.initials} color={who.color} small />
             <span className="who" style={{ textAlign: 'left' }}>
               <div className="name">{who.name}</div>
-              <div className="sub">{who.role ?? status}</div>
+              <div className="sub">{presenceLabel ?? who.role ?? status}</div>
             </span>
           </span>
         }
@@ -132,6 +145,7 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
       />
       <div className="scroll" aria-live="polite">
         <div className="bubbles">
+          {thread?.stamp && <div className="stamp">{thread.stamp}</div>}
           {entries.map((e) => {
             const m = resolveEntry(def, e.messageId);
             if (!m) return null;
@@ -173,7 +187,14 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
           <div ref={endRef} />
         </div>
       </div>
-      {p?.status === 'active' && (replies.length > 0 || airplane) && (
+      {presence && presenceLabel && entries.length > 0 && (
+        <div className="replies" aria-live="polite">
+          <div className="callout neutral" role="status" style={{ marginBottom: 0 }}>
+            <span>{presenceLabel}</span>
+          </div>
+        </div>
+      )}
+      {(p?.status === 'active' || p?.status === 'solved') && isOnline && (replies.length > 0 || (airplane && !presence && p?.status === 'active')) && (
         <div className="replies" aria-label="Votre réponse">
           {airplane && (
             <div className="callout neutral" role="status">

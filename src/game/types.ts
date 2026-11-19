@@ -60,6 +60,25 @@ export interface MediaVariant {
   /** Contenu HTML d'un document (contenu local de confiance). */
   html?: string;
   hotspots?: Hotspot[];
+  /** Description accessible de cette variante (remplace le nom du fichier). */
+  alt?: string;
+  /** Zoom maximal autorisé (5 par défaut). */
+  maxZoom?: number;
+  /** Écriture vectorielle posée sur l'image, transformée avec elle (reste nette au zoom). */
+  overlay?: ImageOverlay;
+}
+
+export interface ImageOverlay {
+  /** Zone relative (0 → 1) couverte par le texte. */
+  box: { x: number; y: number; w: number; h: number };
+  /** Lignes affichées, dans un repère de 100 unités de large. */
+  /** `width` : largeur imposée (unités du repère) pour tenir dans la feuille. */
+  lines: { text: string; y: number; size: number; width?: number }[];
+  /** Hauteur du repère (largeur = 100). */
+  viewHeight: number;
+  /** `unstable` : l'écriture se recompose sans jamais devenir lisible. */
+  mode: 'stable' | 'unstable';
+  rotate?: number;
 }
 
 export type MediaKind = 'image' | 'audio' | 'video' | 'document';
@@ -92,6 +111,10 @@ export interface MailDef {
   /** Paragraphes du corps. */
   body: string[];
   attachments?: Id[];
+  /** Brouillon sans destinataire (épilogue). */
+  draft?: boolean;
+  /** Texte de notification à la livraison (sinon l'objet). */
+  notify?: string;
 }
 
 export interface MessageDef {
@@ -101,6 +124,8 @@ export interface MessageDef {
   from: 'player' | Id;
   text?: string;
   attachments?: Id[];
+  /** Texte de la notification ; `false` : aucune notification. */
+  notify?: string | false;
 }
 
 export interface ReplyDef {
@@ -113,6 +138,8 @@ export interface ReplyDef {
   /** Condition pour proposer cette réponse. Toujours proposée si absente. */
   available?: Condition;
   effects?: Effect[];
+  /** Proposée uniquement une fois l'affaire résolue (épilogue). */
+  whenSolved?: boolean;
 }
 
 export type ObservationAction =
@@ -124,6 +151,8 @@ export interface ObservationDef {
   id: Id;
   title: string;
   description?: string;
+  /** Relevée directement dans le dossier dès sa découverte. */
+  autoFile?: boolean;
   /** Média d'origine (pour la miniature et « revoir »). */
   mediaId?: Id;
   actions: ObservationAction[];
@@ -133,13 +162,31 @@ export interface StepDef {
   id: Id;
   /** Objectif formulé sans dévoiler l'énigme. */
   objective: string;
-  /** Exactement trois niveaux : rappel, piste, solution. */
+  /** Trois niveaux : rappel, piste, solution (facultatif si l'enquête définit `obstacles`). */
+  hints?: [string, string, string];
+}
+
+/** Obstacle de l'aide : le premier non résolu détermine les indices proposés. */
+export interface ObstacleDef {
+  id: Id;
+  solved: Condition;
   hints: [string, string, string];
 }
 
 export interface ThreadDef {
   id: Id;
   contact: Id;
+  /** Horodatage affiché en tête de conversation. */
+  stamp?: string;
+  /** Joignabilité particulière du contact. */
+  presence?: {
+    online: Condition;
+    offlineLabel: string;
+    /** Conversation close : état affiché à la place. */
+    endedWhen?: Condition;
+    endedLabel?: string;
+  };
+  archivedWhen?: Condition;
 }
 
 export interface RuleDef {
@@ -167,6 +214,7 @@ export interface CaseDefinition {
   rules: RuleDef[];
   /** Messages présents dans les fils dès l'acceptation. */
   openingMessages?: Id[];
+  obstacles?: ObstacleDef[];
   conclusion: { title: string; text: string[] };
 }
 
@@ -192,6 +240,10 @@ export type Condition =
   /** Date manuelle exacte, format `YYYY-MM-DD` (mode automatique = faux). */
   | { manualDate: string }
   | { airplane: boolean }
+  /** Réglage automatique de la date et de l'heure. */
+  | { clockAuto: boolean }
+  /** Variante actuelle d'un média. */
+  | { mediaVariant: Id; is: Id }
   | { ruleFired: Id };
 
 export type FlagValue = boolean | number | string;
@@ -204,9 +256,10 @@ export type PhoneOverrideKey = 'wallpaper' | 'homeMessage';
 
 export type Effect =
   /** Message dans un fil. Suspendu en mode avion sauf `ignoreAirplane`. */
-  | { type: 'deliverMessage'; messageId: Id; delayMs?: number; ignoreAirplane?: boolean }
+  /** `holdUntil` : la livraison attend aussi que cette condition soit vraie. */
+  | { type: 'deliverMessage'; messageId: Id; delayMs?: number; ignoreAirplane?: boolean; holdUntil?: Condition }
   /** E-mail de suivi rattaché à l'affaire (ne crée jamais d'affaire). */
-  | { type: 'deliverMail'; mailId: Id; delayMs?: number; ignoreAirplane?: boolean }
+  | { type: 'deliverMail'; mailId: Id; delayMs?: number; ignoreAirplane?: boolean; holdUntil?: Condition }
   | { type: 'setMediaVariant'; mediaId: Id; variantId: Id }
   | { type: 'unlockReply'; replyId: Id }
   /** Rend un média disponible dans Photos et dans le dossier. */
@@ -240,6 +293,7 @@ export interface QueuedDelivery {
   caseId: Id;
   notBefore: number;
   ignoreAirplane?: boolean;
+  holdUntil?: Condition;
 }
 
 export interface CaseProgress {

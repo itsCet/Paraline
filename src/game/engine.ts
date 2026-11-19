@@ -53,6 +53,7 @@ export interface CaseIndex {
 }
 
 export function indexCases(list: CaseDefinition[]): CaseIndex {
+  for (const c of list) defaultVariants.set(c.id, new Map(c.media.map((m) => [m.id, m.defaultVariant])));
   return { list, byId: new Map(list.map((c) => [c.id, c])) };
 }
 
@@ -65,6 +66,9 @@ export const findMail = (c: CaseDefinition, id: Id): MailDef | undefined =>
 /* ------------------------------------------------------------------ */
 /* Conditions                                                           */
 /* ------------------------------------------------------------------ */
+
+/** Variantes par défaut des médias, renseignées par `indexCases` (pour `mediaVariant`). */
+const defaultVariants = new Map<Id, Map<Id, Id>>();
 
 export function evaluate(cond: Condition, state: GameState, caseId: Id): boolean {
   const p = state.cases[caseId];
@@ -89,6 +93,11 @@ export function evaluate(cond: Condition, state: GameState, caseId: Id): boolean
   if ('manualTime' in cond) return !s.clockAuto && s.manualTime === cond.manualTime;
   if ('manualDate' in cond) return !s.clockAuto && s.manualDate === cond.manualDate;
   if ('airplane' in cond) return s.airplane === cond.airplane;
+  if ('clockAuto' in cond) return s.clockAuto === cond.clockAuto;
+  if ('mediaVariant' in cond) {
+    if (p.mediaVariants[cond.mediaVariant] !== undefined) return p.mediaVariants[cond.mediaVariant] === cond.is;
+    return defaultVariants.get(caseId)?.get(cond.mediaVariant) === cond.is;
+  }
   if ('ruleFired' in cond) return p.firedRules.includes(cond.ruleFired);
   return false;
 }
@@ -129,6 +138,7 @@ function enqueue(
   delay: number,
   now: number,
   ignoreAirplane?: boolean,
+  holdUntil?: Condition,
 ): GameState {
   if (isDelivered(state, def.id, kind, id) || isQueued(state, def.id, kind, id)) return state;
   const thread = kind === 'message' ? findMessage(def, id)?.threadId : undefined;
@@ -141,6 +151,7 @@ function enqueue(
   }
   const item: QueuedDelivery = { kind, id, caseId: def.id, notBefore: base + delay };
   if (ignoreAirplane) item.ignoreAirplane = true;
+  if (holdUntil) item.holdUntil = holdUntil;
   return { ...state, queue: [...state.queue, item] };
 }
 
@@ -157,12 +168,12 @@ export function deliverMessageNow(state: GameState, def: CaseDefinition, message
         : p.threadRead,
     grantedMedia: (msg.attachments ?? []).reduce(add, p.grantedMedia),
   }));
-  if (msg.from !== 'player') {
+  if (msg.from !== 'player' && msg.notify !== false) {
     const who = def.characters.find((c) => c.id === msg.from);
     next = pushNotification(next, {
       app: 'messages',
       title: who?.name ?? 'Nouveau message',
-      body: msg.text ?? (msg.attachments?.length ? 'Pièce jointe' : ''),
+      body: msg.notify ?? msg.text ?? (msg.attachments?.length ? 'Pièce jointe' : ''),
       target: { caseId: def.id, threadId: msg.threadId },
     });
   }
@@ -176,8 +187,8 @@ export function deliverMailNow(state: GameState, def: CaseDefinition, mailId: Id
   const who = def.characters.find((c) => c.id === mail.from);
   return pushNotification(next, {
     app: 'mail',
-    title: who?.name ?? 'Nouveau message',
-    body: mail.subject,
+    title: mail.draft ? 'Mail' : (who?.name ?? 'Nouveau message'),
+    body: mail.notify ?? mail.subject,
     target: { caseId: def.id, mailId },
   });
 }
@@ -192,9 +203,9 @@ export function applyEffect(state: GameState, def: CaseDefinition, effect: Effec
   const cid = def.id;
   switch (effect.type) {
     case 'deliverMessage':
-      return enqueue(state, def, 'message', effect.messageId, effect.delayMs ?? DEFAULT_MESSAGE_DELAY, now, effect.ignoreAirplane);
+      return enqueue(state, def, 'message', effect.messageId, effect.delayMs ?? DEFAULT_MESSAGE_DELAY, now, effect.ignoreAirplane, effect.holdUntil);
     case 'deliverMail':
-      return enqueue(state, def, 'mail', effect.mailId, effect.delayMs ?? DEFAULT_MESSAGE_DELAY, now, effect.ignoreAirplane);
+      return enqueue(state, def, 'mail', effect.mailId, effect.delayMs ?? DEFAULT_MESSAGE_DELAY, now, effect.ignoreAirplane, effect.holdUntil);
     case 'setMediaVariant':
       return updateCase(state, cid, (p) => ({ ...p, mediaVariants: { ...p.mediaVariants, [effect.mediaId]: effect.variantId } }));
     case 'unlockReply':
@@ -302,9 +313,7 @@ export function processQueue(state: GameState, cases: CaseIndex, now: number): G
   for (const q of state.queue) {
     const def = cases.byId.get(q.caseId);
     if (!def) continue; // enquête retirée du contenu : on abandonne l'élément
-    const online = !next.settings.airplane || q.ignoreAirplane;
-    // Un seul message par fil et par passage pour garder l'ordre.
-    if (!online || q.notBefore > now) {
+    if (!queueReady(next, q) || q.notBefore > now) {
       remaining.push(q);
       continue;
     }
@@ -313,6 +322,12 @@ export function processQueue(state: GameState, cases: CaseIndex, now: number): G
   }
   next = { ...next, queue: remaining };
   return delivered ? settle(next, cases, now) : next;
+}
+
+/** Un élément de la file peut-il partir (réseau, condition d'attente) ? */
+export function queueReady(state: GameState, q: QueuedDelivery): boolean {
+  const online = !state.settings.airplane || q.ignoreAirplane;
+  return Boolean(online) && (!q.holdUntil || evaluate(q.holdUntil, state, q.caseId));
 }
 
 /** À la reconnexion, échelonne la file pour éviter une avalanche. */
@@ -342,13 +357,24 @@ export function currentVariant(def: CaseDefinition, p: CaseProgress | undefined,
 /** Réponses proposées dans un fil, selon l'état de l'enquête. */
 export function availableReplies(def: CaseDefinition, state: GameState, threadId: Id) {
   const p = state.cases[def.id];
-  if (!p || p.status !== 'active') return [];
+  if (!p || (p.status !== 'active' && p.status !== 'solved')) return [];
+  const solved = p.status === 'solved';
   return def.replies.filter(
     (r) =>
       r.threadId === threadId &&
+      Boolean(r.whenSolved) === solved &&
       !p.sentReplies.includes(r.id) &&
-      (p.unlockedReplies.includes(r.id) || (r.available ? evaluate(r.available, state, def.id) : !isLocked(def, r.id))),
+      // La condition `available` s'applique toujours ; une réponse visée par un déblocage doit en plus être débloquée.
+      (r.available ? evaluate(r.available, state, def.id) : true) &&
+      (p.unlockedReplies.includes(r.id) || !isLocked(def, r.id)),
   );
+}
+
+/** Premier obstacle non résolu (indices sur demande). */
+export function currentObstacle(def: CaseDefinition, state: GameState) {
+  const p = state.cases[def.id];
+  if (!p || p.status !== 'active') return undefined;
+  return def.obstacles?.find((o) => !evaluate(o.solved, state, def.id));
 }
 
 /** Une réponse sans condition mais visée par `unlockReply` reste verrouillée jusqu'au déblocage. */

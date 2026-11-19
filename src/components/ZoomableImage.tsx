@@ -6,7 +6,8 @@
  * restent alignées quels que soient le zoom, le déplacement et la taille.
  */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import type { Hotspot } from '../game/types';
+import type { Hotspot, ImageOverlay } from '../game/types';
+import { SheetWriting } from './SheetWriting';
 import { Icon } from './icons';
 
 interface Props {
@@ -21,15 +22,22 @@ interface Props {
   /** Zoom programmé (« examiner de plus près »). */
   focus?: { x: number; y: number; scale: number };
   controls?: boolean;
+  /** Zoom maximal (5 par défaut). */
+  maxZoom?: number;
+  /** Écriture vectorielle posée sur l'image. */
+  overlay?: ImageOverlay;
+  /** Remplace l'animation de l'écriture instable par une texture fixe. */
+  calm?: boolean;
 }
 
 const MIN = 1;
-const MAX = 5;
+const DEFAULT_MAX = 5;
 const TAP_SLOP = 8;
 /** Tolérance tactile minimale autour d'une zone, en pixels écran. */
 const TOUCH_TOLERANCE = 22;
 
-export function ZoomableImage({ src, alt, width, height, hotspots = [], found = [], onHotspot, focus, controls = true }: Props) {
+export function ZoomableImage({ src, alt, width, height, hotspots = [], found = [], onHotspot, focus, controls = true, maxZoom, overlay, calm }: Props) {
+  const MAX = maxZoom ?? DEFAULT_MAX;
   const areaRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState({ w: 0, h: 0 });
@@ -59,7 +67,7 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
       const my = Math.max(0, (h0 * zz - box.h) / 2);
       return { z: zz, x: Math.min(mx, Math.max(-mx, x)), y: Math.min(my, Math.max(-my, y)) };
     },
-    [w0, h0, box.w, box.h],
+    [w0, h0, box.w, box.h, MAX],
   );
 
   /** Zoom autour d'un point (coordonnées relatives au centre de la zone d'affichage). */
@@ -70,7 +78,7 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
       const k = z / v.z;
       setView(clamp(z, px - (px - v.x) * k, py - (py - v.y) * k));
     },
-    [clamp],
+    [clamp, MAX],
   );
 
   // Recalage après redimensionnement.
@@ -85,7 +93,7 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
     if (!focus || !w0) return;
     const z = Math.min(MAX, Math.max(MIN, focus.scale));
     setView(clamp(z, -(focus.x - 0.5) * w0 * z, -(focus.y - 0.5) * h0 * z));
-  }, [focus, w0, h0, clamp]);
+  }, [focus, w0, h0, clamp, MAX]);
 
   /* ---------- Gestes ---------- */
 
@@ -253,6 +261,7 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
             }}
           >
             <img src={src} alt="" draggable={false} />
+            {overlay && <SheetWriting overlay={overlay} calm={calm} />}
             {foundSpots.map((h) => {
               const pad = 0.12;
               return (

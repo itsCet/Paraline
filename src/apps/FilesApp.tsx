@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../game/store';
 import { useIntent, useNav } from '../phone/nav';
+import { currentObstacle } from '../game/engine';
 import { caseStatusLabel, character, resolveMedia, thumbOf } from '../game/selectors';
 import { TUTORIAL_END, TUTORIAL_FOLDER_TITLE, TUTORIAL_MEDIA, TUTORIAL_OBSERVATION } from '../content/tutorial';
 import { Empty, KindIcon, NavBar, formatDate } from '../components/ui';
@@ -119,7 +120,10 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
   const nav = useNav();
   const p = state.cases[def.id];
   const step = def.steps.find((s) => s.id === p.stepId);
-  const revealed = step ? (p.hintsRevealed[step.id] ?? 0) : 0;
+  // L'aide suit le premier obstacle non résolu (ou, à défaut, l'étape en cours).
+  const obstacle = currentObstacle(def, state);
+  const help = obstacle ?? (step?.hints ? { id: step.id, hints: step.hints } : undefined);
+  const revealed = help ? (p.hintsRevealed[help.id] ?? 0) : 0;
   const observations = def.observations.filter((o) => p.filedObservations.includes(o.id));
   const media = p.grantedMedia.map((id) => resolveMedia(def, state, id)).filter((r): r is NonNullable<typeof r> => !!r);
   const copies = state.copies.filter((c) => c.caseId === def.id);
@@ -212,11 +216,11 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
           </>
         )}
 
-        {p.status === 'active' && step && (
+        {p.status === 'active' && help && (
           <>
             <h2 className="section-title">Aide</h2>
             <div className="group">
-              {step.hints.slice(0, revealed).map((h, i) => (
+              {help.hints.slice(0, revealed).map((h, i) => (
                 <div key={i} className="hint">
                   <div className="hint-level">
                     {i + 1}. {HINT_LABELS[i]}
@@ -225,12 +229,12 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
                 </div>
               ))}
               {revealed < 3 && (
-                <button className="row" onClick={() => dispatch({ type: 'hint/reveal', caseId: def.id, stepId: step.id })}>
-                  <Icon.Bulb size={20} />
+                <button className="row" onClick={() => dispatch({ type: 'hint/reveal', caseId: def.id, stepId: help.id })}>
+                  <span className="row-ico">
+                    <Icon.Bulb size={22} />
+                  </span>
                   <span className="row-main">
-                    <div className="row-title" style={{ color: 'var(--amber)' }}>
-                      {revealed === 0 ? 'Afficher un rappel' : revealed === 1 ? 'Afficher une piste' : 'Afficher la solution'}
-                    </div>
+                    <div className="row-title">{revealed === 0 ? 'Demander un indice' : revealed === 1 ? 'Indice suivant' : 'Afficher la solution'}</div>
                     <div className="row-sub">Niveau {revealed + 1} sur 3</div>
                   </span>
                 </button>

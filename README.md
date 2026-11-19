@@ -2,7 +2,7 @@
 
 *Enquêtes paranormales.* Jeu web mobile : le joueur, enquêteur paranormal indépendant, mène ses affaires depuis son téléphone professionnel fictif (Mail, Messages, Photos, Dossiers, Notes, Réglages).
 
-Cette version pose la base complète : téléphone, applications, introduction, exercice de prise en main, moteur d'enquête et sauvegarde. **Aucune enquête n'est encore intégrée.** Les applications affichent donc leurs états vides.
+Contenu : téléphone, applications, introduction, exercice de prise en main, moteur d'enquête, sauvegarde, et une première enquête complète, **« La chambre condamnée »** (`src/content/cases/chambre-condamnee/`).
 
 React 19, TypeScript et Vite. Pas de backend, pas de compte, pas d'IA, pas de clé secrète.
 
@@ -24,6 +24,7 @@ npm run e2e                                   # parcours joueur réel
 
 npm run build:fixture && npx vite preview --outDir dist-fixture --port 4174 &
 npm run e2e:fixture                           # écrans d'enquête avec l'enquête de TEST
+npm run e2e:chambre                           # parcours complet de « La chambre condamnée » (sur le port 4173), sans indice
 ```
 
 `build:fixture` remplace le registre des enquêtes par une enquête de test, grâce à un alias Vite. Le build normal n'en contient aucune trace.
@@ -78,7 +79,18 @@ Une enquête définit :
 | `rules` | `when` (condition) → `effects` ; à usage unique par défaut |
 | `conclusion` | texte affiché dans le dossier une fois l'affaire résolue |
 
-Conditions disponibles : `all`, `any`, `not`, `caseAccepted`, `mailRead`, `mediaViewed`, `observationFound`, `observationFiled`, `replySent`, `messageDelivered`, `stepIs`, `flag`, `manualTime`, `manualDate`, `airplane`, `ruleFired`.
+Conditions disponibles : `all`, `any`, `not`, `caseAccepted`, `mailRead`, `mediaViewed`, `observationFound`, `observationFiled`, `replySent`, `messageDelivered`, `stepIs`, `flag`, `manualTime`, `manualDate`, `airplane`, `clockAuto`, `mediaVariant`, `ruleFired`.
+
+Autres possibilités utilisées par la première enquête :
+- `obstacles` : aide en trois niveaux, sur demande, qui suit le premier obstacle non résolu ;
+- `overlay` sur une variante d'image : écriture vectorielle posée sur la photo, stable ou instable, nette au zoom ;
+- `maxZoom`, et `alt` pour une description accessible propre à chaque variante ;
+- `presence` sur un fil : contact joignable seulement sous condition (« Contact indisponible ») ;
+- `holdUntil` sur une livraison : un message attend que la condition soit vraie ;
+- `whenSolved` sur une réponse : épilogue après résolution ;
+- `draft` sur un e-mail : brouillon sans destinataire ;
+- `data-obs` dans un document HTML : passage que le joueur peut relever ;
+- `autoFile` sur une observation : rangée directement dans le dossier.
 
 Effets disponibles : `deliverMessage`, `deliverMail` (suspendus en mode avion, sauf `ignoreAirplane`), `setMediaVariant`, `unlockReply`, `grantMedia`, `setStep`, `setFlag`, `phoneOverride` (temporaire, avec condition de fin `until`), `clearPhoneOverride`, `notify`, `log`, `solveCase`.
 
@@ -109,53 +121,48 @@ Tout est stocké dans `localStorage` (clé `paraline.save`, format versionné `S
 
 ## Vérifications réalisées
 
-Dernière exécution le 18/11/2026.
+Dernière exécution le 19/11/2026.
 
-- `npm run build` : OK (types + build de production).
-- `npm test` : **18/18**. Ils couvrent :
-  - un événement unique, même après un changement de réglage ou un rechargement ;
-  - des conditions remplies dans deux ordres différents ;
-  - une règle répétable ;
-  - le mode avion et la reconnexion sans doublon ;
-  - le double envoi d'une réponse ;
-  - l'aller-retour de sauvegarde ;
-  - les copies figées ;
-  - les données invalides ;
-  - la migration v0 et l'ajout d'une enquête ;
-  - la résolution d'une affaire ;
-  - la validation du contenu et du manifeste.
-- `npm run e2e` (Chromium, iPhone 13 émulé) : **23/23**. Le parcours couvre :
-  - l'introduction : ses trois écrans, le retour en arrière, le passage, la mémorisation ;
-  - les états vides des applications ;
-  - l'exercice complet, y compris son rechargement, son abandon et sa reprise ;
-  - le zoom, le retour à l'image entière et le toucher hors zone ;
-  - l'observation, sans doublon ;
-  - le retour à l'accueil depuis chacune des six applications ;
-  - les notes : création, sauvegarde, suppression puis annulation ;
-  - la date et l'heure manuelles, leur conservation et le retour en automatique ;
-  - le mode avion ;
-  - l'accessibilité ;
-  - un petit écran de 320×568 ;
-  - une hauteur réduite par le clavier ;
-  - la réinitialisation ;
-  - une sauvegarde corrompue ;
-  - l'affichage sur ordinateur (1440×900) ;
-  - l'absence d'erreur JavaScript.
-- `npm run e2e:fixture` (enquête de test) : **10/10**. Le parcours couvre :
-  - la pièce jointe avant acceptation, avec proposition d'accepter ;
-  - garder pour plus tard, les filtres et la recherche ;
-  - l'acceptation unique ;
-  - l'aide en trois niveaux ;
-  - le double appui sur une réponse ;
-  - l'indicateur de saisie ;
-  - la question débloquée par une observation ;
-  - le mode avion : réponse préparée, reprise sans doublon, message reçu hors réseau ;
-  - la copie figée, la variante changée par la date et l'heure, la comparaison ;
-  - la persistance après rechargement.
+- `npm run build` : OK.
+- `npm test` : **33/33**. Dont 15 tests ciblés sur « La chambre condamnée » :
+  - report puis acceptation ;
+  - l'heure réglée avant la lecture du document ;
+  - le mode avion activé trop tôt ;
+  - le retour à la porte fermée sans perte de progression ;
+  - une copie lisible immuable après reconnexion ;
+  - les envois hors ligne préparés, sans doublon ;
+  - Gabriel qui arrive avant l'article, et l'aide qui s'adapte ;
+  - l'interruption puis le rétablissement du contact ;
+  - une mauvaise réponse suivie d'une correction ;
+  - une fin qui n'arrive qu'au retour en automatique ;
+  - aucune anomalie rejouée après résolution ;
+  - un rechargement à chaque étape ;
+  - la migration d'une sauvegarde antérieure ;
+  - des indices affichés uniquement sur demande.
+- `npm run e2e:chambre` (Chromium, iPhone 13 émulé) : **19/19**. Parcours complet dans l'interface, sans indice, avec le son coupé :
+  - les pièces jointes consultées avant acceptation, puis report et acceptation ;
+  - le document comparatif ;
+  - 03:17 : écriture illisible qui se recompose ;
+  - un petit écran 320×568 avec zoom ×10 sur la feuille ;
+  - un rechargement ;
+  - le mode avion : écriture lisible et description accessible mise à jour ;
+  - la copie conservée ;
+  - une question préparée hors ligne puis envoyée une seule fois ;
+  - l'article relevé ;
+  - la copie restée lisible ;
+  - Gabriel, puis l'interruption et le rétablissement du contact ;
+  - une mauvaise réponse suivie d'une correction ;
+  - la porte ouverte ;
+  - le retour en automatique, la résolution et le brouillon ;
+  - aucune anomalie rejouée après résolution ;
+  - aucune erreur JavaScript.
+- `npm run e2e` : **23/23** (base du téléphone et exercice).
+- `npm run e2e:fixture` : **10/10**.
 
 ## Limites connues
 
 - Fond d’écran et photo de l’exercice : photos fournies (`public/media/system/wallpaper.jpg`, `public/media/tutorial/bureau.jpg`).
+- L'écriture de la feuille utilise une police manuscrite du système (Bradley Hand, Segoe Print…). À défaut, Chromium sous Linux affiche une police à chasse fixe.
 - Les lecteurs audio et vidéo (lecture, progression, transcription, sous-titres, zones actives dans le temps) sont implémentés mais n'ont été vérifiés que par le typage. Aucun fichier audio ou vidéo n'existe encore pour les tester en conditions réelles.
 - Tests faits sous Chromium uniquement, avec émulation mobile. Safari iOS et le vrai clavier virtuel restent à vérifier sur appareil.
 - Le contenu HTML des documents d'enquête est inséré tel quel : il doit rester du contenu local de confiance.

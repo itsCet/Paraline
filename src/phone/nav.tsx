@@ -8,7 +8,7 @@ export type ViewerSource =
   | { kind: 'tutorial' }
   | { kind: 'compare'; caseId: Id; left: CompareSide; right: CompareSide; back: Exclude<ViewerSource, { kind: 'compare' }> };
 
-export type CompareSide = { label: string; src: string };
+export type CompareSide = { label: string; src: string; overlay?: import('../game/types').ImageOverlay };
 
 /** Demande d'ouverture d'un écran précis dans une application. */
 export interface Intent {

@@ -94,6 +94,8 @@ export function MailApp() {
 function StatusTag({ item }: { item: InboxItem }) {
   const { state } = useGame();
   if (item.tutorial) return <span className="tag neutral">Exemple</span>;
+  if (item.draft) return <span className="tag neutral">Brouillon</span>;
+  if (!item.initial) return null;
   const st = item.caseId ? state.cases[item.caseId]?.status : undefined;
   if (st === 'active') return <span className="tag">En cours</span>;
   if (st === 'solved') return <span className="tag ok"><Icon.Check size={12} /> Résolu</span>;
@@ -147,7 +149,7 @@ function MailDetail({ item, onBack }: { item: InboxItem; onBack: () => void }) {
           <Avatar initials={item.initials} color={item.color} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 600 }}>{item.fromName}</div>
-            <div className="row-sub">{item.tutorial ? 'Exemple · Prise en main' : `À moi · ${item.timeLabel}`}</div>
+            <div className="row-sub">{item.tutorial ? 'Exemple · Prise en main' : item.draft ? 'Sans destinataire' : `À moi · ${item.timeLabel}`}</div>
           </div>
           {!item.tutorial && <StatusTag item={item} />}
         </div>

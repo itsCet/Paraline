@@ -11,7 +11,8 @@
     "typecheck": "tsc -b --noEmit",
     "e2e": "node tests/e2e/smoke.mjs",
     "build:fixture": "VITE_FIXTURE=1 vite build --outDir dist-fixture",
-    "e2e:fixture": "node tests/e2e/fixture.mjs"
+    "e2e:fixture": "node tests/e2e/fixture.mjs",
+    "e2e:chambre": "node tests/e2e/chambre.mjs"
   },
   "dependencies": {
     "react": "^19.1.0",

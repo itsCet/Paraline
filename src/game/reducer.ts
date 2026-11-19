@@ -2,6 +2,7 @@
  * Actions du joueur → nouvel état. Pur et testable (horloge passée en paramètre).
  */
 import {
+  availableReplies,
   applyEffect,
   clearOverridesOf,
   deliverMessageNow,
@@ -141,7 +142,12 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
       if (!def || !p || p.foundObservations.includes(action.observationId)) return state;
       const obs = def.observations.find((o) => o.id === action.observationId);
       if (!obs) return state;
-      let next = patchCase(state, def.id, (q) => ({ ...q, foundObservations: [...q.foundObservations, obs.id] }));
+      let next = patchCase(state, def.id, (q) => ({
+        ...q,
+        foundObservations: [...q.foundObservations, obs.id],
+        filedObservations: obs.autoFile ? add(q.filedObservations, obs.id) : q.filedObservations,
+        log: obs.autoFile ? [...q.log, { at: now, text: `Observation : ${obs.title}` }] : q.log,
+      }));
       for (const a of obs.actions) {
         if (a.type === 'ask') next = applyEffect(next, def, { type: 'unlockReply', replyId: a.replyId }, now);
       }
@@ -168,7 +174,9 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
       const p = state.cases[action.caseId];
       const reply = def?.replies.find((r) => r.id === action.replyId);
       // Garde anti double-appui et mode avion.
-      if (!def || !p || !reply || p.status !== 'active' || p.sentReplies.includes(reply.id)) return state;
+      if (!def || !p || !reply || p.sentReplies.includes(reply.id)) return state;
+      // Une réponse n'est envoyable que si elle est réellement proposée (contact joignable, etc.).
+      if (!availableReplies(def, state, reply.threadId).some((r) => r.id === reply.id)) return state;
       if (state.settings.airplane) return patchCase(state, def.id, (q) => ({ ...q, preparedReply: reply.id }));
       const entryId = `reply:${reply.id}`;
       let next = patchCase(state, def.id, (q) => {
@@ -190,6 +198,8 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
         return p.threadRead[action.threadId] === n ? p : { ...p, threadRead: { ...p.threadRead, [action.threadId]: n } };
       });
     case 'hint/reveal':
+      // Une affaire résolue n'a plus d'aide.
+      if (state.cases[action.caseId]?.status !== 'active') return state;
       return patchCase(state, action.caseId, (p) => {
         const n = p.hintsRevealed[action.stepId] ?? 0;
         return n >= 3 ? p : { ...p, hintsRevealed: { ...p.hintsRevealed, [action.stepId]: n + 1 } };

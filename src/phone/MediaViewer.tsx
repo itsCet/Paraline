@@ -100,15 +100,17 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
   // Copie et comparaison.
   const canCopy = !!r.caseDef && r.media.allowSaveCopy && !r.isCopy && r.media.kind === 'image';
   const hasCopy = state.copies.some((c) => c.caseId === caseId && c.mediaId === r!.media.id && c.variantId === r!.variantId);
-  const otherCopy = state.copies.find((c) => c.caseId === caseId && c.mediaId === r!.media.id && c.src !== r!.src);
+  const otherCopy = state.copies.find((c) => c.caseId === caseId && c.mediaId === r!.media.id && c.variantId !== r!.variantId);
   const compareTarget = r.caseDef && r.media.compareWith ? resolveMedia(r.caseDef, state, r.media.compareWith) : undefined;
-  const currentSrc = r.caseDef ? resolveMedia(r.caseDef, state, r.media.id)?.variant.src : undefined;
+  const currentResolved = r.caseDef ? resolveMedia(r.caseDef, state, r.media.id) : undefined;
+  const currentSrc = currentResolved?.variant.src;
+  const currentOverlay = currentResolved?.variant.overlay;
   // Copie ↔ version actuelle, ou média ↔ média désigné par le contenu.
   const comparison =
-    r.isCopy && currentSrc && currentSrc !== r.src
-      ? { left: { label: 'Copie conservée', src: r.src }, right: { label: 'Version actuelle', src: currentSrc } }
+    r.isCopy && currentResolved && currentResolved.variantId !== r.variantId
+      ? { left: { label: 'Copie conservée', src: r.src, overlay: r.variant.overlay }, right: { label: 'Version actuelle', src: currentSrc ?? r.src, overlay: currentOverlay } }
       : !r.isCopy && otherCopy
-        ? { left: { label: 'Copie conservée', src: otherCopy.src }, right: { label: 'Version actuelle', src: r.src } }
+        ? { left: { label: 'Copie conservée', src: otherCopy.src, overlay: r.media.variants[otherCopy.variantId]?.overlay }, right: { label: 'Version actuelle', src: r.src, overlay: r.variant.overlay } }
         : compareTarget
           ? { left: { label: r.media.name, src: r.src }, right: { label: compareTarget.def.name, src: compareTarget.variant.src } }
           : undefined;
@@ -116,7 +118,7 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
   const saveCopy = () => {
     if (!caseId) return;
     dispatch({ type: 'copy/save', caseId, mediaId: r!.media.id, variantId: r!.variantId, src: r!.src, name: r!.media.name });
-    nav.showToast('Copie enregistrée dans Photos');
+    nav.showToast('Copie conservée dans Photos');
   };
 
   const W = r.variant.width ?? 4;
@@ -129,13 +131,16 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
         <div className="viewer-stage">
           <ZoomableImage
             src={r.src}
-            alt={r.media.name}
+            alt={r.variant.alt ?? r.media.name}
             width={W}
             height={H}
             hotspots={hotspots}
             found={foundIds}
             onHotspot={onHotspot}
             focus={focus}
+            maxZoom={r.variant.maxZoom}
+            overlay={r.variant.overlay}
+            calm={state.settings.reduceFlashes}
           />
         </div>
       )}
@@ -143,7 +148,18 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
         <VideoPlayer variant={r.variant} name={r.media.name} volume={state.settings.volume} muted={!state.settings.sound} hotspots={hotspots} onHotspot={onHotspot} />
       )}
       {r.media.kind === 'audio' && <AudioPlayer variant={r.variant} name={r.media.name} volume={state.settings.volume} muted={!state.settings.sound} />}
-      {r.media.kind === 'document' && <DocView variant={r.variant} name={r.media.name} />}
+      {r.media.kind === 'document' && (
+        <DocView
+          variant={r.variant}
+          name={r.media.name}
+          found={foundIds}
+          onPassage={(id) => {
+            if (!caseId || foundIds.includes(id)) return;
+            dispatch({ type: 'observation/found', caseId, observationId: id });
+            nav.showToast('Passage relevé dans le dossier');
+          }}
+        />
+      )}
 
       {(hotspots.length > 0 || canCopy || comparison) && (
         <section className="viewer-panel" aria-label="Examen">
@@ -173,7 +189,7 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
               {canCopy && (
                 <button className="btn btn-secondary btn-sm" onClick={saveCopy} disabled={hasCopy}>
                   {hasCopy ? <Icon.Check size={18} /> : <Icon.Save size={18} />}
-                  {hasCopy ? 'Copie enregistrée' : 'Enregistrer une copie'}
+                  {hasCopy ? 'Copie conservée' : 'Conserver une copie'}
                 </button>
               )}
               {comparison && caseId && (
@@ -334,6 +350,7 @@ export function AcceptSheet({ def, onClose }: { def: CaseDefinition; onClose: ()
 
 function CompareView({ source }: { source: Extract<ViewerSource, { kind: 'compare' }> }) {
   const nav = useNav();
+  const { state } = useGame();
   const [dims, setDims] = useState<Record<string, { w: number; h: number }>>({});
   useEffect(() => {
     for (const s of [source.left, source.right]) {
@@ -350,7 +367,9 @@ function CompareView({ source }: { source: Extract<ViewerSource, { kind: 'compar
           {[source.left, source.right].map((s, i) => (
             <div className="compare-side" key={i}>
               <span className="compare-label">{s.label}</span>
-              {dims[s.src] && <ZoomableImage src={s.src} alt={s.label} width={dims[s.src].w} height={dims[s.src].h} controls={false} />}
+              {dims[s.src] && (
+                <ZoomableImage src={s.src} alt={s.label} width={dims[s.src].w} height={dims[s.src].h} controls={false} maxZoom={10} overlay={s.overlay} calm={state.settings.reduceFlashes} />
+              )}
             </div>
           ))}
         </div>

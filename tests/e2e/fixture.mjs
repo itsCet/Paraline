@@ -90,9 +90,9 @@ await check('Dossier : objectif, aide en trois niveaux', async () => {
   await page.getByRole('button', { name: 'Ouvrir le dossier' }).click();
   await page.getByText('Objectif actuel').waitFor();
   await page.getByText('Observer', { exact: true }).waitFor();
-  for (const l of ['Afficher un rappel', 'Afficher une piste', 'Afficher la solution']) await page.getByText(l).click();
+  for (const l of ['Demander un indice', 'Indice suivant', 'Afficher la solution']) await page.getByText(l).click();
   assert((await page.locator('.hint').count()) === 3, 'niveaux');
-  assert((await page.getByText('Afficher', { exact: false }).count()) === 0, 'bouton restant');
+  assert((await page.getByText('Afficher la solution').count()) === 0, 'bouton restant');
   await shot('dossier');
 });
 
@@ -147,8 +147,8 @@ await check('Copie conservée puis variante modifiée par la date et l’heure m
   await home();
   await openApp('Photos');
   await page.locator('.photo-cell').first().click();
-  await page.getByRole('button', { name: 'Enregistrer une copie' }).click();
-  await page.getByRole('button', { name: 'Copie enregistrée' }).waitFor();
+  await page.getByRole('button', { name: 'Conserver une copie' }).click();
+  await page.getByRole('button', { name: 'Copie conservée' }).waitFor();
   await page.locator('.viewer').getByRole('button', { name: 'Retour : Retour' }).click();
   await home();
   await openApp('Réglages');

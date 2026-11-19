@@ -8,8 +8,8 @@
  *   3. l'importer et l'ajouter au tableau ci-dessous.
  *
  * L'ordre du tableau est l'ordre d'arrivée dans la boîte de réception.
- * Aucune enquête n'est intégrée pour l'instant.
  */
 import type { CaseDefinition } from '../../game/types';
+import { chambreCondamnee } from './chambre-condamnee';
 
-export const CASES: CaseDefinition[] = [];
+export const CASES: CaseDefinition[] = [chambreCondamnee];
