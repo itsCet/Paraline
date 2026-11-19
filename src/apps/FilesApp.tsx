@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../game/store';
 import { useIntent, useNav } from '../phone/nav';
-import { currentObstacle } from '../game/engine';
+import { currentObstacle, evaluate } from '../game/engine';
 import { caseStatusLabel, character, resolveMedia, thumbOf } from '../game/selectors';
 import { TUTORIAL_END, TUTORIAL_FOLDER_TITLE, TUTORIAL_MEDIA, TUTORIAL_OBSERVATION } from '../content/tutorial';
 import { Empty, KindIcon, NavBar, formatDate } from '../components/ui';
@@ -128,6 +128,7 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
   const media = p.grantedMedia.map((id) => resolveMedia(def, state, id)).filter((r): r is NonNullable<typeof r> => !!r);
   const copies = state.copies.filter((c) => c.caseId === def.id);
   const client = character(def, def.client);
+  const conclusion = def.endings?.find((e) => evaluate(e.when, state, def.id)) ?? def.conclusion;
 
   return (
     <>
@@ -152,8 +153,8 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
           <>
             <h2 className="section-title">Conclusion</h2>
             <div className="end-card" style={{ marginTop: 0 }}>
-              <h3 style={{ margin: '0 0 8px' }}>{def.conclusion.title}</h3>
-              {def.conclusion.text.map((t, i) => (
+              <h3 style={{ margin: '0 0 8px' }}>{conclusion.title}</h3>
+              {conclusion.text.map((t, i) => (
                 <p key={i}>{t}</p>
               ))}
             </div>

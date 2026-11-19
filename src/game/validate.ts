@@ -98,6 +98,12 @@ export function validateCase(c: CaseDefinition): string[] {
     if ((e.type === 'deliverMessage' || e.type === 'deliverMail') && e.holdUntil) checkCond(e.holdUntil);
   };
   for (const o of c.obstacles ?? []) checkCond(o.solved);
+  for (const e of c.endings ?? []) checkCond(e.when);
+  for (const m of c.media) {
+    for (const v of Object.values(m.variants)) {
+      for (const row of v.info ?? []) if (row.observationId && !obs.has(row.observationId)) err(`infos ${m.id} : observation inconnue ${row.observationId}`);
+    }
+  }
   for (const t of c.threads) {
     if (t.presence) {
       checkCond(t.presence.online);

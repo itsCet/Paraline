@@ -31,6 +31,7 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
   const nav = useNav();
   const [sheet, setSheet] = useState<string | null>(null);
   const [needAccept, setNeedAccept] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const [focus, setFocus] = useState(source.kind === 'case' ? source.focus : undefined);
 
   // Résolution de la source.
@@ -126,7 +127,18 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
 
   return (
     <div className="viewer" role="dialog" aria-modal="true" aria-label={r.media.name}>
-      <NavBar back="Retour" onBack={nav.closeViewer} title={isTutorial ? 'Le bureau' : r.isCopy ? `${r.media.name} (copie)` : r.media.name} />
+      <NavBar
+        back="Retour"
+        onBack={nav.closeViewer}
+        title={isTutorial ? 'Le bureau' : r.isCopy ? `${r.media.name} (copie)` : r.media.name}
+        right={
+          r.variant.info?.length ? (
+            <button className="icon-btn" aria-label="Infos du fichier" onClick={() => setInfoOpen(true)}>
+              <Icon.Info size={24} />
+            </button>
+          ) : undefined
+        }
+      />
       {r.media.kind === 'image' && (
         <div className="viewer-stage">
           <ZoomableImage
@@ -241,6 +253,37 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
         />
       )}
       {needAccept && r.caseDef && <AcceptSheet def={r.caseDef} onClose={() => setNeedAccept(false)} />}
+      {infoOpen && r.variant.info && (
+        <Sheet onClose={() => setInfoOpen(false)} label="Infos du fichier">
+          <h2>{r.media.name}</h2>
+          <div className="group" style={{ marginBottom: 12 }}>
+            {r.variant.info.map((row, i) => {
+              const seen = !!row.observationId && foundIds.includes(row.observationId);
+              return (
+                <button
+                  key={i}
+                  className="row"
+                  onClick={() => {
+                    if (!row.observationId || !caseId || seen) return;
+                    // La coche de la ligne confirme le relevé (pas de message par-dessus la feuille).
+                    dispatch({ type: 'observation/found', caseId, observationId: row.observationId });
+                  }}
+                >
+                  <span className="row-main">
+                    <div className="row-sub">{row.label}</div>
+                    <div className="row-title" style={{ fontWeight: 500 }}>{row.value}</div>
+                  </span>
+                  {seen && <Icon.Check size={18} />}
+                </button>
+              );
+            })}
+          </div>
+          <p style={{ fontSize: 13 }}>Touchez une ligne pour la relever dans le dossier.</p>
+          <button className="btn btn-ghost btn-block" onClick={() => setInfoOpen(false)}>
+            Fermer
+          </button>
+        </Sheet>
+      )}
     </div>
   );
 }

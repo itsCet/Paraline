@@ -43,6 +43,12 @@ export const ASSETS: AssetEntry[] = [
     source: 'Photo fournie par l’auteur du jeu',
   },
   { path: '/media/cases/chambre-condamnee/couloir-resolution.jpg', kind: 'image', usage: 'E — capture_0317.jpg (pièce vide)', source: 'Photo fournie par l’auteur du jeu' },
+  // Enquête « Cette photo a changé »
+  { path: '/media/cases/photo-changee/parc.jpg', kind: 'image', usage: 'parc.jpg / IMG_7714.jpg synchronisée (Paul ajouté, sans ombre)', source: 'Image fournie par l’auteur du jeu' },
+  { path: '/media/cases/photo-changee/parc-original.jpg', kind: 'image', usage: 'IMG_7714.jpg, copie locale hors ligne (sans Paul)', source: 'Image fournie par l’auteur du jeu' },
+  { path: '/media/cases/photo-changee/anniversaire.jpg', kind: 'image', usage: 'anniversaire.jpg / IMG_7802.jpg (Paul sans reflet)', source: 'Image fournie par l’auteur du jeu' },
+  { path: '/media/cases/photo-changee/paul-souvenir.jpg', kind: 'image', usage: 'saint-malo.jpg (photo d’origine de Paul)', source: 'Image fournie par l’auteur du jeu' },
+  { path: '/media/cases/photo-changee/plage-2026.jpg', kind: 'image', usage: 'IMG_6630.jpg (photo inexpliquée)', source: 'Image fournie par l’auteur du jeu' },
 ];
 
 /** Fond d'écran par défaut (accueil et introduction). Remplacer par la photo définitive. */

@@ -111,7 +111,7 @@ await page.getByRole('button', { name: 'Passer l’introduction' }).click();
 await page.getByRole('button', { name: 'Plus tard' }).click();
 
 await check('E-mail initial disponible, non ouvert automatiquement', async () => {
-  await page.locator('.widget', { hasText: 'La caméra était débranchée' }).waitFor();
+  await page.locator('.widget', { hasText: 'Nouveau message' }).waitFor();
   const s = await save();
   assert(s.readMails.length === 0, 'e-mail lu automatiquement');
   assert(s.cases['chambre-condamnee'].status === 'new', 'affaire démarrée');

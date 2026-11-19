@@ -66,6 +66,8 @@ export interface MediaVariant {
   maxZoom?: number;
   /** Écriture vectorielle posée sur l'image, transformée avec elle (reste nette au zoom). */
   overlay?: ImageOverlay;
+  /** Panneau « Infos » (métadonnées). Une ligne peut révéler une observation quand on la touche. */
+  info?: { label: string; value: string; observationId?: Id }[];
 }
 
 export interface ImageOverlay {
@@ -98,6 +100,8 @@ export interface MediaDef {
   allowSaveCopy?: boolean;
   /** Propose une comparaison avec un autre média. */
   compareWith?: Id;
+  /** Album partagé dans lequel le média apparaît (Photos). */
+  album?: string;
 }
 
 export interface MailDef {
@@ -216,6 +220,8 @@ export interface CaseDefinition {
   openingMessages?: Id[];
   obstacles?: ObstacleDef[];
   conclusion: { title: string; text: string[] };
+  /** Conclusions alternatives : la première dont la condition est vraie remplace `conclusion`. */
+  endings?: { when: Condition; title: string; text: string[] }[];
 }
 
 /* ------------------------------------------------------------------ */

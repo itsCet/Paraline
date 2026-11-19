@@ -83,7 +83,7 @@ await check('Navigation intro : continuer, retour, 3/3', async () => {
 });
 
 await check('Accueil : widget Mail (nouvelle demande) et proposition d’exercice', async () => {
-  await page.locator('.widget', { hasText: 'La caméra était débranchée' }).waitFor();
+  await page.locator('.widget', { hasText: 'Nouveau message' }).waitFor();
   await page.getByText('Une minute pour prendre vos marques').waitFor();
   await shot(page, '04-home');
 });

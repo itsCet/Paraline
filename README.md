@@ -2,7 +2,7 @@
 
 *Enquêtes paranormales.* Jeu web mobile : le joueur, enquêteur paranormal indépendant, mène ses affaires depuis son téléphone professionnel fictif (Mail, Messages, Photos, Dossiers, Notes, Réglages).
 
-Contenu : téléphone, applications, introduction, exercice de prise en main, moteur d'enquête, sauvegarde, et une première enquête complète, **« La chambre condamnée »** (`src/content/cases/chambre-condamnee/`).
+Contenu : téléphone, applications, introduction, exercice de prise en main, moteur d'enquête, sauvegarde, et deux enquêtes complètes, disponibles dès le lancement : **« La chambre condamnée »** (surnaturelle, `src/content/cases/chambre-condamnee/`) et **« Cette photo a changé »** (rationnelle, avec une fin à choix, `src/content/cases/photo-changee/`).
 
 React 19, TypeScript et Vite. Pas de backend, pas de compte, pas d'IA, pas de clé secrète.
 
@@ -25,6 +25,7 @@ npm run e2e                                   # parcours joueur réel
 npm run build:fixture && npx vite preview --outDir dist-fixture --port 4174 &
 npm run e2e:fixture                           # écrans d'enquête avec l'enquête de TEST
 npm run e2e:chambre                           # parcours complet de « La chambre condamnée » (sur le port 4173), sans indice
+npm run e2e:photo                             # parcours complet de « Cette photo a changé », sans indice
 ```
 
 `build:fixture` remplace le registre des enquêtes par une enquête de test, grâce à un alias Vite. Le build normal n'en contient aucune trace.
@@ -90,7 +91,11 @@ Autres possibilités utilisées par la première enquête :
 - `whenSolved` sur une réponse : épilogue après résolution ;
 - `draft` sur un e-mail : brouillon sans destinataire ;
 - `data-obs` dans un document HTML : passage que le joueur peut relever ;
-- `autoFile` sur une observation : rangée directement dans le dossier.
+- `autoFile` sur une observation : rangée directement dans le dossier ;
+- `info` sur une variante : panneau « Infos » (métadonnées) dont les lignes peuvent être relevées ;
+- `album` sur un média : regroupé dans Photos sous « Album partagé » ;
+- `endings` : conclusion qui dépend de la fin choisie ;
+- `alterCopies` : altère une copie conservée (dénouement surnaturel).
 
 Effets disponibles : `deliverMessage`, `deliverMail` (suspendus en mode avion, sauf `ignoreAirplane`), `setMediaVariant`, `unlockReply`, `grantMedia`, `setStep`, `setFlag`, `phoneOverride` (temporaire, avec condition de fin `until`), `clearPhoneOverride`, `notify`, `log`, `solveCase`.
 
@@ -124,7 +129,9 @@ Tout est stocké dans `localStorage` (clé `paraline.save`, format versionné `S
 Dernière exécution le 19/11/2026.
 
 - `npm run build` : OK.
-- `npm test` : **34/34**. Dont 16 tests ciblés sur « La chambre condamnée » :
+- `npm test` : **40/40** (dont 6 pour « Cette photo a changé » : enquêtes simultanées au lancement, une seule active, synchronisation de l'album, ordre libre, les deux fins, sauvegarde).
+- `npm run e2e:photo` : **10/10**, parcours complet sans indice jusqu'à la fin douce, puis acceptation de la première affaire.
+- `npm test` (détail précédent) : **34/34**. Dont 16 tests ciblés sur « La chambre condamnée » :
   - report puis acceptation ;
   - l'heure réglée avant la lecture du document ;
   - le mode avion activé trop tôt ;
