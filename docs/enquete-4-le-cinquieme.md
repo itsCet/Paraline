@@ -28,3 +28,7 @@ Personnages : Sarah (frange, pull crème), Julien (barbe, lunettes rondes, chemi
 Audios (ElevenLabs) :
 - `messagerie_0214.mp3` (~15 s) : robot « Vous avez un nouveau message. Reçu à deux heures quatorze. » ; vent, glace qui craque ; jeune homme : « Je vous vois… vous partez ? » … « Vous êtes partis. »
 - `lena.mp3` (~25 s) : « C'est Léna. Je viens de lire votre message. Pendant douze ans, j'ai cru qu'il était sorti seul, cette nuit-là. … Je ne sais pas encore si je vous en veux. Mais merci de me l'avoir dit. Il aurait voulu ça. »
+
+## Audios reçus et calés (reconnaissance vocale)
+- `public/media/cases/le-cinquieme/messagerie-0214.mp3` (≈ 9 s) : 0,0–2,9 « Vous avez un nouveau message. Reçu à deux heures quatorze. » · 3,4–4,3 « Je vous vois… » · 5,5–7,1 « Vous partez ? » · 7,2–8,8 « Vous êtes partis. »
+- `public/media/cases/le-cinquieme/lena.mp3` (≈ 17 s) : 0,0–4,0 « C'est Léna. Je viens de lire votre message. » · 5,5–9,1 « Pendant douze ans, j'ai cru qu'il était sorti seul, cette nuit-là. » · 10,6–12,4 « Je ne sais pas encore si je vous en veux. » · 14,1–17,0 « Mais merci de me l'avoir dit. Il aurait voulu ça. »
