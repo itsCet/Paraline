@@ -60,7 +60,7 @@ await check('Pièce jointe consultable avant acceptation ; action proposant d’
   await page.getByRole('button', { name: /Ouvrir img\.jpg/ }).click();
   await page.waitForTimeout(400);
   const b = await page.locator('.zoom-content').boundingBox();
-  await page.mouse.click(b.x + b.width * 0.72, b.y + b.height * 0.8);
+  await page.mouse.click(b.x + b.width * 0.5, b.y + b.height * 0.68);
   await page.locator('.sheet h2', { hasText: 'Détail' }).waitFor();
   await page.getByRole('button', { name: 'Ajouter au dossier' }).click();
   await page.getByText('Accepter l’enquête ?').waitFor();
@@ -161,7 +161,7 @@ await check('Copie conservée puis variante modifiée par la date et l’heure m
   for (let i = 0; i < 120 && (await minutes.getAttribute('aria-valuenow')) !== '17'; i++) await minutes.press('ArrowUp');
   await home();
   const bg = await page.locator('.phone').evaluate((e) => e.style.backgroundImage);
-  assert(bg.includes('wallpaper-night'), `fond d’écran ${bg}`);
+  assert(bg.includes('bureau.jpg'), `fond d’écran ${bg}`);
   await openApp('Photos');
   await page.getByRole('tab', { name: 'Copies conservées' }).click();
   const copySrc = await page.locator('.photo-cell img').first().getAttribute('src');

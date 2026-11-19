@@ -162,14 +162,14 @@ await check('Observation du tiroir (après zoom) et ajout au dossier sans doublo
   await page.getByRole('button', { name: 'Agrandir' }).click();
   const b = await page.locator('.zoom-content').boundingBox();
   // Coordonnées relatives : la zone reste alignée malgré le zoom.
-  await page.mouse.click(b.x + b.width * 0.72, b.y + b.height * 0.8);
+  await page.mouse.click(b.x + b.width * 0.5, b.y + b.height * 0.68);
   await page.getByText('Le tiroir est entrouvert.').first().waitFor();
   await shot(page, '07-observation');
   await page.getByRole('button', { name: 'Ajouter au dossier' }).click();
   await page.getByText('Ajouté au dossier', { exact: false }).waitFor();
   await page.getByRole('button', { name: 'Image entière' }).click();
   const b2 = await page.locator('.zoom-content').boundingBox();
-  await page.mouse.click(b2.x + b2.width * 0.72, b2.y + b2.height * 0.8);
+  await page.mouse.click(b2.x + b2.width * 0.5, b2.y + b2.height * 0.68);
   await page.getByRole('button', { name: 'Déjà dans le dossier' }).waitFor();
   await page.getByRole('button', { name: 'Fermer' }).click();
   assert((await page.locator('.obs-chip').count()) === 1, 'observation dupliquée');

@@ -29,10 +29,10 @@ export const TUTORIAL_MEDIA: MediaDef = {
   defaultVariant: 'default',
   variants: {
     default: {
-      src: '/media/tutorial/bureau.svg',
-      width: 800,
-      height: 600,
-      hotspots: [{ id: 'drawer', x: 0.585, y: 0.715, w: 0.285, h: 0.17, observationId: TUTORIAL_OBSERVATION.id }],
+      src: '/media/tutorial/bureau.jpg',
+      width: 1086,
+      height: 1448,
+      hotspots: [{ id: 'drawer', x: 0.065, y: 0.54, w: 0.855, h: 0.265, observationId: TUTORIAL_OBSERVATION.id }],
     },
   },
 };

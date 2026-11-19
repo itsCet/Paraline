@@ -21,20 +21,19 @@ export const ASSETS: AssetEntry[] = [
   { path: '/favicon.svg', kind: 'icon', usage: 'Icône d’onglet (logo Paraline)', source: 'Vectorisé d’après le logo fourni' },
   { path: '/media/system/logo.svg', kind: 'icon', usage: 'Logo Paraline (porte)', source: 'Vectorisé d’après le logo fourni' },
   {
-    path: '/media/system/wallpaper-night.svg',
+    path: '/media/system/wallpaper.jpg',
     kind: 'image',
-    usage: 'Fond d’écran du téléphone (toits de nuit sous la pluie)',
-    source: 'Illustration vectorielle originale',
-    placeholder: true,
+    usage: 'Fond d’écran du téléphone et de l’introduction (toits de Paris au crépuscule)',
+    source: 'Photo fournie par l’auteur du jeu',
   },
   {
-    path: '/media/tutorial/bureau.svg',
+    path: '/media/tutorial/bureau.jpg',
     kind: 'image',
     usage: 'Exercice de prise en main : bureau, lampe, carnet, tiroir entrouvert',
-    source: 'Illustration vectorielle originale',
+    source: 'Photo fournie par l’auteur du jeu',
   },
   // Enquêtes : ajouter ici les médias de `public/media/cases/<id>/`.
 ];
 
 /** Fond d'écran par défaut (accueil et introduction). Remplacer par la photo définitive. */
-export const WALLPAPER = '/media/system/wallpaper-night.svg';
+export const WALLPAPER = '/media/system/wallpaper.jpg';

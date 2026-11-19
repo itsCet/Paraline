@@ -5,8 +5,8 @@
 import type { CaseDefinition } from '../types';
 import { testCase } from './fixtures';
 
-const A = '/media/tutorial/bureau.svg';
-const B = '/media/system/wallpaper-night.svg';
+const A = '/media/tutorial/bureau.jpg';
+const B = '/media/system/wallpaper.jpg';
 
 export const CASES: CaseDefinition[] = [
   {
@@ -16,14 +16,14 @@ export const CASES: CaseDefinition[] = [
         ...testCase.media[0],
         sizeLabel: '2 Mo',
         variants: {
-          v1: { src: A, width: 800, height: 600, hotspots: [{ id: 'h1', x: 0.585, y: 0.715, w: 0.285, h: 0.17, observationId: 'o1' }] },
-          v2: { src: B, width: 390, height: 844 },
+          v1: { src: A, width: 1086, height: 1448, hotspots: [{ id: 'h1', x: 0.065, y: 0.54, w: 0.855, h: 0.265, observationId: 'o1' }] },
+          v2: { src: B, width: 852, height: 1846 },
         },
       },
     ],
     rules: testCase.rules.map((r) => ({
       ...r,
-      effects: r.effects.map((e) => (e.type === 'phoneOverride' ? { ...e, value: B } : e)),
+      effects: r.effects.map((e) => (e.type === 'phoneOverride' ? { ...e, value: A } : e)),
     })),
     messages: testCase.messages.map((m) => (m.id === 'm-final' ? { ...m, attachments: ['img'] } : m)),
   },

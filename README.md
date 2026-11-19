@@ -155,7 +155,7 @@ Dernière exécution le 18/11/2026.
 
 ## Limites connues
 
-- Le fond d'écran est une illustration vectorielle provisoire (marquée `placeholder` dans le manifeste). Une photographie est à prévoir.
+- Fond d’écran et photo de l’exercice : photos fournies (`public/media/system/wallpaper.jpg`, `public/media/tutorial/bureau.jpg`).
 - Les lecteurs audio et vidéo (lecture, progression, transcription, sous-titres, zones actives dans le temps) sont implémentés mais n'ont été vérifiés que par le typage. Aucun fichier audio ou vidéo n'existe encore pour les tester en conditions réelles.
 - Tests faits sous Chromium uniquement, avec émulation mobile. Safari iOS et le vrai clavier virtuel restent à vérifier sur appareil.
 - Le contenu HTML des documents d'enquête est inséré tel quel : il doit rester du contenu local de confiance.
