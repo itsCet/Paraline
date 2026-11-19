@@ -50,13 +50,35 @@ export function Intro() {
       ),
     },
     {
-      title: 'Observez. Essayez. Faites le lien.',
+      title: 'Touchez tout. Les indices se cachent.',
       body: (
         <>
-          <p>
-            Une photo, un enregistrement ou une fonction du téléphone peut faire avancer une enquête. Vos découvertes ouvrent de nouvelles
-            possibilités. En cas de blocage, des indices sont disponibles dans votre dossier.
-          </p>
+          <ul className="intro-tips">
+            <li>
+              <Icon.Image size={20} />
+              <span>
+                <b>Touchez les photos</b> là où un détail vous intrigue, et zoomez : c’est ainsi qu’on relève un indice.
+              </span>
+            </li>
+            <li>
+              <Icon.Info size={20} />
+              <span>
+                Ouvrez les <b>infos d’un fichier</b> et touchez les passages d’un document ou d’une transcription.
+              </span>
+            </li>
+            <li>
+              <Icon.Gear size={20} />
+              <span>
+                <b>Le téléphone lui-même</b> peut servir : heure, mode avion, son… Essayez.
+              </span>
+            </li>
+            <li>
+              <Icon.Bulb size={20} />
+              <span>
+                Bloqué ? L’<b>ampoule</b> en bas à droite donne un indice, seulement si vous le demandez.
+              </span>
+            </li>
+          </ul>
           <p className="secondary">Votre progression est enregistrée sur cet appareil. Le son est conseillé, mais reste facultatif.</p>
         </>
       ),

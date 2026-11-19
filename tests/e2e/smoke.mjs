@@ -75,7 +75,7 @@ await check('Navigation intro : continuer, retour, 3/3', async () => {
   await page.getByText('1 / 3').waitFor();
   await page.getByRole('button', { name: 'Continuer' }).click();
   await page.getByRole('button', { name: 'Continuer' }).click();
-  await page.getByText('Observez. Essayez. Faites le lien.').waitFor();
+  await page.getByText('Touchez tout. Les indices se cachent.').waitFor();
   assert(await page.getByText('3 / 3').isVisible(), '3/3 absent');
   assert(await page.getByText('Passer l’introduction').isVisible(), 'passer absent');
   await shot(page, '03-intro-3');

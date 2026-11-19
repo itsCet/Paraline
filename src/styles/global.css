@@ -975,3 +975,22 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 }
 @keyframes rotate-hint { 0%, 30% { transform: rotate(-90deg); } 60%, 100% { transform: rotate(0deg); } }
 @media (prefers-reduced-motion: reduce) { .rotate-lock svg { animation: none; } }
+
+/* Introduction : conseils de jeu */
+.intro-tips { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.intro-tips li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.4; }
+.intro-tips svg { flex: none; color: var(--amber); margin-top: 1px; }
+.intro-tips b { font-weight: 600; }
+@media (max-height: 640px) {
+  .intro-body { min-height: 0; overflow-y: auto; padding-bottom: 12px; }
+  .intro-body:has(.intro-tips) .intro-brand { display: none; }
+  .intro-body:has(.intro-tips) h1 { font-size: 25px; margin-bottom: 12px; }
+  .intro-tips { gap: 6px; margin-bottom: 8px; }
+  .intro-tips li { font-size: 14px; line-height: 1.3; }
+  .intro-tips + .secondary { font-size: 12.5px; line-height: 1.35; margin-bottom: 0; }
+}
+@media (max-height: 600px) {
+  .intro-tips + .secondary { display: none; }
+  .intro-body:has(.intro-tips) h1 { font-size: 23px; margin-bottom: 10px; }
+  .intro-tips li { font-size: 13.5px; }
+}
