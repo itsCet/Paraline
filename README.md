@@ -124,7 +124,7 @@ Tout est stocké dans `localStorage` (clé `paraline.save`, format versionné `S
 Dernière exécution le 19/11/2026.
 
 - `npm run build` : OK.
-- `npm test` : **33/33**. Dont 15 tests ciblés sur « La chambre condamnée » :
+- `npm test` : **34/34**. Dont 16 tests ciblés sur « La chambre condamnée » :
   - report puis acceptation ;
   - l'heure réglée avant la lecture du document ;
   - le mode avion activé trop tôt ;
@@ -139,7 +139,7 @@ Dernière exécution le 19/11/2026.
   - un rechargement à chaque étape ;
   - la migration d'une sauvegarde antérieure ;
   - des indices affichés uniquement sur demande.
-- `npm run e2e:chambre` (Chromium, iPhone 13 émulé) : **19/19**. Parcours complet dans l'interface, sans indice, avec le son coupé :
+- `npm run e2e:chambre` (Chromium, iPhone 13 émulé) : **20/20**. Parcours complet dans l'interface, sans indice, avec le son coupé :
   - les pièces jointes consultées avant acceptation, puis report et acceptation ;
   - le document comparatif ;
   - 03:17 : écriture illisible qui se recompose ;

@@ -933,3 +933,4 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .doc-page [data-obs] { cursor: pointer; border-radius: 3px; transition: background 200ms; }
 .doc-page [data-obs].passage-found { background: rgba(239, 179, 92, 0.38); }
 .doc-hint { font-size: 13px; color: #8a8478; border-top: 1px solid #ddd6c9; padding-top: 10px; margin-top: 22px; font-family: var(--font); }
+.sheet-writing .ink-strike { fill: none; stroke: #23262f; stroke-opacity: 0.85; stroke-width: 1.6; stroke-linecap: round; }

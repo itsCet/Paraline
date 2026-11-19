@@ -39,7 +39,7 @@ const D_VARIANTS: Condition = { any: [{ mediaVariant: 'capture', is: 'instable' 
 
 // Feuille mesurée sur l'image : x 493–541 px, y 524–595 px (1086 × 1448).
 const SHEET_BOX = { x: 493 / IMG.w, y: 524 / IMG.h, w: 48 / IMG.w, h: 71 / IMG.h };
-const sheet = (mode: ImageOverlay['mode']): ImageOverlay => ({
+const sheet = (mode: ImageOverlay['mode'], strikeQuestion = false): ImageOverlay => ({
   box: SHEET_BOX,
   viewHeight: 148,
   rotate: -0.6,
@@ -48,8 +48,8 @@ const sheet = (mode: ImageOverlay['mode']): ImageOverlay => ({
     { text: '18 NOVEMBRE 2014', y: 30, size: 10.5, width: 82 },
     { text: '03:17', y: 50, size: 14, width: 36 },
     { text: 'G. VANNIER', y: 82, size: 11, width: 62 },
-    { text: 'LES DEUX', y: 112, size: 11, width: 50 },
-    { text: 'SONT SORTIS ?', y: 128, size: 11, width: 76 },
+    { text: 'LES DEUX', y: 112, size: 11, width: 50, strike: strikeQuestion },
+    { text: 'SONT SORTIS ?', y: 128, size: 11, width: 76, strike: strikeQuestion },
   ],
 });
 
@@ -162,6 +162,16 @@ export const chambreCondamnee: CaseDefinition = {
             { id: 'd2-feuille', ...SHEET_HIT, observationId: 'feuille-lisible' },
             { id: 'd2-porte', ...DOOR_BACK, observationId: 'porte-entrouverte' },
           ],
+        },
+        // Jamais la version active du fichier : seulement ce que devient la copie conservée au dénouement.
+        barree: {
+          src: `${DIR}/couloir-porte-entrouverte.jpg`,
+          width: IMG.w,
+          height: IMG.h,
+          maxZoom: 10,
+          alt: 'Copie de la capture : la porte du fond est entrouverte. La feuille porte : 18 novembre 2014, 03:17, G. Vannier. La question « Les deux sont sortis ? » est barrée.',
+          overlay: sheet('stable', true),
+          hotspots: [{ id: 'g-feuille', ...SHEET_HIT, observationId: 'question-barree' }],
         },
         ouverte: {
           src: `${DIR}/couloir-resolution.jpg`,
@@ -285,6 +295,10 @@ export const chambreCondamnee: CaseDefinition = {
     { id: 'e-f2', threadId: 't-elise', from: 'elise', text: 'Je n’ai plus d’alertes.', notify: false },
     { id: 'e-f3', threadId: 't-elise', from: 'elise', text: 'Vous avez réussi à lui répondre ?', notify: false },
     { id: 'e-merci', threadId: 't-elise', from: 'elise', text: 'Merci.' },
+    { id: 'e-alerte1', threadId: 't-elise', from: 'elise', text: 'Je viens de recevoir une alerte.' },
+    { id: 'e-alerte2', threadId: 't-elise', from: 'elise', text: 'La caméra est à côté de moi, dans son carton. Rien n’est branché.', notify: false },
+    { id: 'e-alerte3', threadId: 't-elise', from: 'elise', text: 'Sur l’application, la porte est entrouverte. Elle était fermée tout à l’heure.', notify: false },
+    { id: 'e-ouverte', threadId: 't-elise', from: 'elise', text: 'La porte est grande ouverte sur l’application. Il n’y a rien derrière.' },
 
     { id: 'g-1', threadId: 't-gabriel', from: 'gabriel', text: 'Ça passe encore ?', notify: 'nouveau message' },
     { id: 'g-2', threadId: 't-gabriel', from: 'gabriel', text: 'Je tiens la porte.', notify: false },
@@ -459,6 +473,7 @@ export const chambreCondamnee: CaseDefinition = {
     },
     { id: 'piece-vide', title: 'La porte est grande ouverte sur une pièce vide.', mediaId: 'capture', actions: [{ type: 'addToFile' }] },
     { id: 'mur-revenu', title: 'Le fond du couloir est de nouveau un mur.', mediaId: 'capture', actions: [{ type: 'addToFile' }] },
+    { id: 'question-barree', title: 'Sur la copie conservée, la question est désormais barrée.', mediaId: 'capture', autoFile: true, actions: [] },
     {
       id: 'doc-ancien-reglage',
       title: 'Ancien téléphone : réglage automatique désactivé, horloge restée à 03:17.',
@@ -567,6 +582,16 @@ export const chambreCondamnee: CaseDefinition = {
         { type: 'log', text: 'capture_0317.jpg a été actualisé.' },
       ],
     },
+    /* Premier signe : Élise reçoit l'alerte au moment où le fichier change. */
+    {
+      id: 'alerte-elise',
+      when: { flag: 'variante-recue' },
+      effects: [
+        { type: 'deliverMessage', messageId: 'e-alerte1', delayMs: 4000 },
+        { type: 'deliverMessage', messageId: 'e-alerte2', delayMs: 2200 },
+        { type: 'deliverMessage', messageId: 'e-alerte3', delayMs: 2600 },
+      ],
+    },
     /* Quitter 03:17 avec le réseau : la version connectée redevient la porte fermée. */
     {
       id: 'retour-porte-fermee',
@@ -603,6 +628,7 @@ export const chambreCondamnee: CaseDefinition = {
         { type: 'setFlag', name: 'echange-termine', value: true },
         { type: 'setMediaVariant', mediaId: 'capture', variantId: 'ouverte' },
         { type: 'log', text: 'G. Vannier ne répond plus.' },
+        { type: 'deliverMessage', messageId: 'e-ouverte', delayMs: 5000 },
       ],
     },
 
@@ -613,6 +639,8 @@ export const chambreCondamnee: CaseDefinition = {
       effects: [
         { type: 'setMediaVariant', mediaId: 'capture', variantId: 'mur' },
         { type: 'setFlag', name: 'affaire-close', value: true },
+        // Seule trace laissée : sur la copie conservée, la question est barrée.
+        { type: 'alterCopies', mediaId: 'capture', fromVariant: 'lisible', toVariant: 'barree' },
         { type: 'deliverMessage', messageId: 'e-f1', delayMs: 2500 },
         { type: 'deliverMessage', messageId: 'e-f2', delayMs: 1600 },
         { type: 'deliverMessage', messageId: 'e-f3', delayMs: 1800 },

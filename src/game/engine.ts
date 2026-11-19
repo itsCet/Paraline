@@ -230,6 +230,13 @@ export function applyEffect(state: GameState, def: CaseDefinition, effect: Effec
       return pushNotification(state, { app: effect.app ?? 'files', title: effect.title, body: effect.body });
     case 'log':
       return updateCase(state, cid, (p) => ({ ...p, log: [...p.log, { at: now, text: effect.text }] }));
+    case 'alterCopies':
+      return {
+        ...state,
+        copies: state.copies.map((c) =>
+          c.caseId === cid && c.mediaId === effect.mediaId && c.variantId === effect.fromVariant ? { ...c, variantId: effect.toVariant } : c,
+        ),
+      };
     case 'solveCase': {
       let next = updateCase(state, cid, (p) => ({ ...p, status: 'solved', solvedAt: now }));
       next = clearOverridesOf(next, cid);

@@ -77,6 +77,16 @@ export function SheetWriting({ overlay, calm }: { overlay: ImageOverlay; calm?: 
           {lines[i]}
         </text>
       ))}
+      {overlay.lines
+        .filter((l) => l.strike)
+        .map((l, i) => (
+          // Trait d'encre irrégulier, tracé à la main par-dessus la ligne.
+          <path
+            key={`s${i}`}
+            className="ink-strike"
+            d={`M ${50 - (l.width ?? 60) / 2 - 3} ${l.y - l.size * 0.32} q ${(l.width ?? 60) / 2} ${-1.6} ${(l.width ?? 60) + 6} ${0.9}`}
+          />
+        ))}
     </svg>
   );
 }

@@ -332,6 +332,22 @@ await check('Après résolution : mur plein, rien ne se rejoue, aucun indice uti
   await page.getByText('Dernier message : 03:17').first().waitFor();
 });
 
+await check('Alerte d’Élise reçue une seule fois ; copie conservée barrée après le dénouement', async () => {
+  await eliseThread();
+  await bubble('Je viens de recevoir une alerte.').waitFor();
+  assert((await bubble('Je viens de recevoir une alerte.').count()) === 1, 'alerte répétée');
+  await bubble('Il n’y a rien derrière.').waitFor();
+  await openApp('Photos');
+  await page.getByRole('tab', { name: 'Copies conservées' }).click();
+  await page.locator('.photo-cell').first().click();
+  await page.waitForTimeout(300);
+  assert((await viewer().locator('.ink-strike').count()) === 2, 'question non barrée');
+  assert((await sheetText()).includes('G. VANNIER'), 'texte perdu');
+  await tapRel(0.476, 0.386);
+  await page.locator('.sheet h2', { hasText: 'la question est désormais barrée' }).waitFor();
+  await shot('10-copie-barree');
+});
+
 await check('Aucune erreur JavaScript', async () => assert(errors.length === 0, errors.join(' | ')));
 
 await browser.close();

@@ -73,7 +73,7 @@ export interface ImageOverlay {
   box: { x: number; y: number; w: number; h: number };
   /** Lignes affichées, dans un repère de 100 unités de large. */
   /** `width` : largeur imposée (unités du repère) pour tenir dans la feuille. */
-  lines: { text: string; y: number; size: number; width?: number }[];
+  lines: { text: string; y: number; size: number; width?: number; strike?: boolean }[];
   /** Hauteur du repère (largeur = 100). */
   viewHeight: number;
   /** `unstable` : l'écriture se recompose sans jamais devenir lisible. */
@@ -272,6 +272,8 @@ export type Effect =
   | { type: 'clearPhoneOverride'; key: PhoneOverrideKey }
   | { type: 'notify'; title: string; body?: string; app?: AppId }
   | { type: 'log'; text: string }
+  /** Altère les copies conservées d'un média (dénouement surnaturel uniquement). */
+  | { type: 'alterCopies'; mediaId: Id; fromVariant: Id; toVariant: Id }
   | { type: 'solveCase' };
 
 /* ------------------------------------------------------------------ */

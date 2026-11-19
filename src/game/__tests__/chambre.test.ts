@@ -212,6 +212,28 @@ describe('énigme 3 et réponse', () => {
   });
 });
 
+describe('ajouts narratifs', () => {
+  it('alerte d’Élise unique, réaction à la porte ouverte, copie barrée au dénouement seulement', () => {
+    let s = flush(run(s0, { type: 'case/accept', caseId: ID }));
+    s = set(s, at0317);
+    expect(delivered(s, 'e-alerte1')).toBe(1);
+    expect(delivered(s, 'e-alerte3')).toBe(1);
+    s = set(set(s, { manualTime: '03:18' }), { manualTime: '03:17' });
+    expect(delivered(s, 'e-alerte1')).toBe(1); // jamais répétée
+    s = set(s, { airplane: true });
+    const v = def.media.find((m) => m.id === 'capture')!.variants.lisible;
+    s = run(s, { type: 'copy/save', caseId: ID, mediaId: 'capture', variantId: 'lisible', src: v.src, name: 'capture_0317.jpg' });
+    s = set(run(s, { type: 'media/view', caseId: ID, mediaId: 'article' }), { airplane: false });
+    s = send(send(set(s, night), 'g-r-sortis'), 'g-r-temoignage');
+    expect(delivered(s, 'e-ouverte')).toBe(1);
+    expect(s.copies[0].variantId).toBe('lisible'); // intacte tant que l'affaire n'est pas close
+    s = set(s, { clockAuto: true });
+    expect(s.copies[0].variantId).toBe('barree');
+    expect(s.copies[0].src).toBe(v.src);
+    expect(reload(s).copies[0].variantId).toBe('barree');
+  });
+});
+
 describe('sauvegarde', () => {
   it('rechargement à chaque étape du parcours complet', () => {
     let s = reload(flush(run(s0, { type: 'case/accept', caseId: ID })));

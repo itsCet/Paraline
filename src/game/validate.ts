@@ -91,6 +91,10 @@ export function validateCase(c: CaseDefinition): string[] {
       if (!m?.variants[e.variantId]) err(`effet : variante inconnue ${e.mediaId}/${e.variantId}`);
     }
     if (e.type === 'phoneOverride' && e.until) checkCond(e.until);
+    if (e.type === 'alterCopies') {
+      const m = c.media.find((x) => x.id === e.mediaId);
+      if (!m?.variants[e.fromVariant] || !m.variants[e.toVariant]) err(`effet : variantes inconnues ${e.mediaId}`);
+    }
     if ((e.type === 'deliverMessage' || e.type === 'deliverMail') && e.holdUntil) checkCond(e.holdUntil);
   };
   for (const o of c.obstacles ?? []) checkCond(o.solved);
