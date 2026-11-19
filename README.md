@@ -85,7 +85,7 @@ Une enquête définit :
 Conditions disponibles : `all`, `any`, `not`, `caseAccepted`, `mailRead`, `mediaViewed`, `observationFound`, `observationFiled`, `replySent`, `messageDelivered`, `stepIs`, `flag`, `manualTime`, `manualDate`, `airplane`, `clockAuto`, `mediaVariant`, `ruleFired`.
 
 Autres possibilités utilisées par la première enquête :
-- `obstacles` : aide en trois niveaux, sur demande, qui suit le premier obstacle non résolu ;
+- `obstacles` : aide en trois niveaux, sur demande, qui suit le premier obstacle non résolu (ampoule de la barre du bas, ou section « Aide » du dossier) ;
 - `overlay` sur une variante d'image : écriture vectorielle posée sur la photo, stable ou instable, nette au zoom ;
 - `maxZoom`, et `alt` pour une description accessible propre à chaque variante ;
 - `presence` sur un fil : contact joignable seulement sous condition (« Contact indisponible ») ;

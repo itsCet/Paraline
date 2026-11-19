@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { HintList } from '../components/Hints';
 import { useGame } from '../game/store';
 import { useIntent, useNav } from '../phone/nav';
 import { currentObstacle, evaluate } from '../game/engine';
@@ -8,7 +9,6 @@ import { Empty, KindIcon, NavBar, formatDate } from '../components/ui';
 import { Icon } from '../components/icons';
 import type { CaseDefinition } from '../game/types';
 
-const HINT_LABELS = ['Rappel', 'Piste', 'Solution'];
 
 export function FilesApp() {
   const { state, cases } = useGame();
@@ -118,14 +118,13 @@ function TutorialFolder({ onBack }: { onBack: () => void }) {
 }
 
 function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) {
-  const { state, dispatch } = useGame();
+  const { state } = useGame();
   const nav = useNav();
   const p = state.cases[def.id];
   const step = def.steps.find((s) => s.id === p.stepId);
   // L'aide suit le premier obstacle non résolu (ou, à défaut, l'étape en cours).
   const obstacle = currentObstacle(def, state);
   const help = obstacle ?? (step?.hints ? { id: step.id, hints: step.hints } : undefined);
-  const revealed = help ? (p.hintsRevealed[help.id] ?? 0) : 0;
   const observations = def.observations.filter((o) => p.filedObservations.includes(o.id));
   const media = p.grantedMedia.map((id) => resolveMedia(def, state, id)).filter((r): r is NonNullable<typeof r> => !!r);
   const copies = state.copies.filter((c) => c.caseId === def.id);
@@ -222,27 +221,7 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
         {p.status === 'active' && help && (
           <>
             <h2 className="section-title">Aide</h2>
-            <div className="group">
-              {help.hints.slice(0, revealed).map((h, i) => (
-                <div key={i} className="hint">
-                  <div className="hint-level">
-                    {i + 1}. {HINT_LABELS[i]}
-                  </div>
-                  <p>{h}</p>
-                </div>
-              ))}
-              {revealed < 3 && (
-                <button className="row" onClick={() => dispatch({ type: 'hint/reveal', caseId: def.id, stepId: help.id })}>
-                  <span className="row-ico">
-                    <Icon.Bulb size={22} />
-                  </span>
-                  <span className="row-main">
-                    <div className="row-title">{revealed === 0 ? 'Demander un indice' : revealed === 1 ? 'Indice suivant' : 'Afficher la solution'}</div>
-                    <div className="row-sub">Niveau {revealed + 1} sur 3</div>
-                  </span>
-                </button>
-              )}
-            </div>
+            <HintList def={def} />
           </>
         )}
 

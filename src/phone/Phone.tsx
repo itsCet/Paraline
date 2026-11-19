@@ -14,6 +14,7 @@ import { FilesApp } from '../apps/FilesApp';
 import { NotesApp } from '../apps/NotesApp';
 import { SettingsApp } from '../apps/SettingsApp';
 import { PhoneApp, VoiceApp } from '../apps/VoiceApp';
+import { HintBulb } from '../components/Hints';
 import { unlockAudio } from '../game/sound';
 import { WALLPAPER } from '../content/assets';
 import type { AppId } from '../game/types';
@@ -104,6 +105,7 @@ function HomeBar({ onHome }: { onHome: boolean }) {
         </button>
       )}
       <span className="indicator" aria-hidden="true" />
+      <HintBulb />
     </div>
   );
 }

@@ -175,6 +175,18 @@ img { display: block; max-width: 100%; }
 .homebar.on-home { background: transparent; border-top-color: transparent; }
 .homebar .home-btn { width: 64px; height: 30px; display: flex; align-items: center; justify-content: center; color: var(--text-2); border-radius: 10px; }
 .homebar .home-btn:hover { color: var(--text); }
+.homebar .hint-bulb {
+  position: absolute;
+  right: calc(14px + var(--safe-right));
+  top: 4px;
+  width: 40px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--amber);
+  opacity: 0.8;
+  border-radius: 10px;
+}
+.homebar .hint-bulb:hover, .homebar .hint-bulb:focus-visible { opacity: 1; }
+.homebar.on-home .hint-bulb { top: -6px; }
 .homebar .indicator { width: 134px; height: 5px; border-radius: 3px; background: var(--text); opacity: 0.92; }
 
 /* ---------- Écran d'accueil ---------- */
