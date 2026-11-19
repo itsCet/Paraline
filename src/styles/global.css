@@ -938,3 +938,28 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .doc-page [data-obs].passage-found { background: rgba(239, 179, 92, 0.38); }
 .doc-hint { font-size: 13px; color: #8a8478; border-top: 1px solid #ddd6c9; padding-top: 10px; margin-top: 22px; font-family: var(--font); }
 .sheet-writing .ink-strike { fill: none; stroke: #23262f; stroke-opacity: 0.85; stroke-width: 1.6; stroke-linecap: round; }
+
+/* Téléphone tenu à l'horizontale : le jeu se met en pause derrière une invitation à le tourner. */
+.rotate-lock { display: none; }
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .rotate-lock {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: #0b0b0d;
+    color: #e9b46a;
+    text-align: center;
+    padding: 24px;
+  }
+  .rotate-lock svg { animation: rotate-hint 2.4s ease-in-out infinite; margin-bottom: 10px; }
+  .rotate-lock p { margin: 0; font-size: 19px; font-weight: 600; color: #f1ede4; }
+  .rotate-lock small { color: #8a8780; font-size: 14px; }
+  .stage, .desk-brand { visibility: hidden; }
+}
+@keyframes rotate-hint { 0%, 30% { transform: rotate(-90deg); } 60%, 100% { transform: rotate(0deg); } }
+@media (prefers-reduced-motion: reduce) { .rotate-lock svg { animation: none; } }

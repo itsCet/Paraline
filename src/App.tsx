@@ -27,6 +27,19 @@ function useViewportHeight() {
   }, []);
 }
 
+/** Verrouille le portrait quand le navigateur le permet (plein écran, app installée). Sinon, l'écran « Tournez votre téléphone » prend le relais. */
+function usePortraitLock() {
+  useEffect(() => {
+    const lock = () => {
+      const o = screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> };
+      o?.lock?.('portrait').catch(() => {});
+    };
+    lock();
+    window.addEventListener('pointerdown', lock, { once: true });
+    return () => window.removeEventListener('pointerdown', lock);
+  }, []);
+}
+
 class Boundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   state = { error: null as Error | null };
   static getDerivedStateFromError(error: Error) {
@@ -66,8 +79,18 @@ class Boundary extends Component<{ children: ReactNode }, { error: Error | null 
 
 export function App() {
   useViewportHeight();
+  usePortraitLock();
   return (
     <Boundary>
+      <div className="rotate-lock" role="alert">
+        <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
+          <rect x="20" y="8" width="24" height="44" rx="5" fill="none" stroke="currentColor" strokeWidth="3" />
+          <path d="M46 56a20 20 0 0 0 10-14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          <path d="M52 40l4 2 2-4" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <p>Tournez votre téléphone</p>
+        <small>Paraline se joue à la verticale.</small>
+      </div>
       <div className="desk-brand" aria-hidden="true">
         <LogoMark size={30} />
         <div>
