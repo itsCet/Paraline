@@ -24,12 +24,12 @@ const hante: Condition = { flag: 'hante' };
 const messageEntendu: Condition = { mediaViewed: 'ne-pas-effacer@plein' };
 const rendu: Condition = { messageDelivered: 'marc-mere' };
 
+// Horaires calés sur l'enregistrement réel (13,8 s).
 const CUES_DEBUT = [
-  { start: 0, end: 5, text: '[respiration lente]' },
-  { start: 5, end: 9, text: 'Tu dors ?' },
-  { start: 12, end: 16, text: 'Je cherche mon message.' },
+  { start: 0, end: 1.6, text: 'Tu dors ?' },
+  { start: 2.3, end: 4.8, text: 'Je cherche mon message.' },
 ];
-const CUE_FIN = { start: 31, end: 36, text: 'Rends-le-moi.' };
+const CUE_FIN = { start: 12.6, end: 13.8, text: 'Rends-le-moi.' };
 
 const NOTES_MARC = `
 <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
@@ -81,18 +81,18 @@ export const elleEcrit: CaseDefinition = {
       id: 'enregistrement',
       kind: 'audio',
       name: 'enregistrement_0412.m4a',
-      sizeLabel: '612 Ko',
-      durationLabel: '00:40',
+      sizeLabel: '216 Ko',
+      durationLabel: '00:14',
       defaultVariant: 'son',
       variants: {
         son: {
           src: `${DIR}/enregistrement-0412.mp3`,
-          cues: [...CUES_DEBUT, { start: 20, end: 27, text: '[inaudible]' }, CUE_FIN],
+          cues: [...CUES_DEBUT, { start: 5.8, end: 11.6, text: '[inaudible]' }, CUE_FIN],
         },
         // Sons du jeu coupés : le chuchotement se lit.
         silence: {
           src: `${DIR}/enregistrement-0412.mp3`,
-          cues: [...CUES_DEBUT, { start: 20, end: 27, text: 'Maman… le 14… la route des Étangs.', observationId: 'chuchotement' }, CUE_FIN],
+          cues: [...CUES_DEBUT, { start: 5.8, end: 11.6, text: 'Maman… le 14… la route des Étangs.', observationId: 'chuchotement' }, CUE_FIN],
         },
       },
     },
@@ -138,7 +138,7 @@ export const elleEcrit: CaseDefinition = {
       id: 'ne-pas-effacer',
       kind: 'audio',
       name: 'ne_pas_effacer.m4a',
-      durationLabel: '00:20',
+      durationLabel: '00:12',
       album: 'Dictaphone',
       defaultVariant: 'vide',
       variants: {
@@ -146,10 +146,11 @@ export const elleEcrit: CaseDefinition = {
         plein: {
           src: `${DIR}/ne-pas-effacer.mp3`,
           cues: [
-            { start: 0, end: 3, text: 'Maman, c’est moi.' },
-            { start: 3, end: 7, text: 'Je suis sur la route des Étangs, je rentre.' },
-            { start: 7, end: 12, text: 'Pardon pour ce soir… j’ai dit des choses que je pensais pas.' },
-            { start: 12, end: 17, text: 'Je t’aime. Je suis là dans vingt minutes.', observationId: 'message-nora' },
+            // Horaires calés sur le message réel (12 s).
+            { start: 0, end: 1.7, text: 'Maman, c’est moi.' },
+            { start: 1.9, end: 4.3, text: 'Je suis sur la route des Étangs, je rentre.' },
+            { start: 4.4, end: 7.8, text: 'Pardon pour ce soir… j’ai dit des choses que je pensais pas.' },
+            { start: 7.9, end: 12, text: 'Je t’aime. Je suis là dans vingt minutes.', observationId: 'message-nora' },
           ],
         },
       },

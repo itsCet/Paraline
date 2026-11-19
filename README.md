@@ -177,7 +177,6 @@ Dernière exécution le 19/11/2026.
 
 - Fond d’écran et photo de l’exercice : photos fournies (`public/media/system/wallpaper.jpg`, `public/media/tutorial/bureau.jpg`).
 - L'écriture de la feuille utilise une police manuscrite du système (Bradley Hand, Segoe Print…). À défaut, Chromium sous Linux affiche une police à chasse fixe.
-- Les deux audios de « Elle écrit dans mes notes » sont pour l'instant des fichiers silencieux provisoires (`placeholder` dans le manifeste) ; la transcription rend l'enquête entièrement jouable.
 - Les lecteurs audio et vidéo (lecture, progression, transcription, sous-titres, zones actives dans le temps) sont implémentés mais n'ont été vérifiés que par le typage. Aucun fichier audio ou vidéo n'existe encore pour les tester en conditions réelles.
 - Tests faits sous Chromium uniquement, avec émulation mobile. Safari iOS et le vrai clavier virtuel restent à vérifier sur appareil.
 - Le contenu HTML des documents d'enquête est inséré tel quel : il doit rester du contenu local de confiance.

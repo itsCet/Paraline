@@ -53,8 +53,8 @@ export const ASSETS: AssetEntry[] = [
   { path: '/media/cases/elle-ecrit/telephone-marc.jpg', kind: 'image', usage: 'IMG_2290.jpg : téléphone et boîte (numéro de série ajouté en SVG)', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/elle-ecrit/nora.jpg', kind: 'image', usage: 'Photo de l’avis de décès', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/elle-ecrit/fond-voiture.jpg', kind: 'image', usage: 'Fond d’écran imposé pendant la hantise', source: 'Image fournie par l’auteur du jeu' },
-  { path: '/media/cases/elle-ecrit/enregistrement-0412.mp3', kind: 'audio', usage: 'Enregistrement nocturne de Marc', source: 'Audio fourni par l’auteur du jeu (ElevenLabs)', placeholder: true },
-  { path: '/media/cases/elle-ecrit/ne-pas-effacer.mp3', kind: 'audio', usage: 'Dernier message vocal de Nora', source: 'Audio fourni par l’auteur du jeu (ElevenLabs)', placeholder: true },
+  { path: '/media/cases/elle-ecrit/enregistrement-0412.mp3', kind: 'audio', usage: 'Enregistrement nocturne de Marc (13,8 s)', source: 'Audio fourni par l’auteur du jeu (ElevenLabs), extrait de sa vidéo' },
+  { path: '/media/cases/elle-ecrit/ne-pas-effacer.mp3', kind: 'audio', usage: 'Dernier message vocal de Nora (12 s)', source: 'Audio fourni par l’auteur du jeu (ElevenLabs), extrait de sa vidéo' },
 ];
 
 /** Fond d'écran par défaut (accueil et introduction). Remplacer par la photo définitive. */
