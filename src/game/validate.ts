@@ -25,6 +25,7 @@ export function validateCase(c: CaseDefinition): string[] {
   const obs = uniq('observation', c.observations.map((x) => x.id));
   const steps = uniq('étape', c.steps.map((x) => x.id));
   const rules = uniq('règle', c.rules.map((x) => x.id));
+  const noteIds = uniq('note', (c.notes ?? []).map((x) => x.id));
 
   if (!chars.has(c.client)) err(`client inconnu : ${c.client}`);
   for (const m of [c.initialMail, ...(c.followUpMails ?? [])]) {
@@ -68,7 +69,11 @@ export function validateCase(c: CaseDefinition): string[] {
     if ('any' in cond) return cond.any.forEach(checkCond);
     if ('not' in cond) return checkCond(cond.not);
     if ('mailRead' in cond && !mails.has(cond.mailRead)) err(`condition : e-mail inconnu ${cond.mailRead}`);
-    if ('mediaViewed' in cond && !media.has(cond.mediaViewed)) err(`condition : média inconnu ${cond.mediaViewed}`);
+    if ('mediaViewed' in cond) {
+      // `id@variante` : média consulté dans une version précise.
+      const [mid, vid] = cond.mediaViewed.split('@');
+      if (!media.has(mid) || (vid && !c.media.find((m) => m.id === mid)?.variants[vid])) err(`condition : média inconnu ${cond.mediaViewed}`);
+    }
     if ('observationFound' in cond && !obs.has(cond.observationFound)) err(`condition : observation inconnue ${cond.observationFound}`);
     if ('observationFiled' in cond && !obs.has(cond.observationFiled)) err(`condition : observation inconnue ${cond.observationFiled}`);
     if ('replySent' in cond && !replies.has(cond.replySent)) err(`condition : réponse inconnue ${cond.replySent}`);
@@ -76,6 +81,8 @@ export function validateCase(c: CaseDefinition): string[] {
     if ('stepIs' in cond && !steps.has(cond.stepIs)) err(`condition : étape inconnue ${cond.stepIs}`);
     if ('ruleFired' in cond && !rules.has(cond.ruleFired)) err(`condition : règle inconnue ${cond.ruleFired}`);
     if ('manualTime' in cond && !/^\d{2}:\d{2}$/.test(cond.manualTime)) err(`heure invalide ${cond.manualTime}`);
+    if ('noteExists' in cond && !noteIds.has(cond.noteExists)) err(`condition : note inconnue ${cond.noteExists}`);
+    if ('noteWritten' in cond && !noteIds.has(cond.noteWritten)) err(`condition : note inconnue ${cond.noteWritten}`);
     if ('mediaVariant' in cond && !c.media.find((m) => m.id === cond.mediaVariant)?.variants[cond.is])
       err(`condition : variante inconnue ${cond.mediaVariant}/${cond.is}`);
     if ('manualDate' in cond && !/^\d{4}-\d{2}-\d{2}$/.test(cond.manualDate)) err(`date invalide ${cond.manualDate}`);
@@ -96,6 +103,7 @@ export function validateCase(c: CaseDefinition): string[] {
       if (!m?.variants[e.fromVariant] || !m.variants[e.toVariant]) err(`effet : variantes inconnues ${e.mediaId}`);
     }
     if ((e.type === 'deliverMessage' || e.type === 'deliverMail') && e.holdUntil) checkCond(e.holdUntil);
+    if ((e.type === 'writeNote' || e.type === 'removeNote') && !noteIds.has(e.noteId)) err(`effet : note inconnue ${e.noteId}`);
   };
   for (const o of c.obstacles ?? []) checkCond(o.solved);
   for (const e of c.endings ?? []) checkCond(e.when);

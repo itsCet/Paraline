@@ -156,6 +156,14 @@ export function AppGlyph({ app }: { app: AppId }) {
           <path d="M15.5 22.5a3 3 0 013-3h7l3 3.4h12.5a3 3 0 013 3V39a3 3 0 01-3 3h-22.5a3 3 0 01-3-3z" stroke="#efb35c" {...line} />
         </Tile>
       );
+    case 'voice':
+      return (
+        <Tile from="#26272d" to="#141519">
+          <g stroke="#ff453a" strokeWidth="3.2" strokeLinecap="round">
+            <path d="M16 27v6M22 22v16M28 17v26M34 23v14M40 19v22M46 26v8" />
+          </g>
+        </Tile>
+      );
     case 'notes':
       return (
         <svg viewBox="0 0 60 60" aria-hidden="true">
@@ -185,4 +193,5 @@ export const APP_LABELS: Record<AppId, string> = {
   files: 'Dossiers',
   notes: 'Notes',
   settings: 'Réglages',
+  voice: 'Dictaphone',
 };

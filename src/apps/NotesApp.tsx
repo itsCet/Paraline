@@ -65,7 +65,10 @@ export function NotesApp() {
 function NoteRow({ note, onOpen }: { note: Note; onOpen: () => void }) {
   const { cases } = useGame();
   const c = note.caseId ? cases.byId.get(note.caseId) : undefined;
-  const firstLine = note.body.split('\n').find((l) => l.trim()) ?? '';
+  const lines = note.body.split('\n').filter((l) => l.trim());
+  const firstLine = lines[0] ?? '';
+  // Sans titre, la première ligne sert de titre et la dernière d'aperçu.
+  const preview = note.title.trim() ? firstLine : lines.length > 1 ? lines[lines.length - 1] : '';
   return (
     <button className="row" onClick={onOpen}>
       <span className="row-main">
@@ -73,7 +76,7 @@ function NoteRow({ note, onOpen }: { note: Note; onOpen: () => void }) {
         <div className="row-sub" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {formatDate(note.updatedAt)}
           {c ? ` · ${c.title}` : ''}
-          {note.title.trim() && firstLine ? ` · ${firstLine}` : ''}
+          {preview ? ` · ${preview}` : ''}
         </div>
       </span>
       <Icon.Chevron className="chev" size={18} />

@@ -21,7 +21,9 @@ export function FilesApp() {
   const accepted = cases.list.filter((d) => ['active', 'solved'].includes(state.cases[d.id]?.status ?? ''));
   accepted.sort((a, b) => (state.cases[a.id].status === 'active' ? -1 : 0) - (state.cases[b.id].status === 'active' ? -1 : 0));
 
-  useEffect(() => nav.setScreen('files', open ?? 'list'), [open, nav]);
+  useEffect(() => {
+    nav.setScreen('files', open ?? 'list');
+  }, [open, nav]);
 
   if (open === 'tutorial' && showTutorial) return <TutorialFolder onBack={() => setOpen(null)} />;
   const def = open ? cases.byId.get(open) : undefined;

@@ -2,6 +2,7 @@
  * Actions du joueur → nouvel état. Pur et testable (horloge passée en paramètre).
  */
 import {
+  currentVariant,
   availableReplies,
   applyEffect,
   clearOverridesOf,
@@ -40,6 +41,8 @@ export type Action =
   | { type: 'note/delete'; id: Id }
   | { type: 'settings/update'; patch: Partial<Settings> }
   | { type: 'notification/dismiss'; id: Id }
+  /** Active le réglage inconnu apparu dans Réglages (override `ghostSetting`). */
+  | { type: 'ghost/activate' }
   | { type: 'tick' }
   | { type: 'reset' };
 
@@ -131,10 +134,15 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
     case 'case/postpone':
       return patchCase(state, action.caseId, (p) => (p.status === 'new' ? { ...p, status: 'postponed' } : p));
 
-    case 'media/view':
-      return patchCase(state, action.caseId, (p) =>
-        p.viewedMedia.includes(action.mediaId) ? p : { ...p, viewedMedia: [...p.viewedMedia, action.mediaId] },
-      );
+    case 'media/view': {
+      // On retient le média et la version consultée (`id@variante`) : certaines énigmes en dépendent.
+      const def = cases.byId.get(action.caseId);
+      const v = def ? currentVariant(def, state.cases[action.caseId], action.mediaId) : undefined;
+      return patchCase(state, action.caseId, (p) => {
+        const ids = [action.mediaId, ...(v ? [`${action.mediaId}@${v}`] : [])].filter((x) => !p.viewedMedia.includes(x));
+        return ids.length ? { ...p, viewedMedia: [...p.viewedMedia, ...ids] } : p;
+      });
+    }
 
     case 'observation/found': {
       const def = cases.byId.get(action.caseId);
@@ -242,6 +250,17 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
       let next: GameState = { ...state, settings: { ...prev, ...action.patch } };
       if (prev.airplane && !next.settings.airplane) next = rescheduleQueue(next, now);
       return next;
+    }
+    case 'ghost/activate': {
+      const o = state.overrides.ghostSetting;
+      if (!o) return state;
+      const [, text] = o.value.split('::');
+      const overrides = { ...state.overrides };
+      delete overrides.ghostSetting;
+      const note = text
+        ? [{ id: `${o.caseId}:reglage`, title: '', body: text, caseId: o.caseId, createdAt: now, updatedAt: now }]
+        : [];
+      return { ...state, overrides, notes: [...note, ...state.notes.filter((n) => n.id !== `${o.caseId}:reglage`)] };
     }
     case 'notification/dismiss':
       return { ...state, notifications: state.notifications.filter((n) => n.id !== action.id) };

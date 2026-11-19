@@ -87,7 +87,9 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
   }, [clamp]);
 
   // Réinitialise sur changement d'image.
-  useEffect(() => setView({ z: 1, x: 0, y: 0 }), [src]);
+  useEffect(() => {
+    setView({ z: 1, x: 0, y: 0 });
+  }, [src]);
 
   useEffect(() => {
     if (!focus || !w0) return;

@@ -31,7 +31,9 @@ export function SettingsApp() {
   const nav = useNav();
   const [page, setPage] = useState<Page>('root');
   useIntent('settings', (i) => i.page && setPage(i.page as Page));
-  useEffect(() => nav.setScreen('settings', page), [page, nav]);
+  useEffect(() => {
+    nav.setScreen('settings', page);
+  }, [page, nav]);
   const s = state.settings;
   const set = (patch: Partial<Settings>) => dispatch({ type: 'settings/update', patch });
   const back = page === 'apps' ? 'help' : 'root';
@@ -65,6 +67,16 @@ export function SettingsApp() {
                 <Switch label="Mode avion" checked={s.airplane} onChange={(v) => set({ airplane: v })} />
               </div>
             </div>
+            {state.overrides.ghostSetting && (
+              <div className="group" style={{ marginTop: 10 }}>
+                <div className="row">
+                  <span className="row-main">
+                    <div className="row-title">{state.overrides.ghostSetting.value.split('::')[0]}</div>
+                  </span>
+                  <Switch label={state.overrides.ghostSetting.value.split('::')[0]} checked={false} onChange={() => dispatch({ type: 'ghost/activate' })} />
+                </div>
+              </div>
+            )}
             <p className="footnote">
               {s.airplane ? 'Échanges suspendus. L’historique et les fichiers restent consultables.' : 'Ces réglages concernent uniquement le téléphone du jeu.'}
             </p>

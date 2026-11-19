@@ -72,23 +72,41 @@ function Controls({ m, label, extra }: { m: ReturnType<typeof useMediaState>; la
   );
 }
 
-export function AudioPlayer({ variant, name, volume, muted }: { variant: MediaVariant; name: string; volume: number; muted: boolean }) {
+export function AudioPlayer({
+  variant,
+  name,
+  volume,
+  muted,
+  found = [],
+  onCue,
+}: {
+  variant: MediaVariant;
+  name: string;
+  volume: number;
+  muted: boolean;
+  found?: string[];
+  /** Ligne de transcription touchée qui porte une observation. */
+  onCue?: (observationId: string) => void;
+}) {
+  const empty = !variant.src;
   const ref = useRef<HTMLAudioElement>(null);
   const m = useMediaState(ref, volume, muted);
   const activeRef = useRef<HTMLParagraphElement>(null);
   const active = variant.cues?.findIndex((c) => m.t >= c.start && m.t < c.end) ?? -1;
-  useEffect(() => activeRef.current?.scrollIntoView({ block: 'nearest' }), [active]);
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({ block: 'nearest' });
+  }, [active]);
   return (
     <>
       <div className="viewer-stage">
-        <audio ref={ref} src={variant.src} preload="metadata" />
+        {!empty && <audio ref={ref} src={variant.src} preload="metadata" />}
         <div className="audio-art">
           <Icon.Audio size={64} />
           <div>{name}</div>
-          {m.error && <div role="alert">Fichier audio indisponible.</div>}
+          {empty ? <div>Enregistrement vide · 00:00</div> : m.error && <div role="alert">Fichier audio indisponible. La transcription reste disponible.</div>}
         </div>
       </div>
-      <Controls m={m} label={name} />
+      {!empty && <Controls m={m} label={name} />}
       {(variant.cues?.length || variant.transcript) && (
         <section className="viewer-panel" aria-label="Transcription">
           <div className="panel-card transcript">
@@ -96,7 +114,13 @@ export function AudioPlayer({ variant, name, volume, muted }: { variant: MediaVa
             {variant.cues?.length
               ? variant.cues.map((c, i) => (
                   <p key={i} ref={i === active ? activeRef : undefined} className={i === active ? 'active' : undefined}>
-                    <button onClick={() => m.seek(c.start)} style={{ textAlign: 'left' }}>
+                    <button
+                      onClick={() => {
+                        m.seek(c.start);
+                        if (c.observationId) onCue?.(c.observationId);
+                      }}
+                      style={{ textAlign: 'left', ...(c.observationId && found.includes(c.observationId) ? { background: 'var(--amber-soft)', borderRadius: 4 } : {}) }}
+                    >
                       <span className="time" style={{ color: 'var(--text-3)', marginRight: 8 }}>{formatTime(c.start)}</span>
                       {c.text}
                     </button>

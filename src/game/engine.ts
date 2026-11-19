@@ -40,6 +40,7 @@ export function emptyProgress(): CaseProgress {
     flags: {},
     hintsRevealed: {},
     log: [],
+    writtenNotes: [],
   };
 }
 
@@ -94,6 +95,9 @@ export function evaluate(cond: Condition, state: GameState, caseId: Id): boolean
   if ('manualDate' in cond) return !s.clockAuto && s.manualDate === cond.manualDate;
   if ('airplane' in cond) return s.airplane === cond.airplane;
   if ('clockAuto' in cond) return s.clockAuto === cond.clockAuto;
+  if ('sound' in cond) return s.sound === cond.sound;
+  if ('noteExists' in cond) return state.notes.some((n) => n.id === noteKey(caseId, cond.noteExists));
+  if ('noteWritten' in cond) return (p.writtenNotes ?? []).includes(cond.noteWritten);
   if ('mediaVariant' in cond) {
     if (p.mediaVariants[cond.mediaVariant] !== undefined) return p.mediaVariants[cond.mediaVariant] === cond.is;
     return defaultVariants.get(caseId)?.get(cond.mediaVariant) === cond.is;
@@ -114,14 +118,18 @@ function updateCase(state: GameState, caseId: Id, fn: (p: CaseProgress) => CaseP
   return { ...state, cases: { ...state.cases, [caseId]: fn(p) } };
 }
 
-export function isDelivered(state: GameState, caseId: Id, kind: 'message' | 'mail', id: Id): boolean {
+/** Identifiant d'une note d'enquête dans Notes. */
+export const noteKey = (caseId: Id, noteId: Id) => `${caseId}:${noteId}`;
+
+export function isDelivered(state: GameState, caseId: Id, kind: QueuedDelivery['kind'], id: Id): boolean {
   const p = state.cases[caseId];
   if (!p) return false;
+  if (kind === 'note') return state.notes.some((n) => n.id === noteKey(caseId, id));
   if (kind === 'mail') return p.deliveredMails.includes(id);
   return Object.values(p.threads).some((t) => t.some((e) => e.messageId === id));
 }
 
-export function isQueued(state: GameState, caseId: Id, kind: 'message' | 'mail', id: Id): boolean {
+export function isQueued(state: GameState, caseId: Id, kind: QueuedDelivery['kind'], id: Id): boolean {
   return state.queue.some((q) => q.caseId === caseId && q.kind === kind && q.id === id);
 }
 
@@ -133,7 +141,7 @@ function threadOf(def: CaseDefinition, q: QueuedDelivery): Id | undefined {
 function enqueue(
   state: GameState,
   def: CaseDefinition,
-  kind: 'message' | 'mail',
+  kind: QueuedDelivery['kind'],
   id: Id,
   delay: number,
   now: number,
@@ -145,7 +153,7 @@ function enqueue(
   // Les messages d'un même fil s'enchaînent : le délai part du précédent.
   let base = now;
   for (const q of state.queue) {
-    if (q.caseId === def.id && (kind === 'mail' ? q.kind === 'mail' : threadOf(def, q) === thread)) {
+    if (q.caseId === def.id && q.kind === kind && (kind !== 'message' || threadOf(def, q) === thread)) {
       base = Math.max(base, q.notBefore);
     }
   }
@@ -180,6 +188,18 @@ export function deliverMessageNow(state: GameState, def: CaseDefinition, message
   return next;
 }
 
+/** Écrit une note d'enquête dans Notes (sans notification : elle est simplement là). */
+export function writeNoteNow(state: GameState, def: CaseDefinition, noteId: Id, now: number): GameState {
+  const n = def.notes?.find((x) => x.id === noteId);
+  if (!n || isDelivered(state, def.id, 'note', noteId)) return state;
+  const p = state.cases[def.id];
+  const next = p ? updateCase(state, def.id, (q) => ({ ...q, writtenNotes: add(q.writtenNotes ?? [], noteId) })) : state;
+  return {
+    ...next,
+    notes: [{ id: noteKey(def.id, noteId), title: n.title ?? '', body: n.body, caseId: def.id, createdAt: now, updatedAt: now }, ...next.notes],
+  };
+}
+
 export function deliverMailNow(state: GameState, def: CaseDefinition, mailId: Id): GameState {
   const mail = findMail(def, mailId);
   if (!mail || isDelivered(state, def.id, 'mail', mailId)) return state;
@@ -206,6 +226,10 @@ export function applyEffect(state: GameState, def: CaseDefinition, effect: Effec
       return enqueue(state, def, 'message', effect.messageId, effect.delayMs ?? DEFAULT_MESSAGE_DELAY, now, effect.ignoreAirplane, effect.holdUntil);
     case 'deliverMail':
       return enqueue(state, def, 'mail', effect.mailId, effect.delayMs ?? DEFAULT_MESSAGE_DELAY, now, effect.ignoreAirplane, effect.holdUntil);
+    case 'writeNote':
+      return enqueue(state, def, 'note', effect.noteId, effect.delayMs ?? 0, now, true);
+    case 'removeNote':
+      return { ...state, notes: state.notes.filter((n) => n.id !== noteKey(cid, effect.noteId)) };
     case 'setMediaVariant':
       return updateCase(state, cid, (p) => ({ ...p, mediaVariants: { ...p.mediaVariants, [effect.mediaId]: effect.variantId } }));
     case 'unlockReply':
@@ -324,7 +348,12 @@ export function processQueue(state: GameState, cases: CaseIndex, now: number): G
       remaining.push(q);
       continue;
     }
-    next = q.kind === 'message' ? deliverMessageNow(next, def, q.id, now) : deliverMailNow(next, def, q.id);
+    next =
+      q.kind === 'message'
+        ? deliverMessageNow(next, def, q.id, now)
+        : q.kind === 'note'
+          ? writeNoteNow(next, def, q.id, now)
+          : deliverMailNow(next, def, q.id);
     delivered = true;
   }
   next = { ...next, queue: remaining };

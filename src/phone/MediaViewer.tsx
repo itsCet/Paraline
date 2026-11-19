@@ -159,7 +159,19 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
       {r.media.kind === 'video' && (
         <VideoPlayer variant={r.variant} name={r.media.name} volume={state.settings.volume} muted={!state.settings.sound} hotspots={hotspots} onHotspot={onHotspot} />
       )}
-      {r.media.kind === 'audio' && <AudioPlayer variant={r.variant} name={r.media.name} volume={state.settings.volume} muted={!state.settings.sound} />}
+      {r.media.kind === 'audio' && (
+        <AudioPlayer
+          variant={r.variant}
+          name={r.media.name}
+          volume={state.settings.volume}
+          muted={!state.settings.sound}
+          found={foundIds}
+          onCue={(id) => {
+            if (!caseId || foundIds.includes(id)) return;
+            dispatch({ type: 'observation/found', caseId, observationId: id });
+          }}
+        />
+      )}
       {r.media.kind === 'document' && (
         <DocView
           variant={r.variant}

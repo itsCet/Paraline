@@ -70,6 +70,7 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
 
       <nav className="grid" aria-label="Applications">
         {(['mail', 'messages', 'photos', 'files', 'notes', 'settings'] as AppId[]).map((id) => icon(id))}
+        {state.overrides.extraApp?.value === 'dictaphone' && icon('voice')}
       </nav>
       {state.introDone && t.status === 'pending' && (
         <section className="offer glass" aria-label="Exercice de prise en main">

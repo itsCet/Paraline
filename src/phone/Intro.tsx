@@ -10,7 +10,9 @@ export function Intro() {
   const nav = useNav();
   const [i, setI] = useState(0);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  useEffect(() => titleRef.current?.focus(), [i]);
+  useEffect(() => {
+    titleRef.current?.focus();
+  }, [i]);
   const finish = () => {
     nav.home();
     dispatch({ type: 'intro/complete' });

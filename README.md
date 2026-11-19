@@ -2,7 +2,7 @@
 
 *Enquêtes paranormales.* Jeu web mobile : le joueur, enquêteur paranormal indépendant, mène ses affaires depuis son téléphone professionnel fictif (Mail, Messages, Photos, Dossiers, Notes, Réglages).
 
-Contenu : téléphone, applications, introduction, exercice de prise en main, moteur d'enquête, sauvegarde, et deux enquêtes complètes, disponibles dès le lancement : **« La chambre condamnée »** (surnaturelle, `src/content/cases/chambre-condamnee/`) et **« Cette photo a changé »** (rationnelle, avec une fin à choix, `src/content/cases/photo-changee/`).
+Contenu : téléphone, applications, introduction, exercice de prise en main, moteur d'enquête, sauvegarde, et trois enquêtes complètes, disponibles dès le lancement : **« La chambre condamnée »** (surnaturelle, `src/content/cases/chambre-condamnee/`) et **« Cette photo a changé »** (rationnelle, avec une fin à choix, `src/content/cases/photo-changee/`) et **« Elle écrit dans mes notes »** (hantise du téléphone du joueur, `src/content/cases/elle-ecrit/`).
 
 React 19, TypeScript et Vite. Pas de backend, pas de compte, pas d'IA, pas de clé secrète.
 
@@ -26,6 +26,7 @@ npm run build:fixture && npx vite preview --outDir dist-fixture --port 4174 &
 npm run e2e:fixture                           # écrans d'enquête avec l'enquête de TEST
 npm run e2e:chambre                           # parcours complet de « La chambre condamnée » (sur le port 4173), sans indice
 npm run e2e:photo                             # parcours complet de « Cette photo a changé », sans indice
+npm run e2e:elle                              # parcours complet de « Elle écrit dans mes notes », sans indice (~2 min)
 ```
 
 `build:fixture` remplace le registre des enquêtes par une enquête de test, grâce à un alias Vite. Le build normal n'en contient aucune trace.
@@ -95,7 +96,12 @@ Autres possibilités utilisées par la première enquête :
 - `info` sur une variante : panneau « Infos » (métadonnées) dont les lignes peuvent être relevées ;
 - `album` sur un média : regroupé dans Photos sous « Album partagé » ;
 - `endings` : conclusion qui dépend de la fin choisie ;
-- `alterCopies` : altère une copie conservée (dénouement surnaturel).
+- `alterCopies` : altère une copie conservée (dénouement surnaturel) ;
+- `notes` + effets `writeNote` / `removeNote`, conditions `noteExists` / `noteWritten` : notes qui apparaissent dans l'app Notes du joueur ;
+- condition `sound` : sons du jeu activés ou coupés ;
+- `mediaViewed: 'id@variante'` : média consulté dans une version précise ;
+- overrides `extraApp` (app Dictaphone sur l'accueil) et `ghostSetting` (réglage inconnu dans Réglages) ;
+- `observationId` sur une ligne de transcription audio.
 
 Effets disponibles : `deliverMessage`, `deliverMail` (suspendus en mode avion, sauf `ignoreAirplane`), `setMediaVariant`, `unlockReply`, `grantMedia`, `setStep`, `setFlag`, `phoneOverride` (temporaire, avec condition de fin `until`), `clearPhoneOverride`, `notify`, `log`, `solveCase`.
 
@@ -129,7 +135,8 @@ Tout est stocké dans `localStorage` (clé `paraline.save`, format versionné `S
 Dernière exécution le 19/11/2026.
 
 - `npm run build` : OK.
-- `npm test` : **40/40** (dont 6 pour « Cette photo a changé » : enquêtes simultanées au lancement, une seule active, synchronisation de l'album, ordre libre, les deux fins, sauvegarde).
+- `npm test` : **47/47** (dont 7 pour « Elle écrit dans mes notes »). Détail précédent : **40/40** (dont 6 pour « Cette photo a changé » : enquêtes simultanées au lancement, une seule active, synchronisation de l'album, ordre libre, les deux fins, sauvegarde).
+- `npm run e2e:elle` : **11/11**, parcours complet sans indice : bascule, notes qui reviennent, mode avion, son coupé, numéro de série, avis de décès, 14/03/2025 23:48, transmission, réglage « Nora ».
 - `npm run e2e:photo` : **10/10**, parcours complet sans indice jusqu'à la fin douce, puis acceptation de la première affaire.
 - `npm test` (détail précédent) : **34/34**. Dont 16 tests ciblés sur « La chambre condamnée » :
   - report puis acceptation ;
@@ -170,6 +177,7 @@ Dernière exécution le 19/11/2026.
 
 - Fond d’écran et photo de l’exercice : photos fournies (`public/media/system/wallpaper.jpg`, `public/media/tutorial/bureau.jpg`).
 - L'écriture de la feuille utilise une police manuscrite du système (Bradley Hand, Segoe Print…). À défaut, Chromium sous Linux affiche une police à chasse fixe.
+- Les deux audios de « Elle écrit dans mes notes » sont pour l'instant des fichiers silencieux provisoires (`placeholder` dans le manifeste) ; la transcription rend l'enquête entièrement jouable.
 - Les lecteurs audio et vidéo (lecture, progression, transcription, sous-titres, zones actives dans le temps) sont implémentés mais n'ont été vérifiés que par le typage. Aucun fichier audio ou vidéo n'existe encore pour les tester en conditions réelles.
 - Tests faits sous Chromium uniquement, avec émulation mobile. Safari iOS et le vrai clavier virtuel restent à vérifier sur appareil.
 - Le contenu HTML des documents d'enquête est inséré tel quel : il doit rester du contenu local de confiance.

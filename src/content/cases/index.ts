@@ -12,5 +12,6 @@
 import type { CaseDefinition } from '../../game/types';
 import { chambreCondamnee } from './chambre-condamnee';
 import { photoChangee } from './photo-changee';
+import { elleEcrit } from './elle-ecrit';
 
-export const CASES: CaseDefinition[] = [chambreCondamnee, photoChangee];
+export const CASES: CaseDefinition[] = [chambreCondamnee, photoChangee, elleEcrit];

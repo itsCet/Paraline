@@ -44,6 +44,8 @@ export interface SubtitleCue {
   start: number;
   end: number;
   text: string;
+  /** Toucher cette ligne de la transcription relève une observation. */
+  observationId?: Id;
 }
 
 export interface MediaVariant {
@@ -218,6 +220,8 @@ export interface CaseDefinition {
   rules: RuleDef[];
   /** Messages présents dans les fils dès l'acceptation. */
   openingMessages?: Id[];
+  /** Notes qui peuvent apparaître dans l'app Notes du joueur. */
+  notes?: { id: Id; title?: string; body: string }[];
   obstacles?: ObstacleDef[];
   conclusion: { title: string; text: string[] };
   /** Conclusions alternatives : la première dont la condition est vraie remplace `conclusion`. */
@@ -248,6 +252,11 @@ export type Condition =
   | { airplane: boolean }
   /** Réglage automatique de la date et de l'heure. */
   | { clockAuto: boolean }
+  /** Sons du jeu activés ou coupés (Réglages). */
+  | { sound: boolean }
+  /** Note de l'enquête actuellement présente dans Notes / déjà écrite au moins une fois. */
+  | { noteExists: Id }
+  | { noteWritten: Id }
   /** Variante actuelle d'un média. */
   | { mediaVariant: Id; is: Id }
   | { ruleFired: Id };
@@ -258,7 +267,9 @@ export type FlagValue = boolean | number | string;
 /* Effets                                                               */
 /* ------------------------------------------------------------------ */
 
-export type PhoneOverrideKey = 'wallpaper' | 'homeMessage';
+/** `extraApp` : application ajoutée à l'accueil (ex. `dictaphone`).
+ *  `ghostSetting` : réglage inconnu dans Réglages, au format `Libellé::texte de la note écrite à l'activation`. */
+export type PhoneOverrideKey = 'wallpaper' | 'homeMessage' | 'extraApp' | 'ghostSetting';
 
 export type Effect =
   /** Message dans un fil. Suspendu en mode avion sauf `ignoreAirplane`. */
@@ -278,6 +289,9 @@ export type Effect =
   | { type: 'clearPhoneOverride'; key: PhoneOverrideKey }
   | { type: 'notify'; title: string; body?: string; app?: AppId }
   | { type: 'log'; text: string }
+  /** Une note apparaît dans l'app Notes du joueur (définie dans `notes`). */
+  | { type: 'writeNote'; noteId: Id; delayMs?: number }
+  | { type: 'removeNote'; noteId: Id }
   /** Altère les copies conservées d'un média (dénouement surnaturel uniquement). */
   | { type: 'alterCopies'; mediaId: Id; fromVariant: Id; toVariant: Id }
   | { type: 'solveCase' };
@@ -286,7 +300,7 @@ export type Effect =
 /* État sauvegardé                                                      */
 /* ------------------------------------------------------------------ */
 
-export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings';
+export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice';
 
 export type CaseStatus = 'new' | 'postponed' | 'active' | 'solved';
 
@@ -296,7 +310,7 @@ export interface ThreadEntry {
 }
 
 export interface QueuedDelivery {
-  kind: 'message' | 'mail';
+  kind: 'message' | 'mail' | 'note';
   id: Id;
   caseId: Id;
   notBefore: number;
@@ -328,6 +342,8 @@ export interface CaseProgress {
   stepId?: Id;
   hintsRevealed: Record<Id, number>;
   log: { at: number; text: string }[];
+  /** Notes d'enquête déjà apparues au moins une fois. */
+  writtenNotes: Id[];
 }
 
 export interface PhoneOverride {

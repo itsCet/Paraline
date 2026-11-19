@@ -34,7 +34,9 @@ export function MessagesApp() {
   );
 
   const def = open && cases.byId.get(open.caseId);
-  useEffect(() => nav.setScreen('messages', open ? 'thread' : 'list'), [open, nav]);
+  useEffect(() => {
+    nav.setScreen('messages', open ? 'thread' : 'list');
+  }, [open, nav]);
   if (open && def) return <Thread def={def} threadId={open.threadId} onBack={() => setOpen(null)} />;
 
   return (
