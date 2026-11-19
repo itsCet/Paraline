@@ -245,7 +245,7 @@ export const elleEcrit: CaseDefinition = {
       available: { observationFound: 'numero-serie' },
       effects: [
         { type: 'deliverMessage', messageId: 'marc-serie1', delayMs: 1500 },
-        { type: 'deliverMessage', messageId: 'marc-serie2', delayMs: 7000 },
+        { type: 'deliverMessage', messageId: 'marc-serie2', delayMs: 4500 },
         { type: 'deliverMessage', messageId: 'marc-serie3', delayMs: 2200 },
         { type: 'deliverMessage', messageId: 'marc-serie4', delayMs: 1200 },
       ],
@@ -264,7 +264,7 @@ export const elleEcrit: CaseDefinition = {
       available: messageEntendu,
       effects: [
         { type: 'deliverMessage', messageId: 'marc-transmettre', delayMs: 2500 },
-        { type: 'deliverMessage', messageId: 'marc-mere', delayMs: 12000 },
+        { type: 'deliverMessage', messageId: 'marc-mere', delayMs: 8000 },
       ],
     },
     {
@@ -274,7 +274,7 @@ export const elleEcrit: CaseDefinition = {
       available: { all: [messageEntendu, { not: { replySent: 'r-transmettre' } }] },
       effects: [
         { type: 'deliverMessage', messageId: 'marc-garder', delayMs: 2000 },
-        { type: 'deliverMessage', messageId: 'moi-garder', delayMs: 20000, ignoreAirplane: true },
+        { type: 'deliverMessage', messageId: 'moi-garder', delayMs: 20000, ignoreAirplane: true, background: true },
       ],
     },
   ],
@@ -359,7 +359,7 @@ export const elleEcrit: CaseDefinition = {
       effects: [
         { type: 'setFlag', name: 'hante', value: true },
         { type: 'writeNote', noteId: 'n1', delayMs: 14000 },
-        { type: 'deliverMessage', messageId: 'marc-plusrien', delayMs: 45000 },
+        { type: 'deliverMessage', messageId: 'marc-plusrien', delayMs: 45000, background: true },
       ],
     },
     {
@@ -367,7 +367,7 @@ export const elleEcrit: CaseDefinition = {
       when: { noteWritten: 'n1' },
       effects: [
         { type: 'phoneOverride', key: 'wallpaper', value: `${DIR}/fond-voiture.jpg` },
-        { type: 'deliverMessage', messageId: 'moi-1', delayMs: 22000, ignoreAirplane: true },
+        { type: 'deliverMessage', messageId: 'moi-1', delayMs: 22000, ignoreAirplane: true, background: true },
       ],
     },
     {

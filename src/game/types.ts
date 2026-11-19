@@ -273,8 +273,9 @@ export type PhoneOverrideKey = 'wallpaper' | 'homeMessage' | 'extraApp' | 'ghost
 
 export type Effect =
   /** Message dans un fil. Suspendu en mode avion sauf `ignoreAirplane`. */
-  /** `holdUntil` : la livraison attend aussi que cette condition soit vraie. */
-  | { type: 'deliverMessage'; messageId: Id; delayMs?: number; ignoreAirplane?: boolean; holdUntil?: Condition }
+  /** `holdUntil` : la livraison attend aussi que cette condition soit vraie.
+   *  `background` : événement programmé (souvent long) qui ne bloque pas les réponses du fil. */
+  | { type: 'deliverMessage'; messageId: Id; delayMs?: number; ignoreAirplane?: boolean; holdUntil?: Condition; background?: boolean }
   /** E-mail de suivi rattaché à l'affaire (ne crée jamais d'affaire). */
   | { type: 'deliverMail'; mailId: Id; delayMs?: number; ignoreAirplane?: boolean; holdUntil?: Condition }
   | { type: 'setMediaVariant'; mediaId: Id; variantId: Id }
@@ -316,6 +317,8 @@ export interface QueuedDelivery {
   notBefore: number;
   ignoreAirplane?: boolean;
   holdUntil?: Condition;
+  /** Hors de l'enchaînement du fil : ne retarde pas les autres messages. */
+  background?: boolean;
 }
 
 export interface CaseProgress {

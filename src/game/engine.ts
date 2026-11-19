@@ -147,12 +147,15 @@ function enqueue(
   now: number,
   ignoreAirplane?: boolean,
   holdUntil?: Condition,
+  background?: boolean,
 ): GameState {
   if (isDelivered(state, def.id, kind, id) || isQueued(state, def.id, kind, id)) return state;
   const thread = kind === 'message' ? findMessage(def, id)?.threadId : undefined;
   // Les messages d'un même fil s'enchaînent : le délai part du précédent.
+  // Un événement d'arrière-plan n'attend personne, et personne ne l'attend.
   let base = now;
-  for (const q of state.queue) {
+  for (const q of background ? [] : state.queue) {
+    if (q.background) continue;
     if (q.caseId === def.id && q.kind === kind && (kind !== 'message' || threadOf(def, q) === thread)) {
       base = Math.max(base, q.notBefore);
     }
@@ -160,6 +163,7 @@ function enqueue(
   const item: QueuedDelivery = { kind, id, caseId: def.id, notBefore: base + delay };
   if (ignoreAirplane) item.ignoreAirplane = true;
   if (holdUntil) item.holdUntil = holdUntil;
+  if (background) item.background = true;
   return { ...state, queue: [...state.queue, item] };
 }
 
@@ -223,7 +227,7 @@ export function applyEffect(state: GameState, def: CaseDefinition, effect: Effec
   const cid = def.id;
   switch (effect.type) {
     case 'deliverMessage':
-      return enqueue(state, def, 'message', effect.messageId, effect.delayMs ?? DEFAULT_MESSAGE_DELAY, now, effect.ignoreAirplane, effect.holdUntil);
+      return enqueue(state, def, 'message', effect.messageId, effect.delayMs ?? DEFAULT_MESSAGE_DELAY, now, effect.ignoreAirplane, effect.holdUntil, effect.background);
     case 'deliverMail':
       return enqueue(state, def, 'mail', effect.mailId, effect.delayMs ?? DEFAULT_MESSAGE_DELAY, now, effect.ignoreAirplane, effect.holdUntil);
     case 'writeNote':

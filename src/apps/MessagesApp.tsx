@@ -8,6 +8,9 @@ import { Avatar, Empty, KindIcon, NavBar } from '../components/ui';
 import { Icon } from '../components/icons';
 import type { CaseDefinition, Id } from '../game/types';
 
+/** Durée avant livraison pendant laquelle l'indicateur de saisie s'affiche. */
+const TYPING_WINDOW = 3500;
+
 interface ThreadRef {
   caseId: Id;
   threadId: Id;
@@ -90,9 +93,17 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
   const replies = availableReplies(def, state, threadId);
   const airplane = state.settings.airplane;
   const prepared = p?.preparedReply ? replies.find((r) => r.id === p.preparedReply) : undefined;
-  const typing = state.queue.some(
+  // « En train d'écrire » seulement pour un message imminent, jamais pour un événement programmé plus tard.
+  const [clock, setClock] = useState(() => Date.now());
+  const pending = state.queue.filter(
     (q) => q.caseId === def.id && q.kind === 'message' && queueReady(state, q) && def.messages.find((m) => m.id === q.id)?.threadId === threadId,
   );
+  useEffect(() => {
+    if (!pending.length) return;
+    const id = window.setInterval(() => setClock(Date.now()), 500);
+    return () => window.clearInterval(id);
+  }, [pending.length]);
+  const typing = pending.some((q) => q.notBefore - clock <= TYPING_WINDOW);
   // Joignabilité particulière (contact qui n'émet que sous certaines conditions).
   const presence = thread?.presence;
   const isEnded = !!presence?.endedWhen && evaluate(presence.endedWhen, state, def.id);

@@ -47,6 +47,17 @@ describe('elle écrit dans mes notes', () => {
     expect(delivered(s, 'moi-1')).toBe(1);
   });
 
+  it('un événement programmé ne retarde pas les réponses de Marc (régression)', () => {
+    let s = run(s0, { type: 'media/view', caseId: ID, mediaId: 'enregistrement' });
+    s = run(s, { type: 'reply/send', caseId: ID, replyId: 'q-origine' });
+    const at = (id: string) => s.queue.find((q) => q.id === id)!.notBefore - now;
+    expect(at('marc-origine1')).toBeLessThanOrEqual(3000);
+    expect(at('marc-plusrien')).toBeGreaterThan(40000);
+    s = flush(s, 1); // 4 s plus tard
+    expect(delivered(s, 'marc-origine1')).toBe(1);
+    expect(delivered(s, 'marc-plusrien')).toBe(0);
+  });
+
   it('effacer ses notes : elles reviennent avec une phrase de plus, puis s’arrêtent', () => {
     let s = view(s0, 'enregistrement');
     s = flush(run(s, { type: 'note/delete', id: `${ID}:n1` }));
