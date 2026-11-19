@@ -180,12 +180,15 @@ export function deliverMessageNow(state: GameState, def: CaseDefinition, message
         : p.threadRead,
     grantedMedia: (msg.attachments ?? []).reduce(add, p.grantedMedia),
   }));
-  if (msg.from !== 'player' && msg.notify !== false) {
+  if (msg.from !== 'player' && msg.notify !== false && !msg.system) {
     const who = def.characters.find((c) => c.id === msg.from);
+    const thread = def.threads.find((t) => t.id === msg.threadId);
+    const group = thread?.members ? def.characters.find((c) => c.id === thread.contact) : undefined;
+    const body = msg.notify ?? msg.text ?? (msg.attachments?.length ? 'Pièce jointe' : '');
     next = pushNotification(next, {
       app: 'messages',
-      title: who?.name ?? 'Nouveau message',
-      body: msg.notify ?? msg.text ?? (msg.attachments?.length ? 'Pièce jointe' : ''),
+      title: group?.name ?? who?.name ?? 'Nouveau message',
+      body: group && who ? `${who.name} : ${body}` : body,
       target: { caseId: def.id, threadId: msg.threadId },
     });
   }

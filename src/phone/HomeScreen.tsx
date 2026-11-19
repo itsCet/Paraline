@@ -1,6 +1,7 @@
 import { useGame } from '../game/store';
 import { useNav } from './nav';
 import { inbox, unreadMessages } from '../game/selectors';
+import { albumItems } from '../apps/VoiceApp';
 import { APP_LABELS, AppGlyph, Icon, LogoMark } from '../components/icons';
 import type { PhoneTime } from '../game/clock';
 import type { AppId } from '../game/types';
@@ -12,7 +13,11 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
   const unreadMail = mails.filter((m) => !m.read);
   // Dernier message utile : le plus récent non lu, sinon aucune nouvelle demande.
   const latest = unreadMail[0];
-  const badges: Partial<Record<AppId, number>> = { mail: unreadMail.length, messages: unreadMessages(state) };
+  const badges: Partial<Record<AppId, number>> = {
+    mail: unreadMail.length,
+    messages: unreadMessages(state),
+    phone: albumItems(state, cases, 'Messagerie').filter((i) => !i.viewed).length,
+  };
   const t = state.tutorial;
   const coachTarget: AppId | null =
     t.status === 'active' ? (t.step === 'openMail' || t.step === 'openMessage' ? 'mail' : t.step === 'openFiles' ? 'files' : null) : null;
@@ -71,6 +76,7 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
       <nav className="grid" aria-label="Applications">
         {(['mail', 'messages', 'photos', 'files', 'notes', 'settings'] as AppId[]).map((id) => icon(id))}
         {state.overrides.extraApp?.value === 'dictaphone' && icon('voice')}
+        {state.overrides.extraApp?.value === 'telephone' && icon('phone')}
       </nav>
       {state.introDone && t.status === 'pending' && (
         <section className="offer glass" aria-label="Exercice de prise en main">

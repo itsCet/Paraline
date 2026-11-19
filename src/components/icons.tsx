@@ -164,6 +164,12 @@ export function AppGlyph({ app }: { app: AppId }) {
           </g>
         </Tile>
       );
+    case 'phone':
+      return (
+        <Tile from="#5fd97a" to="#22a845">
+          <path d="M23.2 16.5c-1-.9-2.6-.8-3.5.2l-2.3 2.6c-1.2 1.4-1.4 3.4-.5 5 3.7 7 9.3 12.6 16.3 16.3 1.6.9 3.6.7 5-.5l2.6-2.3c1-.9 1.1-2.5.2-3.5l-3.4-3.6c-.9-.9-2.3-1.1-3.4-.4l-2.4 1.5c-2.9-1.6-5.3-4-6.9-6.9l1.5-2.4c.7-1.1.5-2.5-.4-3.4z" fill="#fff" />
+        </Tile>
+      );
     case 'notes':
       return (
         <svg viewBox="0 0 60 60" aria-hidden="true">
@@ -194,4 +200,5 @@ export const APP_LABELS: Record<AppId, string> = {
   notes: 'Notes',
   settings: 'Réglages',
   voice: 'Dictaphone',
+  phone: 'Téléphone',
 };

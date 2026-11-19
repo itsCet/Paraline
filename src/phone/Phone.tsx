@@ -13,7 +13,7 @@ import { PhotosApp } from '../apps/PhotosApp';
 import { FilesApp } from '../apps/FilesApp';
 import { NotesApp } from '../apps/NotesApp';
 import { SettingsApp } from '../apps/SettingsApp';
-import { VoiceApp } from '../apps/VoiceApp';
+import { PhoneApp, VoiceApp } from '../apps/VoiceApp';
 import { unlockAudio } from '../game/sound';
 import { WALLPAPER } from '../content/assets';
 import type { AppId } from '../game/types';
@@ -26,6 +26,7 @@ const APPS: Record<AppId, () => ReactNode> = {
   notes: () => <NotesApp />,
   settings: () => <SettingsApp />,
   voice: () => <VoiceApp />,
+  phone: () => <PhoneApp />,
 };
 
 export function Phone() {

@@ -83,6 +83,8 @@ export interface ImageOverlay {
   /** `unstable` : l'écriture se recompose sans jamais devenir lisible. */
   mode: 'stable' | 'unstable';
   rotate?: number;
+  /** `imprint` : trace en creux, à peine visible (empreinte d'écriture). */
+  tone?: 'ink' | 'imprint';
 }
 
 export type MediaKind = 'image' | 'audio' | 'video' | 'document';
@@ -132,6 +134,8 @@ export interface MessageDef {
   attachments?: Id[];
   /** Texte de la notification ; `false` : aucune notification. */
   notify?: string | false;
+  /** Message système (« Malik a quitté la conversation »), centré, sans bulle. */
+  system?: boolean;
 }
 
 export interface ReplyDef {
@@ -193,6 +197,8 @@ export interface ThreadDef {
     endedLabel?: string;
   };
   archivedWhen?: Condition;
+  /** Conversation de groupe : participants (le nom de l'auteur s'affiche au-dessus de ses bulles). */
+  members?: Id[];
 }
 
 export interface RuleDef {
@@ -267,7 +273,7 @@ export type FlagValue = boolean | number | string;
 /* Effets                                                               */
 /* ------------------------------------------------------------------ */
 
-/** `extraApp` : application ajoutée à l'accueil (ex. `dictaphone`).
+/** `extraApp` : application ajoutée à l'accueil (`dictaphone` ou `telephone`).
  *  `ghostSetting` : réglage inconnu dans Réglages, au format `Libellé::texte de la note écrite à l'activation`. */
 export type PhoneOverrideKey = 'wallpaper' | 'homeMessage' | 'extraApp' | 'ghostSetting';
 
@@ -301,7 +307,7 @@ export type Effect =
 /* État sauvegardé                                                      */
 /* ------------------------------------------------------------------ */
 
-export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice';
+export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone';
 
 export type CaseStatus = 'new' | 'postponed' | 'active' | 'solved';
 

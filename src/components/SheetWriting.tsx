@@ -52,7 +52,7 @@ export function SheetWriting({ overlay, calm }: { overlay: ImageOverlay; calm?: 
   const { box } = overlay;
   return (
     <svg
-      className={`sheet-writing${unstable ? ' unstable' : ''}${calm ? ' calm' : ''}`}
+      className={`sheet-writing${unstable ? ' unstable' : ''}${calm ? ' calm' : ''}${overlay.tone === 'imprint' ? ' imprint' : ''}`}
       viewBox={`0 0 100 ${overlay.viewHeight}`}
       preserveAspectRatio="none"
       aria-hidden="true"

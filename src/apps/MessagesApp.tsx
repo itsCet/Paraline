@@ -65,7 +65,11 @@ export function MessagesApp() {
                         <span className="mail-from">{who.name}</span>
                       </span>
                       <div className="mail-preview">
-                        {msg ? (msg.from === 'player' ? `Vous : ${msg.text ?? ''}` : (msg.text ?? 'Pièce jointe')) : 'Nouvelle conversation'}
+                        {msg
+                  ? msg.from === 'player'
+                    ? `Vous : ${msg.text ?? ''}`
+                    : `${t.members && !msg.system ? `${character(d, msg.from).name} : ` : ''}${msg.text ?? 'Pièce jointe'}`
+                  : 'Nouvelle conversation'}
                       </div>
                       <span className="mail-meta">
                         {d.title}
@@ -159,12 +163,21 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
       <div className="scroll" aria-live="polite">
         <div className="bubbles">
           {thread?.stamp && <div className="stamp">{thread.stamp}</div>}
-          {entries.map((e) => {
+          {entries.map((e, i) => {
             const m = resolveEntry(def, e.messageId);
             if (!m) return null;
+            if (m.system) return <div key={e.messageId} className="stamp" role="status">{m.text}</div>;
             const mine = m.from === 'player';
+            // Groupe : nom de l'auteur quand il change.
+            const prev = i > 0 ? resolveEntry(def, entries[i - 1].messageId) : undefined;
+            const author = thread?.members && !mine && (prev?.from !== m.from || prev?.system) ? character(def, m.from) : undefined;
             return (
               <div key={e.messageId} style={{ display: 'contents' }}>
+                {author && (
+                  <div className="bubble-sender" style={{ color: author.color }}>
+                    {author.name}
+                  </div>
+                )}
                 {m.attachments.map((a) => {
                   const r = resolveMedia(def, state, a);
                   if (!r) return null;
@@ -186,7 +199,11 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
                     </button>
                   );
                 })}
-                {m.text && <div className={`bubble${mine ? ' me' : ''}`}>{m.text}</div>}
+                {m.text && (
+                  <div className={`bubble${mine ? ' me' : ''}`} aria-label={thread?.members && !mine ? `${character(def, m.from).name} : ${m.text}` : undefined}>
+                    {m.text}
+                  </div>
+                )}
               </div>
             );
           })}

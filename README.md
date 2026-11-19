@@ -2,7 +2,7 @@
 
 *Enquêtes paranormales.* Jeu web mobile : le joueur, enquêteur paranormal indépendant, mène ses affaires depuis son téléphone professionnel fictif (Mail, Messages, Photos, Dossiers, Notes, Réglages).
 
-Contenu : téléphone, applications, introduction, exercice de prise en main, moteur d'enquête, sauvegarde, et trois enquêtes complètes, disponibles dès le lancement : **« La chambre condamnée »** (surnaturelle, `src/content/cases/chambre-condamnee/`) et **« Cette photo a changé »** (rationnelle, avec une fin à choix, `src/content/cases/photo-changee/`) et **« Elle écrit dans mes notes »** (hantise du téléphone du joueur, `src/content/cases/elle-ecrit/`).
+Contenu : téléphone, applications, introduction, exercice de prise en main, moteur d'enquête, sauvegarde, et quatre enquêtes complètes, disponibles dès le lancement : **« La chambre condamnée »** (surnaturelle, `src/content/cases/chambre-condamnee/`), **« Cette photo a changé »** (rationnelle, avec une fin à choix, `src/content/cases/photo-changee/`), **« Elle écrit dans mes notes »** (hantise du téléphone du joueur, `src/content/cases/elle-ecrit/`) et **« Le cinquième »** (longue, 15–20 min, conversation de groupe et trois fins, `src/content/cases/le-cinquieme/`).
 
 React 19, TypeScript et Vite. Pas de backend, pas de compte, pas d'IA, pas de clé secrète.
 
@@ -27,6 +27,7 @@ npm run e2e:fixture                           # écrans d'enquête avec l'enquê
 npm run e2e:chambre                           # parcours complet de « La chambre condamnée » (sur le port 4173), sans indice
 npm run e2e:photo                             # parcours complet de « Cette photo a changé », sans indice
 npm run e2e:elle                              # parcours complet de « Elle écrit dans mes notes », sans indice (~2 min)
+npm run e2e:cinquieme                         # parcours complet de « Le cinquième » jusqu'à la fin complète, sans indice (~3 min)
 ```
 
 `build:fixture` remplace le registre des enquêtes par une enquête de test, grâce à un alias Vite. Le build normal n'en contient aucune trace.
@@ -101,7 +102,11 @@ Autres possibilités utilisées par la première enquête :
 - condition `sound` : sons du jeu activés ou coupés ;
 - `mediaViewed: 'id@variante'` : média consulté dans une version précise ;
 - overrides `extraApp` (app Dictaphone sur l'accueil) et `ghostSetting` (réglage inconnu dans Réglages) ;
-- `observationId` sur une ligne de transcription audio.
+- `observationId` sur une ligne de transcription audio ;
+- `members` sur un fil : conversation de groupe (nom de l'auteur au-dessus des bulles, notification « Groupe — Auteur : … ») ;
+- `system` sur un message : ligne centrée sans bulle (« Malik a quitté la conversation. ») ;
+- override `extraApp: 'telephone'` : app Téléphone (messagerie vocale, médias de l'album « Messagerie ») ;
+- `tone: 'imprint'` sur un `overlay` : écriture en creux, presque invisible sans zoom.
 
 Effets disponibles : `deliverMessage`, `deliverMail` (suspendus en mode avion, sauf `ignoreAirplane`), `setMediaVariant`, `unlockReply`, `grantMedia`, `setStep`, `setFlag`, `phoneOverride` (temporaire, avec condition de fin `until`), `clearPhoneOverride`, `notify`, `log`, `solveCase`.
 
