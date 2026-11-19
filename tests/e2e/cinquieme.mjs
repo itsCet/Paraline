@@ -54,7 +54,11 @@ const openApp = async (label) => {
   await page.getByRole('button', { name: new RegExp(`^${label}(,|$)`) }).first().click();
 };
 const viewer = () => page.locator('.viewer');
-const closeViewer = () => viewer().getByRole('button', { name: /^Retour/ }).first().click();
+const closeViewer = async () => {
+  const b = page.getByRole('button', { name: 'Fermer la notification' });
+  if (await b.isVisible().catch(() => false)) await b.click().catch(() => {});
+  await viewer().getByRole('button', { name: /^Retour/ }).first().click();
+};
 const settingsRoot = async () => {
   await openApp('Réglages');
   for (let i = 0; i < 3; i++) {
