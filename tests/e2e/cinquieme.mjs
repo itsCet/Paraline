@@ -174,7 +174,8 @@ await check('Julien bloque le joueur', async () => {
 await check('Il se tourne : photos de face, GPS au milieu du lac, app Téléphone', async () => {
   await home();
   await page.getByRole('button', { name: /^Téléphone, 1 non lu/ }).waitFor({ timeout: 40000 });
-  await thread('Chalet 🌲');
+  await openApp('Photos');
+  await page.getByRole('tab', { name: 'Pièces reçues' }).click();
   await openMedia('IMG_2041.jpg');
   const src = await viewer().locator('img').first().getAttribute('src');
   assert(src.includes('groupe-face'), `variante : ${src}`);
