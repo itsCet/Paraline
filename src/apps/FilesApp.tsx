@@ -258,7 +258,8 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
 
         <h2 className="section-title">Échanges</h2>
         <div className="group">
-          {def.threads.map((t) => (
+          {/* Seules les conversations déjà commencées : un contact à venir ne doit pas être dévoilé. */}
+          {def.threads.filter((t) => (p.threads[t.id]?.length ?? 0) > 0).map((t) => (
             <button key={t.id} className="row" onClick={() => nav.open('messages', { caseId: def.id, threadId: t.id })}>
               <Icon.Message size={20} />
               <span className="row-main">

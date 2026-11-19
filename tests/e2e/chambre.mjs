@@ -142,6 +142,7 @@ await check('Garder pour plus tard puis accepter', async () => {
   await page.getByRole('button', { name: 'Accepter l’enquête' }).click();
   await page.getByRole('button', { name: 'Ouvrir le dossier' }).click();
   await page.getByText('D’où viennent les images reçues par Élise ?').waitFor();
+  assert((await page.locator('section.app-layer:not([hidden])').getByText('Vannier').count()) === 0, 'contact de Gabriel dévoilé dans le dossier');
   await page.screenshot({ path: '/tmp/claude-0/-home-user-Paraline/0bc6f646-c0cc-59d8-a03b-6e4e1b6cc41a/scratchpad/dbg-dossier.png' });
   assert((await page.getByText('Demander un indice').count()) === 1, `aide absente ${await page.getByText('Demander un indice').count()}`);
   assert((await page.locator('.hint').count()) === 0, 'indice affiché sans demande');
