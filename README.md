@@ -34,6 +34,10 @@ npm run e2e:cinquieme                         # parcours complet de « Le cinqui
 
 **Vercel** : préréglage « Vite », commande `npm run build`, dossier de sortie `dist`. Aucune variable d'environnement.
 
+## Revue de game design
+
+`.claude/skills/` contient une sélection des compétences [gstack-game](https://github.com/fagemx/gstack-game) (MIT) utilisables dans Claude Code : `/player-experience`, `/playtest`, `/game-ux-review`, `/feel-pass`, `/build-playability-review`, `/game-qa`, `/pitch-review`, `/plan-design-review`. Voir `.claude/skills/gstack-game/README.md`. Première revue : `docs/revue-joueur-le-cinquieme.md`.
+
 ## Structure
 
 ```
