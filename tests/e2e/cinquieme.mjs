@@ -103,9 +103,14 @@ const say = async (who, text, waitFor) => {
   await reply(text).click({ timeout: 40000 });
   if (waitFor) await bubble(waitFor).waitFor({ timeout: 40000 });
 };
+const dismissBanner = async () => {
+  const b = page.getByRole('button', { name: 'Fermer la notification' });
+  if (await b.isVisible().catch(() => false)) await b.click().catch(() => {});
+};
 const openMedia = async (name) => {
   await page.getByRole('button', { name: `Ouvrir ${name}` }).last().click({ timeout: 30000 });
   await page.waitForTimeout(400);
+  await dismissBanner();
 };
 const observe = async (x, y, title) => {
   await tapRel(x, y);
@@ -183,7 +188,8 @@ await check('Il se tourne : photos de face, GPS au milieu du lac, app Téléphon
   await openMedia('IMG_2041.jpg');
   const src = await viewer().locator('img').first().getAttribute('src');
   assert(src.includes('groupe-face'), `variante : ${src}`);
-  await viewer().getByRole('button', { name: 'Infos du fichier' }).click();
+  await dismissBanner();
+  await viewer().getByRole('button', { name: 'Infos du fichier' }).click({ timeout: 20000 });
   await page.getByRole('button', { name: /lac de Vaulx, à 400 m/ }).click();
   await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   await closeViewer();

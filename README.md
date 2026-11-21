@@ -148,7 +148,11 @@ Tout est stocké dans `localStorage` (clé `paraline.save`, format versionné `S
 
 ## Vérifications réalisées
 
-Dernière exécution le 19/11/2026.
+Dernière exécution le 21/11/2026.
+
+- `npm test` : **63/63** (dont 15 pour « Le cinquième »). `npm run e2e` 23/23, `e2e:cinquieme` 12/12, `e2e:photo` 10/10, `e2e:chambre` 20/20, `e2e:elle` 11/11.
+
+Exécution précédente (19/11/2026) :
 
 - `npm run build` : OK.
 - `npm test` : **47/47** (dont 7 pour « Elle écrit dans mes notes »). Détail précédent : **40/40** (dont 6 pour « Cette photo a changé » : enquêtes simultanées au lancement, une seule active, synchronisation de l'album, ordre libre, les deux fins, sauvegarde).
