@@ -15,4 +15,5 @@ import { photoChangee } from './photo-changee';
 import { elleEcrit } from './elle-ecrit';
 import { leCinquieme } from './le-cinquieme';
 
-export const CASES: CaseDefinition[] = [chambreCondamnee, photoChangee, elleEcrit, leCinquieme];
+// La dernière du tableau arrive en haut de la boîte : on place en premier une enquête courte et guidée par son histoire.
+export const CASES: CaseDefinition[] = [leCinquieme, elleEcrit, photoChangee, chambreCondamnee];

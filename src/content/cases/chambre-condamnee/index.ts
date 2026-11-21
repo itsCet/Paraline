@@ -650,6 +650,7 @@ export const chambreCondamnee: CaseDefinition = {
     },
   ],
 
+  about: { duration: '~15 min', tone: 'Surnaturel' },
   conclusion: {
     title: 'Affaire résolue',
     text: [

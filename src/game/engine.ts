@@ -271,6 +271,10 @@ export function applyEffect(state: GameState, def: CaseDefinition, effect: Effec
     case 'solveCase': {
       let next = updateCase(state, cid, (p) => ({ ...p, status: 'solved', solvedAt: now }));
       next = clearOverridesOf(next, cid);
+      // Une énigme a pu laisser le téléphone à une autre date : on le rappelle, une fois.
+      if (!next.settings.clockAuto) {
+        next = pushNotification(next, { app: 'settings', title: 'Réglages', body: 'Le téléphone n’est plus à l’heure : réactivez « Réglage automatique ».' });
+      }
       return { ...next, activeCaseId: next.activeCaseId === cid ? null : next.activeCaseId };
     }
   }
@@ -411,6 +415,14 @@ export function availableReplies(def: CaseDefinition, state: GameState, threadId
       (r.available ? evaluate(r.available, state, def.id) : true) &&
       (p.unlockedReplies.includes(r.id) || !isLocked(def, r.id)),
   );
+}
+
+/** Réponses apparues dans un fil depuis la dernière fois que le joueur l'a ouvert. */
+export function newReplies(def: CaseDefinition, state: GameState, threadId: Id) {
+  const p = state.cases[def.id];
+  if (!p || p.status !== 'active') return [];
+  const seen = p.seenReplies?.[threadId] ?? [];
+  return availableReplies(def, state, threadId).filter((r) => !seen.includes(r.id));
 }
 
 /** Premier obstacle non résolu (indices sur demande). */

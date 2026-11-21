@@ -27,7 +27,7 @@ Trois profils de joueur :
 
 - **Accepter** fait arriver 5 messages en ~11 s dans le groupe « Chalet 🌲 », de 4 personnes différentes, avec 2 photos, plus un message privé de Sarah.
 - **Nouveautés dans les 2 premières minutes** : conversation de groupe, 4 personnages, une conversation privée, des photos aux zones invisibles, le panneau Infos, les observations, le dossier. **Plus de 3 notions → risque de surcharge** pour le joueur occasionnel. *Signal automatique (−1).*
-- **Premier « déclic »** : repérer la silhouette sur la glace dans `IMG_2037.jpg`. La zone fait environ **35 × 50 px** sur un écran de 390 px de large, sous la taille de doigt recommandée (44 px). Le joueur occasionnel touche d'abord les quatre amis : un rond s'affiche, mais rien ne se passe. *À trancher (−1,5).* Le joueur B, lui, zoome : c'est le geste attendu.
+- **Premier « déclic »** : repérer la silhouette sur la glace dans `IMG_2037.jpg`. La zone dessinée fait environ 35 × 50 px, mais le jeu ajoute une tolérance de 22 px tout autour : la cible réelle fait environ 80 × 95 px. Le joueur occasionnel touche d'abord les quatre amis ; un rond confirme le toucher. *(Constat corrigé après vérification : pas de pénalité.)*
 - Ce qui marche, et pourquoi : deux réponses sont proposées tout de suite (« Vous ne le reconnaissez vraiment pas ? », « Parlez-moi du chalet. »). Le joueur agit en moins d'une minute, et l'objectif est donné dès le mail : un garçon qui se rapproche d'une photo à l'autre.
 
 Émotions : A `Curious → Overwhelmed → Engaged` s'il trouve la silhouette, sinon `Confused`. B `Curious → Focused`.
@@ -74,11 +74,11 @@ Jeu narratif fini : 4 affaires, environ 1 h au total. Pas de boucle de long term
 | Phase (poids) | A — occasionnel | B — fan du genre | C — créateur |
 |---|---|---|---|
 | Premier contact | 8,5 (30 %) | 8,5 (20 %) | 9 |
-| Prise en main | 7,5 (35 %) | 9 (20 %) | 8,5 |
+| Prise en main | 9 (35 %) | 10 (20 %) | 8,5 |
 | Session | 3,0 (35 %) | 5,5 (25 %) | 8 |
 | Retour | — | 7 (20 %) | — |
 | Long terme | — | 6,5 (15 %) | — |
-| **Total pondéré** | **6,2 / 10** | **7,3 / 10** | ~8,5 / 10 (non pondéré) |
+| **Total pondéré** | **6,8 / 10** | **7,5 / 10** | ~8,5 / 10 (non pondéré) |
 
 Lecture : l'histoire et les moments forts tiennent pour le public visé (fans d'escape game) ; ce qui coûte des points, ce sont des signaux d'interface (réponses invisibles ailleurs, fin cachée, pas de rejouabilité). Le joueur occasionnel décroche à l'acte 2, à cause d'une chaîne d'action dont une étape se passe ailleurs que là où il regarde.
 
@@ -88,7 +88,7 @@ Lecture : l'histoire et les moments forts tiennent pour le public visé (fans d'
 2. **Pastille « nouvelle réponse possible »** sur une conversation quand une réponse vient de s'y débloquer (dans la liste Messages et sur l'icône). Ce n'est pas une aide : le joueur doit toujours trouver *quoi* dire et *pourquoi*.
 3. **Rejouer une affaire terminée** depuis Dossiers (« Rejouer l'enquête »), sans toucher aux autres. Permet les fins alternatives.
 4. **Durée et ambiance sur chaque affaire**, dans le mail d'acceptation : « ~10 min · surnaturel », « ~20 min · enquête longue ». Ou bien ordonner la boîte pour qu'un cas court arrive en haut à la première partie.
-5. **Zones trop petites** : agrandir la zone de la silhouette sur la glace à au moins 44 px à l'écran, sans la rendre visible.
+5. ~~Zones trop petites~~ : déjà couvert par la tolérance de 22 px.
 6. **Fin de partie** : à la résolution, un message rappelle de remettre l'heure automatique si le téléphone est resté en 2014.
 7. **Fin complète** : un indice dans l'histoire sans rien dévoiler, par exemple Inès dans le groupe : « Julien ne dit rien… Il vous a parlé ? ».
 
@@ -96,3 +96,17 @@ Lecture : l'histoire et les moments forts tiennent pour le public visé (fans d'
 - Ordre des affaires à la première partie : garder « Le cinquième » en haut (accroche forte) ou mettre un cas plus court ?
 - Les fins : faut-il que le joueur *sache* qu'il existe une meilleure fin (point 7), ou est-ce une découverte réservée aux plus curieux ?
 - Rejouer une affaire (point 3) : souhaité ?
+
+---
+
+## Corrections appliquées (21/11/2026)
+
+| # | Correction | Où |
+|---|---|---|
+| 1 | Passage relevé dans un document : la confirmation propose la question (« Passage relevé · Demander à Sarah »), comme sur une photo | `MediaViewer.tsx` |
+| 2 | Pastille sur une conversation quand une nouvelle réponse y devient possible (liste Messages et icône), jusqu'à son ouverture | `engine.newReplies`, `MessagesApp`, `HomeScreen` |
+| 3 | « Rejouer l'enquête » dans le dossier d'une affaire résolue : elle repart de zéro, les autres sont conservées | action `case/replay`, `FilesApp` |
+| 4 | Durée et ton affichés sur chaque affaire dans Mail ; une enquête courte (« La chambre condamnée ») arrive en haut à la première partie | `about`, `CASES` |
+| 5 | Déjà couvert (tolérance de toucher) | — |
+| 6 | À la résolution, si l'heure est manuelle : notification « réactivez Réglage automatique » | `engine` (`solveCase`) |
+| 7 | Sans l'aveu de Julien, Inès écrit « Julien ne dit rien… Il vous a parlé, à vous ? » avant le choix de fin | `le-cinquieme` |

@@ -15,7 +15,7 @@ import {
   type CaseIndex,
 } from './engine';
 import { initialState } from './save';
-import type { GameState, Id, Note, Settings, TutorialStep } from './types';
+import type { CaseDefinition, GameState, Id, Note, Settings, TutorialStep } from './types';
 
 export type Action =
   | { type: 'intro/complete' }
@@ -35,6 +35,8 @@ export type Action =
   | { type: 'reply/prepare'; caseId: Id; replyId: Id | undefined }
   | { type: 'reply/send'; caseId: Id; replyId: Id }
   | { type: 'thread/read'; caseId: Id; threadId: Id }
+  /** Rejoue une affaire résolue depuis le début (les autres affaires ne bougent pas). */
+  | { type: 'case/replay'; caseId: Id }
   | { type: 'hint/reveal'; caseId: Id; stepId: Id }
   | { type: 'copy/save'; caseId: Id; mediaId: Id; variantId: Id; src: string; name: string }
   | { type: 'note/upsert'; note: Note }
@@ -60,6 +62,22 @@ export function createReducer(cases: CaseIndex, clock: Clock = Date.now) {
     // Toute action peut rendre une règle vraie : on stabilise puis on livre.
     return processQueue(settle(next, cases, now), cases, now);
   };
+}
+
+/** Ouvre une affaire : statut actif, pièces jointes, messages d'ouverture. */
+function acceptCase(state: GameState, def: CaseDefinition, now: number): GameState {
+  let next: GameState = patchCase(state, def.id, (q) => ({
+    ...q,
+    status: 'active',
+    acceptedAt: now,
+    stepId: q.stepId ?? def.steps[0]?.id,
+    grantedMedia: (def.initialMail.attachments ?? []).reduce(add, q.grantedMedia),
+    log: [...q.log, { at: now, text: 'Enquête acceptée.' }],
+  }));
+  next = { ...next, activeCaseId: def.id };
+  for (const id of def.openingMessages ?? []) next = deliverMessageNow(next, def, id, now);
+  // Les messages d'ouverture ne déclenchent pas de notification.
+  return { ...next, notifications: state.notifications };
 }
 
 function patchCase(state: GameState, caseId: Id, fn: (p: GameState['cases'][string]) => GameState['cases'][string]) {
@@ -108,6 +126,24 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
     case 'mail/read':
       return state.readMails.includes(action.mailId) ? state : { ...state, readMails: [...state.readMails, action.mailId] };
 
+    case 'case/replay': {
+      const def = cases.byId.get(action.caseId);
+      if (!def || state.cases[def.id]?.status !== 'solved') return state;
+      if (state.activeCaseId && state.cases[state.activeCaseId]?.status === 'active') return state;
+      // Tout ce qui appartient à l'affaire repart de zéro ; le reste du téléphone est conservé.
+      const followUps = (def.followUpMails ?? []).map((m) => m.id);
+      let next: GameState = {
+        ...state,
+        cases: { ...state.cases, [def.id]: { ...emptyProgress(), status: 'new' } },
+        queue: state.queue.filter((q) => q.caseId !== def.id),
+        notes: state.notes.filter((n) => n.caseId !== def.id),
+        copies: state.copies.filter((c) => c.caseId !== def.id),
+        readMails: state.readMails.filter((id) => !followUps.includes(id)),
+      };
+      next = clearOverridesOf(next, def.id);
+      return acceptCase(next, def, now);
+    }
+
     case 'case/accept': {
       const def = cases.byId.get(action.caseId);
       const p = state.cases[action.caseId];
@@ -118,18 +154,7 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
       if (state.activeCaseId && state.activeCaseId !== def.id && state.cases[state.activeCaseId]?.status === 'active') {
         return state;
       }
-      let next: GameState = patchCase(state, def.id, (q) => ({
-        ...q,
-        status: 'active',
-        acceptedAt: now,
-        stepId: q.stepId ?? def.steps[0]?.id,
-        grantedMedia: (def.initialMail.attachments ?? []).reduce(add, q.grantedMedia),
-        log: [...q.log, { at: now, text: 'Enquête acceptée.' }],
-      }));
-      next = { ...next, activeCaseId: def.id };
-      for (const id of def.openingMessages ?? []) next = deliverMessageNow(next, def, id, now);
-      // Les messages d'ouverture ne déclenchent pas de notification.
-      return { ...next, notifications: state.notifications };
+      return acceptCase(state, def, now);
     }
     case 'case/postpone':
       return patchCase(state, action.caseId, (p) => (p.status === 'new' ? { ...p, status: 'postponed' } : p));
@@ -200,11 +225,21 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
       for (const e of reply.effects ?? []) next = applyEffect(next, def, e, now);
       return next;
     }
-    case 'thread/read':
+    case 'thread/read': {
+      const def = cases.byId.get(action.caseId);
+      const offered = def ? availableReplies(def, state, action.threadId).map((r) => r.id) : [];
       return patchCase(state, action.caseId, (p) => {
         const n = p.threads[action.threadId]?.length ?? 0;
-        return p.threadRead[action.threadId] === n ? p : { ...p, threadRead: { ...p.threadRead, [action.threadId]: n } };
+        const seen = p.seenReplies?.[action.threadId] ?? [];
+        const unseen = offered.filter((id) => !seen.includes(id));
+        if (p.threadRead[action.threadId] === n && unseen.length === 0) return p;
+        return {
+          ...p,
+          threadRead: { ...p.threadRead, [action.threadId]: n },
+          seenReplies: unseen.length ? { ...p.seenReplies, [action.threadId]: [...seen, ...unseen] } : p.seenReplies,
+        };
       });
+    }
     case 'hint/reveal':
       // Une affaire résolue n'a plus d'aide.
       if (state.cases[action.caseId]?.status !== 'active') return state;

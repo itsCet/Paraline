@@ -447,6 +447,7 @@ export const photoChangee: CaseDefinition = {
     },
   ],
 
+  about: { duration: '~10 min', tone: 'Enquête rationnelle' },
   conclusion: {
     title: 'Affaire résolue',
     text: ['Paul était ajouté sur les nouvelles photos de l’album familial.'],

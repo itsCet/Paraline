@@ -110,7 +110,14 @@ Autres possibilités utilisées par la première enquête :
 - `members` sur un fil : conversation de groupe (nom de l'auteur au-dessus des bulles, notification « Groupe — Auteur : … ») ;
 - `system` sur un message : ligne centrée sans bulle (« Malik a quitté la conversation. ») ;
 - override `extraApp: 'telephone'` : app Téléphone (messagerie vocale, médias de l'album « Messagerie ») ;
-- `tone: 'imprint'` sur un `overlay` : écriture en creux, presque invisible sans zoom.
+- `tone: 'imprint'` sur un `overlay` : écriture en creux, presque invisible sans zoom ;
+- `about` sur une enquête : durée et ton affichés dans Mail (« ~20 min · Enquête longue, trois fins »).
+
+Côté joueur, le moteur gère aussi :
+- **Rejouer une affaire résolue** depuis son dossier (action `case/replay`) : elle repart de zéro, les autres sont conservées ;
+- **pastille « nouvelle réponse possible »** sur une conversation dès qu'une réponse s'y débloque (`newReplies`) ;
+- un **passage relevé** dans un document propose directement la question associée, comme une zone de photo ;
+- à la résolution, un **rappel** de réactiver l'heure automatique si une énigme l'a modifiée.
 
 Effets disponibles : `deliverMessage`, `deliverMail` (suspendus en mode avion, sauf `ignoreAirplane`), `setMediaVariant`, `unlockReply`, `grantMedia`, `setStep`, `setFlag`, `phoneOverride` (temporaire, avec condition de fin `until`), `clearPhoneOverride`, `notify`, `log`, `solveCase`.
 

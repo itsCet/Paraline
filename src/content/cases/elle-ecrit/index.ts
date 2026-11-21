@@ -418,6 +418,7 @@ export const elleEcrit: CaseDefinition = {
     },
   ],
 
+  about: { duration: '~10 min', tone: 'Hantise' },
   conclusion: {
     title: 'Affaire résolue',
     text: [

@@ -1,6 +1,6 @@
 /** Lectures dérivées de l'état, partagées par les applications. */
 import { TUTORIAL_MAIL } from '../content/tutorial';
-import { currentVariant, findMail, type CaseIndex } from './engine';
+import { currentVariant, findMail, type CaseIndex, newReplies } from './engine';
 import type { CaseDefinition, Character, GameState, Id, MailDef, MediaDef, MediaVariant } from './types';
 
 export interface InboxItem {
@@ -19,6 +19,8 @@ export interface InboxItem {
   body: string[];
   attachments: Id[];
   read: boolean;
+  /** Durée et ton annoncés (e-mail initial d'une affaire). */
+  about?: string;
 }
 
 export function character(def: CaseDefinition, id: Id): Character {
@@ -39,6 +41,7 @@ function mailItem(def: CaseDefinition, m: MailDef, initial: boolean, state: Game
     subject: m.subject,
     preview: m.preview ?? m.body[0] ?? '',
     timeLabel: m.timeLabel,
+    about: initial && def.about ? `${def.about.duration} · ${def.about.tone}` : undefined,
     body: m.body,
     attachments: m.attachments ?? [],
     read: state.readMails.includes(m.id),
@@ -99,6 +102,13 @@ export function thumbOf(v: MediaVariant, kind: MediaDef['kind']): string | undef
   if (kind === 'image') return v.poster ?? v.src;
   if (kind === 'video') return v.poster;
   return undefined;
+}
+
+/** Fils où une nouvelle réponse est apparue depuis la dernière visite. */
+export function pendingReplyThreads(state: GameState, cases: CaseIndex): number {
+  let n = 0;
+  for (const def of cases.list) for (const t of def.threads) if (newReplies(def, state, t.id).length) n++;
+  return n;
 }
 
 export function unreadMessages(state: GameState): number {

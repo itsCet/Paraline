@@ -147,3 +147,46 @@ describe('le cinquième', () => {
     expect(p(s).firedRules).toContain('fin-personne');
   });
 });
+
+describe('le cinquième — corrections après la revue joueur', () => {
+  it('sans l’aveu de Julien, Inès le fait remarquer (une fois)', () => {
+    let s = jusquAuBlocage(s0);
+    s = set(s, { clockAuto: false, manualDate: '2014-02-15', manualTime: '02:14' });
+    s = send(find(s, 'derniere-photo', 'ils-partent'), 'g-derniere');
+    expect(got(s, 'ines-julien')).toBe(true);
+  });
+
+  it('avec l’aveu, pas de remarque', () => {
+    expect(got(send(jusquAuChoix(s0), 'f-ensemble'), 'ines-julien')).toBe(false);
+  });
+
+  it('pastille : une réponse débloquée dans un autre fil est « nouvelle » jusqu’à l’ouverture du fil', async () => {
+    const { newReplies } = await import('../engine');
+    let s = send(find(s0, 'ponton', 'silhouette-ponton'), 'g-ponton');
+    s = run(s, { type: 'thread/read', caseId: ID, threadId: 't-malik' });
+    expect(newReplies(def, s, 't-malik')).toEqual([]);
+    s = find(s, 'cartes', 'heure-cartes');
+    expect(newReplies(def, s, 't-malik').map((r) => r.id)).toEqual(['m-cartes']);
+    s = run(s, { type: 'thread/read', caseId: ID, threadId: 't-malik' });
+    expect(newReplies(def, s, 't-malik')).toEqual([]);
+  });
+
+  it('rappel de remettre l’heure automatique à la résolution', () => {
+    const s = send(jusquAuChoix(s0), 'f-personne');
+    expect(s.notifications.some((n) => n.app === 'settings')).toBe(true);
+  });
+
+  it('rejouer une affaire résolue : tout repart de zéro, une seule fois', () => {
+    let s = send(jusquAuChoix(s0), 'f-personne');
+    s = run(s, { type: 'copy/save', caseId: ID, mediaId: 'groupe', variantId: 'face', src: 'x', name: 'x' });
+    s = flush(run(s, { type: 'case/replay', caseId: ID }));
+    expect(p(s).status).toBe('active');
+    expect(p(s).firedRules).not.toContain('fin-personne');
+    expect(p(s).mediaVariants.groupe).toBeUndefined();
+    expect(s.copies.filter((c) => c.caseId === ID)).toEqual([]);
+    expect(p(s).threads['t-groupe'].length).toBe(5);
+    expect(s.activeCaseId).toBe(ID);
+    // Une affaire en cours ne se rejoue pas.
+    expect(run(s, { type: 'case/replay', caseId: ID })).toBe(s);
+  });
+});

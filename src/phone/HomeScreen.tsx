@@ -1,6 +1,6 @@
 import { useGame } from '../game/store';
 import { useNav } from './nav';
-import { inbox, unreadMessages } from '../game/selectors';
+import { inbox, pendingReplyThreads, unreadMessages } from '../game/selectors';
 import { albumItems } from '../apps/VoiceApp';
 import { APP_LABELS, AppGlyph, Icon, LogoMark } from '../components/icons';
 import type { PhoneTime } from '../game/clock';
@@ -15,7 +15,7 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
   const latest = unreadMail[0];
   const badges: Partial<Record<AppId, number>> = {
     mail: unreadMail.length,
-    messages: unreadMessages(state),
+    messages: unreadMessages(state) + pendingReplyThreads(state, cases),
     phone: albumItems(state, cases, 'Messagerie').filter((i) => !i.viewed).length,
   };
   const t = state.tutorial;

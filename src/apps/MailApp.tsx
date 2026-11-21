@@ -124,6 +124,7 @@ function MailRow({ item, onOpen }: { item: InboxItem; onOpen: () => void }) {
               {n} pièce{n > 1 ? 's' : ''} jointe{n > 1 ? 's' : ''}
             </span>
           )}
+          {item.about && <span>{item.about}</span>}
           {!item.tutorial && <StatusTag item={item} />}
         </span>
       </span>
@@ -179,6 +180,7 @@ function MailDetail({ item, onBack }: { item: InboxItem; onBack: () => void }) {
           <div className="mail-actions">
             {(p.status === 'new' || p.status === 'postponed') && (
               <>
+                {def.about && <p className="footnote" style={{ marginTop: 0 }}>Durée estimée : {def.about.duration} · {def.about.tone}</p>}
                 {busy && (
                   <div className="callout neutral">
                     Une enquête est déjà en cours (« {busy.title} »). Vous pourrez accepter celle-ci une fois l’autre résolue.

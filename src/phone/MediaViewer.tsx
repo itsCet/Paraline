@@ -180,7 +180,14 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
           onPassage={(id) => {
             if (!caseId || foundIds.includes(id)) return;
             dispatch({ type: 'observation/found', caseId, observationId: id });
-            nav.showToast('Passage relevé dans le dossier');
+            // Comme sur une photo : si ce passage ouvre une question, on la propose depuis la confirmation.
+            const ask = r!.caseDef?.observations.find((o) => o.id === id)?.actions.find((a) => a.type === 'ask');
+            const reply = ask && ask.type === 'ask' ? r!.caseDef!.replies.find((x) => x.id === ask.replyId) : undefined;
+            const thread = reply && r!.caseDef!.threads.find((t) => t.id === reply.threadId);
+            if (reply && thread) {
+              const who = character(r!.caseDef!, thread.contact).name.split(' ')[0];
+              nav.showToast('Passage relevé', { label: ask && ask.type === 'ask' && ask.label ? ask.label : `Questionner ${who}`, run: () => nav.open('messages', { caseId, threadId: reply.threadId }) });
+            } else nav.showToast('Passage relevé dans le dossier');
           }}
         />
       )}

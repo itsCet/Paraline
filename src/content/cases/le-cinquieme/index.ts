@@ -388,6 +388,7 @@ export const leCinquieme: CaseDefinition = {
     /* Acte 4 — dire la vérité */
     { id: 'ines-lena1', threadId: 't-groupe', from: 'ines', text: 'J’ai retrouvé Léna. Elle vit toujours à Vaulx.' },
     { id: 'ines-lena2', threadId: 't-groupe', from: 'ines', text: 'Elle doit savoir. Mais qui le lui dit ?' },
+    { id: 'ines-julien', threadId: 't-groupe', from: 'ines', text: 'Julien ne dit rien… Il vous a parlé, à vous ?' },
 
     { id: 'sarah-ens', threadId: 't-groupe', from: 'sarah', text: 'D’accord. Ensemble.' },
     { id: 'julien-ens', threadId: 't-groupe', from: 'julien', text: 'Ensemble.' },
@@ -706,6 +707,8 @@ export const leCinquieme: CaseDefinition = {
     /* Julien rejoint l'aveu du groupe une fois qu'il a tout dit. */
     { id: 'julien-rejoint', when: { all: [recu('sarah-souvenir3'), recu('julien-pari4')] }, effects: say(['julien-groupe', 3000]) },
     { id: 'lena', when: recu('ines-souvenir'), effects: say(['ines-lena1', 5000], ['ines-lena2', 2500]) },
+    // Sans l'aveu de Julien, la fin complète n'est pas proposée : Inès le fait remarquer, sans rien dévoiler.
+    { id: 'julien-silence', when: { all: [recu('ines-lena2'), { not: recu('julien-pari4') }, { not: finChoisie }] }, effects: [{ type: 'deliverMessage', messageId: 'ines-julien', delayMs: 9000, holdUntil: { not: finChoisie } }] },
 
     /* Trois fins. */
     {
@@ -725,6 +728,7 @@ export const leCinquieme: CaseDefinition = {
     },
   ],
 
+  about: { duration: '~20 min', tone: 'Enquête longue, trois fins' },
   conclusion: {
     title: 'Affaire résolue',
     text: ['Théo Marchand était avec eux, cette nuit-là. La vérité a été dite.'],

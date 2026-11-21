@@ -232,6 +232,8 @@ export interface CaseDefinition {
   conclusion: { title: string; text: string[] };
   /** Conclusions alternatives : la première dont la condition est vraie remplace `conclusion`. */
   endings?: { when: Condition; title: string; text: string[] }[];
+  /** Durée et ton annoncés au joueur dans Mail (ex. « ~20 min », « Enquête longue »). */
+  about?: { duration: string; tone: string };
 }
 
 /* ------------------------------------------------------------------ */
@@ -353,6 +355,8 @@ export interface CaseProgress {
   log: { at: number; text: string }[];
   /** Notes d'enquête déjà apparues au moins une fois. */
   writtenNotes: Id[];
+  /** Réponses déjà vues par fil (pastille « nouvelle réponse possible »). */
+  seenReplies?: Record<Id, Id[]>;
 }
 
 export interface PhoneOverride {

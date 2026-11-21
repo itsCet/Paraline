@@ -118,7 +118,9 @@ function TutorialFolder({ onBack }: { onBack: () => void }) {
 }
 
 function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) {
-  const { state } = useGame();
+  const { state, dispatch, cases } = useGame();
+  const [confirmReplay, setConfirmReplay] = useState(false);
+  const busy = state.activeCaseId && state.activeCaseId !== def.id && state.cases[state.activeCaseId]?.status === 'active' ? cases.byId.get(state.activeCaseId) : undefined;
   const nav = useNav();
   const p = state.cases[def.id];
   const step = def.steps.find((s) => s.id === p.stepId);
@@ -158,6 +160,26 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
               {conclusion.text.map((t, i) => (
                 <p key={i}>{t}</p>
               ))}
+            </div>
+            {/* Rejouer l'affaire, par exemple pour une autre fin. Les autres affaires ne bougent pas. */}
+            <div style={{ marginTop: 12 }}>
+              {busy ? (
+                <div className="callout neutral">Pour rejouer cette affaire, terminez d’abord « {busy.title} ».</div>
+              ) : confirmReplay ? (
+                <div className="callout neutral" style={{ display: 'block' }}>
+                  <p style={{ margin: '0 0 10px' }}>Tout ce qui concerne cette affaire repartira de zéro : messages, observations, copies. Les autres affaires sont conservées.</p>
+                  <div className="stack">
+                    <button className="btn btn-primary btn-block" onClick={() => { dispatch({ type: 'case/replay', caseId: def.id }); setConfirmReplay(false); nav.showToast('Enquête relancée'); }}>
+                      Rejouer depuis le début
+                    </button>
+                    <button className="btn btn-ghost btn-block" onClick={() => setConfirmReplay(false)}>Annuler</button>
+                  </div>
+                </div>
+              ) : (
+                <button className="btn btn-secondary btn-block" onClick={() => setConfirmReplay(true)}>
+                  <Icon.Reset size={18} /> Rejouer l’enquête
+                </button>
+              )}
             </div>
           </>
         )}

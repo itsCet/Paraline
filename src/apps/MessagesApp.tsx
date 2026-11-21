@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../game/store';
 import { useIntent, useNav } from '../phone/nav';
-import { availableReplies, evaluate, queueReady } from '../game/engine';
+import { availableReplies, evaluate, newReplies, queueReady } from '../game/engine';
 import { resolveEntry } from '../game/reducer';
 import { character, resolveMedia } from '../game/selectors';
 import { Avatar, Empty, KindIcon, NavBar } from '../components/ui';
@@ -27,7 +27,7 @@ export function MessagesApp() {
     if (!p || (p.status !== 'active' && p.status !== 'solved')) return [];
     return def.threads
       .filter((t) => (p.threads[t.id]?.length ?? 0) > 0 || availableReplies(def, state, t.id).length > 0)
-      .map((t) => ({ def, t, entries: p.threads[t.id] ?? [], unread: (p.threads[t.id]?.length ?? 0) - (p.threadRead[t.id] ?? 0) }));
+      .map((t) => ({ def, t, entries: p.threads[t.id] ?? [], unread: (p.threads[t.id]?.length ?? 0) - (p.threadRead[t.id] ?? 0), fresh: newReplies(def, state, t.id).length > 0 }));
   });
   const archived = (d: CaseDefinition, t: CaseDefinition['threads'][number]) => !!t.archivedWhen && evaluate(t.archivedWhen, state, d.id);
   threads.sort(
@@ -51,14 +51,14 @@ export function MessagesApp() {
           <Empty icon={<Icon.Message size={40} />}>Vos échanges apparaîtront ici lorsque vous accepterez une enquête.</Empty>
         ) : (
           <ul className="list">
-            {threads.map(({ def: d, t, entries, unread }) => {
+            {threads.map(({ def: d, t, entries, unread, fresh }) => {
               const who = character(d, t.contact);
               const last = entries[entries.length - 1];
               const msg = last && resolveEntry(d, last.messageId);
               return (
                 <li key={`${d.id}:${t.id}`}>
-                  <button className="mail-row" onClick={() => setOpen({ caseId: d.id, threadId: t.id })} aria-label={`${who.name}${unread > 0 ? `, ${unread} non lu` : ''}`}>
-                    {unread > 0 && <span className="dot" aria-hidden="true" />}
+                  <button className="mail-row" onClick={() => setOpen({ caseId: d.id, threadId: t.id })} aria-label={`${who.name}${unread > 0 ? `, ${unread} non lu` : fresh ? ', nouvelle réponse possible' : ''}`}>
+                    {(unread > 0 || fresh) && <span className="dot" aria-hidden="true" />}
                     <Avatar initials={who.initials} color={who.color} />
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span className="mail-head">
@@ -119,7 +119,7 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
 
   useEffect(() => {
     if (visible) dispatch({ type: 'thread/read', caseId: def.id, threadId });
-  }, [visible, entries.length, def.id, threadId, dispatch]);
+  }, [visible, entries.length, replies.length, def.id, threadId, dispatch]);
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end', behavior: state.settings.reduceMotion ? 'auto' : 'smooth' });
   }, [entries.length, typing, state.settings.reduceMotion]);
