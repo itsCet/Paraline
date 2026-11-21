@@ -34,10 +34,10 @@ Règle : aucune information n'est donnée par la couleur seule. Les étiquettes 
 
 | Niveau | Taille | Usage |
 |---|---|---|
-| Titre d'app | 34 px, gras | « Messages », « Dossiers » (titre large iOS) |
+| Titre d'app | 36 px, très gras | « Messages », « Dossiers » (titre large iOS) |
 | Titre de section / feuille | 20–22 px | Feuille d'observation, titre de dossier |
 | Corps | 16–17 px | Bulles, e-mails, lignes |
-| Légende | 13 px minimum | Méta, notes de bas de page. **À FAIRE :** remonter à 13 px les quatre styles à 11–12 px (horodatage de fil, nom d'auteur dans un groupe, étiquette d'objectif, niveau d'indice) |
+| Légende | 13 px minimum | Méta, notes de bas de page. **À FAIRE :** remonter à 13 px les cinq styles à 11–12 px (sous-titre de l'en-tête de fil, horodatage et messages système, nom d'auteur dans un groupe, étiquette d'objectif, niveau d'indice) |
 
 Police : celle du système (San Francisco sur iPhone, Roboto sur Android), pour le réalisme. Écriture manuscrite des pièces : police manuscrite du système, ou Caveat. Le réglage « Texte plus grand » agrandit l'ensemble.
 

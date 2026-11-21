@@ -8,7 +8,7 @@ Décisions prises dans `docs/DESIGN.md`, à coder.
 - [ ] **Deux marqueurs dans Messages** : point plein = non lu ; petite bulle ambre au contour = nouvelle réponse possible. — Le même point signifie aujourd'hui deux choses. Depends on: none. Added: 2026-11-21.
 - [ ] **Contraste** : `--text-3` passe de `#74757c` (3,6:1) à `#8e8f96` (5,1:1). — Légendes et messages système sous le seuil AA. Depends on: none. Added: 2026-11-21.
 - [ ] **Cibles tactiles** : fermer la bannière, bouton d'action du toast, quitter le guide, flèches de la roue de l'heure → 44 px. — Actuellement 32 px. Depends on: none. Added: 2026-11-21.
-- [ ] **Légendes à 13 px minimum** : horodatage de fil, nom d'auteur en groupe, étiquette d'objectif, niveau d'indice (aujourd'hui 11–12 px). Depends on: none. Added: 2026-11-21.
+- [ ] **Légendes à 13 px minimum** : sous-titre de l'en-tête de fil, horodatage et messages système, nom d'auteur en groupe, étiquette d'objectif, niveau d'indice (aujourd'hui 11–12 px). Depends on: none. Added: 2026-11-21.
 - [ ] **États vides dans la voix du jeu**, avec le motif de la porte (Mail, Messages, Photos, Dossiers). Ex. Mail : « Personne n'a encore frappé à votre porte. » — Les textes actuels sont génériques. Depends on: none. Added: 2026-11-21.
 - [ ] **Dossiers façon dossier d'enquêteur** : onglet, tampon « Résolu », trombone sur les pièces, sur fond sombre. — Signature n°3 de l'identité. Depends on: états vides (même passe visuelle). Added: 2026-11-21.
 - [ ] **Chargement d'image** : squelette ambre discret pendant le chargement d'une photo lourde. Depends on: jouable hors ligne. Added: 2026-11-21.
