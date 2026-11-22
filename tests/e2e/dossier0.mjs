@@ -128,7 +128,7 @@ await check('Agnès écrit encore à Victor ; ses anciens messages s’affichent
 
 await check('Le dictaphone, puis la chambre change : elle est là', async () => {
   await openMedia('IMG_7744.jpg');
-  await tapRel(0.17, 0.57);
+  await tapRel(0.17, 0.835);
   await page.locator('.sheet h2', { hasText: 'dictaphone' }).waitFor();
   await page.getByRole('button', { name: 'Demander à Agnès' }).click();
   await reply('Il y avait un dictaphone dans la chambre. Victor a trouvé la cassette ?').click();
