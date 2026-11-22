@@ -234,6 +234,10 @@ export interface CaseDefinition {
   /** Le joueur revient dans le jeu après l'avoir quitté (Page Visibility) au moins `minAwayMs`. */
   onReturn?: { minAwayMs: number; when?: Condition; effects: Effect[] };
   /** Épreuve « ne bouge plus » (override `stillness`) : toucher l'écran déclenche le sursaut et relance le compte. */
+  /** Batterie d'un contact, qui baisse en temps réel : le drapeau `flag` perd 1 toutes les `everyMs`
+   *  tant que `while` est vraie, sans descendre sous `floor`. Affichée dans l'en-tête du fil `threadId`.
+   *  Une absence ne coûte qu'un cran (pas de rattrapage). */
+  battery?: { flag: string; threadId: Id; everyMs: number; floor: number; while: Condition };
   stillness?: { seconds: number; scareImage: string; scareSound: string; ambience?: string; steps?: string; whisper?: string; text: string };
   obstacles?: ObstacleDef[];
   conclusion: { title: string; text: string[] };
@@ -260,6 +264,8 @@ export type Condition =
   | { messageDelivered: Id }
   | { stepIs: Id }
   | { flag: string; equals?: FlagValue }
+  /** Drapeau numérique inférieur ou égal à `value` (faux si le drapeau n'est pas un nombre). */
+  | { flagAtMost: string; value: number }
   /** Heure manuelle exacte, format `HH:MM` (mode automatique = faux). */
   | { manualTime: string }
   /** Date manuelle exacte, format `YYYY-MM-DD` (mode automatique = faux). */
@@ -302,6 +308,8 @@ export type Effect =
   | { type: 'grantMedia'; mediaId: Id }
   | { type: 'setStep'; stepId: Id }
   | { type: 'setFlag'; name: string; value: FlagValue }
+  /** Ajoute `delta` à un drapeau numérique (0 s'il est absent), borné par `min` / `max`. */
+  | { type: 'addFlag'; name: string; delta: number; min?: number; max?: number }
   /** Modification temporaire du téléphone, annulée quand `until` devient vraie,
    *  par `clearPhoneOverride`, ou à la fin de l'affaire. */
   | { type: 'phoneOverride'; key: PhoneOverrideKey; value: string; until?: Condition }

@@ -109,7 +109,7 @@ await page.getByRole('button', { name: 'Plus tard' }).click();
 
 await check('Le dossier restauré : avertissement, notes de Victor datées de 2024', async () => {
   await openApp('Mail');
-  await page.locator('.mail-row', { hasText: 'Coordination Paraline' }).click();
+  await page.locator('.mail-row', { hasText: 'Dossier restauré' }).click();
   await page.getByText('Contient des images et des sons destinés à effrayer', { exact: false }).waitFor();
   await page.getByRole('button', { name: 'Accepter l’enquête' }).click();
   await openApp('Notes');

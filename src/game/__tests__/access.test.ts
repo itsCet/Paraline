@@ -14,7 +14,7 @@ describe('code d’accès', () => {
     const s = reducer(initialState(cases), { type: 'intro/complete' });
     expect(CASES.filter((c) => !isLocked(c, s)).map((c) => c.id)).toEqual(['dossier-0']);
     const locked = inbox(s, cases).filter((m) => m.locked);
-    expect(locked).toHaveLength(4);
+    expect(locked).toHaveLength(CASES.length - 1);
     expect(locked.every((m) => m.read)).toBe(true); // pas de pastille « non lu »
   });
 

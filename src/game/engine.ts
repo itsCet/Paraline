@@ -91,6 +91,10 @@ export function evaluate(cond: Condition, state: GameState, caseId: Id): boolean
     const v = p.flags[cond.flag];
     return cond.equals === undefined ? Boolean(v) : v === cond.equals;
   }
+  if ('flagAtMost' in cond) {
+    const v = p.flags[cond.flagAtMost];
+    return typeof v === 'number' && v <= cond.value;
+  }
   if ('manualTime' in cond) return !s.clockAuto && s.manualTime === cond.manualTime;
   if ('manualDate' in cond) return !s.clockAuto && s.manualDate === cond.manualDate;
   if ('manualDateBetween' in cond) return !s.clockAuto && s.manualDate >= cond.manualDateBetween[0] && s.manualDate <= cond.manualDateBetween[1];
@@ -264,6 +268,13 @@ export function applyEffect(state: GameState, def: CaseDefinition, effect: Effec
       // Jetons : `$now`, `$awayAt` (heure de départ du joueur), `$awayMs` (durée de son absence).
       const v = effect.value === '$now' ? now : effect.value === '$awayAt' ? (state.away?.at ?? now) : effect.value === '$awayMs' ? (state.away?.ms ?? 0) : effect.value;
       return updateCase(state, cid, (p) => ({ ...p, flags: { ...p.flags, [effect.name]: v } }));
+    }
+    case 'addFlag': {
+      return updateCase(state, cid, (p) => {
+        const cur = typeof p.flags[effect.name] === 'number' ? (p.flags[effect.name] as number) : 0;
+        const v = Math.min(effect.max ?? Infinity, Math.max(effect.min ?? -Infinity, cur + effect.delta));
+        return { ...p, flags: { ...p.flags, [effect.name]: v } };
+      });
     }
     case 'phoneOverride':
       return {
@@ -459,4 +470,28 @@ function isLocked(def: CaseDefinition, replyId: Id): boolean {
     def.replies.some((r) => targeted(r.effects)) ||
     def.observations.some((o) => o.actions.some((a) => a.type === 'ask' && a.replyId === replyId))
   );
+}
+
+/** Batterie d'un contact (`CaseDefinition.battery`) : un cran de moins toutes les `everyMs`. */
+export function drainBattery(state: GameState, cases: CaseIndex, now: number): GameState {
+  const cid = state.activeCaseId;
+  const def = cid ? cases.byId.get(cid) : undefined;
+  const b = def?.battery;
+  const p = cid ? state.cases[cid] : undefined;
+  if (!cid || !def || !b || !p || p.status !== 'active') return state;
+  const level = p.flags[b.flag];
+  const key = `${b.flag}:t`;
+  if (typeof level !== 'number' || level <= b.floor || !evaluate(b.while, state, cid)) {
+    // Le compte repart de zéro quand la batterie se remet à baisser.
+    return p.flags[key] === undefined ? state : updateCase(state, cid, (q) => {
+      const flags = { ...q.flags };
+      delete flags[key];
+      return { ...q, flags };
+    });
+  }
+  const last = p.flags[key];
+  if (typeof last !== 'number') return updateCase(state, cid, (q) => ({ ...q, flags: { ...q.flags, [key]: now } }));
+  if (now - last < b.everyMs) return state;
+  const next = updateCase(state, cid, (q) => ({ ...q, flags: { ...q.flags, [b.flag]: level - 1, [key]: now } }));
+  return settle(next, cases, now);
 }

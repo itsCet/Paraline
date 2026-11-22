@@ -11,6 +11,7 @@ import {
   evaluate,
   findMessage,
   processQueue,
+  drainBattery,
   rescheduleQueue,
   settle,
   type CaseIndex,
@@ -330,7 +331,7 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
     case 'notification/dismiss':
       return { ...state, notifications: state.notifications.filter((n) => n.id !== action.id) };
     case 'tick':
-      return processQueue(state, cases, now);
+      return processQueue(drainBattery(state, cases, now), cases, now);
     case 'reset':
       return initialState(cases);
   }

@@ -145,6 +145,9 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
   };
 
   const status = p?.status === 'solved' ? 'Affaire résolue' : 'Enquête en cours';
+  // Batterie du contact (enquête en temps réel).
+  const bat = def.battery?.threadId === threadId ? p?.flags[def.battery.flag] : undefined;
+  const battery = typeof bat === 'number' ? bat : undefined;
 
   return (
     <>
@@ -156,7 +159,7 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
             <Avatar initials={who.initials} color={who.color} small />
             <span className="who" style={{ textAlign: 'left' }}>
               <div className="name">{who.name}</div>
-              <div className="sub">{presenceLabel ?? who.role ?? status}</div>
+              <div className="sub">{battery !== undefined && !isEnded ? <BatteryLevel level={battery} /> : (presenceLabel ?? who.role ?? status)}</div>
             </span>
           </span>
         }
@@ -265,5 +268,20 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
         </div>
       )}
     </>
+  );
+}
+
+/** Niveau de batterie d'un contact, dans l'en-tête du fil. */
+function BatteryLevel({ level }: { level: number }) {
+  const low = level <= 5;
+  return (
+    <span className={`battery-level${low ? ' low' : ''}`} role="status" aria-label={`Batterie de son téléphone : ${level} %`}>
+      <svg width="22" height="11" viewBox="0 0 22 11" aria-hidden="true">
+        <rect x="0.5" y="0.5" width="18" height="10" rx="2.5" fill="none" stroke="currentColor" strokeOpacity="0.6" />
+        <rect x="19.5" y="3.5" width="2" height="4" rx="1" fill="currentColor" fillOpacity="0.6" />
+        <rect x="2" y="2" width={Math.max(1, (15 * Math.min(100, level)) / 100)} height="7" rx="1.2" fill="currentColor" />
+      </svg>
+      {level} %
+    </span>
   );
 }

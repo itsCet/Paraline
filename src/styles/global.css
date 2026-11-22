@@ -1055,3 +1055,7 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .code-sheet .btn { width: 100%; }
 @keyframes code-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 @media (prefers-reduced-motion: reduce) { .code-input.wrong { animation: none; } }
+
+/* Batterie d'un contact (enquête en temps réel) */
+.battery-level { display: inline-flex; align-items: center; gap: 5px; font-variant-numeric: tabular-nums; color: var(--amber); }
+.battery-level.low { color: var(--red); font-weight: 600; }
