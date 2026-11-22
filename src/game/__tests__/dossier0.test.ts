@@ -110,7 +110,7 @@ describe('dossier 0', () => {
     expect(s.overrides.stillness).toBeDefined();
   });
 
-  it('tenir une minute : fin complète', () => {
+  it('tenir 30 secondes : fin complète', () => {
     let s = flush(run(jusquALEpreuve(s0), { type: 'stillness/result', result: 'held' }));
     expect(s.overrides.stillness).toBeUndefined();
     expect(got(s, 'i-eteindre')).toBe(true);

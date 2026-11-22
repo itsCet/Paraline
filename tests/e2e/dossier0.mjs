@@ -2,7 +2,7 @@
  * Parcours complet de « Dossier 0 » dans l'interface réelle, SANS indice, sursaut compris.
  *
  *   npm run build && npx vite preview --port 4173 &
- *   npm run e2e:dossier0   # ~4 min (dont 1 min d'immobilité)
+ *   npm run e2e:dossier0   # ~3 min (dont 30 s d'immobilité)
  */
 import { createRequire } from 'node:module';
 import { mkdirSync } from 'node:fs';
@@ -202,10 +202,10 @@ await check('« Ne bouge plus » : toucher l’écran déclenche le sursaut, pui
   assert(s.cases['dossier-0'].flags.sursauts === 1, 'sursaut non compté');
 });
 
-await check('Tenir une minute sans toucher : fin « Entendue »', async () => {
+await check('Tenir 30 secondes sans toucher : fin « Entendue »', async () => {
   await page.locator('.stillness-text', { hasText: 'Ne bouge plus.' }).waitFor({ timeout: 6000 });
   await shot('05-immobile');
-  await page.locator('.stillness').waitFor({ state: 'detached', timeout: 75000 });
+  await page.locator('.stillness').waitFor({ state: 'detached', timeout: 45000 });
   await thread('Inconnu');
   await bubble('Tu peux éteindre.').waitFor({ timeout: 20000 });
   await page.waitForTimeout(18000);

@@ -13,9 +13,9 @@ Clara est restée dans le téléphone. Elle veut que son témoignage soit entend
 - **Acte 2 — Ce que Victor a fait.** Article de 1998 (incendie, Clara « en fugue ») ; avis de disparition de Victor (2024) ; notes de Victor de plus en plus courtes : « Morand m'a proposé 5 000 € », « J'ai supprimé l'enregistrement », « Elle est en colère ». Agnès répond encore (elle croit écrire à Victor). La chambre de Clara change : une silhouette pâle dans le coin, derrière la porte.
 - **Bascule — Elle est ici.** Une photo apparaît dans la pellicule : **le bureau du joueur, la nuit, photographié depuis la porte** (le bureau de l'exercice de prise en main), lampe allumée, chaise tirée. Infos : « Appareil : ce téléphone », prise à l'heure réelle où le joueur était absent. À partir de là, quitter l'app est remarqué : au retour, une note « Tu es parti 3 min 12. Je suis restée. » (durée réelle).
 - **Acte 3 — Elle se rapproche.** App **Localiser** : un contact sans nom, un point qui avance sur un plan fictif du quartier du joueur à chaque découverte. L'écran s'assombrit très lentement. Album **Récemment supprimés** : vide… sauf si la date du téléphone est réglée **avant le 16/11/2024** (l'élément supprimé « réapparaît », comme sur un vrai iPhone avant 30 jours). Le joueur récupère `temoignage_clara.m4a` : la voix de Clara, avec un chuchotement qui vient de l'oreille gauche au casque.
-- **Acte 4 — Ne bouge plus.** Le joueur envoie le témoignage à Agnès (qui le transmettra). Clara écrit : « Ne bouge plus. » Compte de **60 secondes** : le point Localiser arrive, l'écran s'assombrit, des pas.
+- **Acte 4 — Ne bouge plus.** Le joueur envoie le témoignage à Agnès (qui le transmettra). Clara écrit : « Ne bouge plus. » Compte de **30 secondes** : le point Localiser arrive, l'écran s'assombrit, des pas.
   - **Toucher l'écran** → **jumpscare** : visage plein écran + cri + vibration + flash, puis « Recommence. » et le compte repart à zéro.
-  - **Tenir 60 s** → fin complète : le témoignage part, Clara écrit « Merci. Tu peux éteindre. », photo du bureau au matin, chaise vide, porte fermée. Le point disparaît de Localiser.
+  - **Tenir 30 s** → fin complète : le témoignage part, Clara écrit « Merci. Tu peux éteindre. », photo du bureau au matin, chaise vide, porte fermée. Le point disparaît de Localiser.
   - **Fermer l'app pendant le compte** → fin sombre : au retour, dernière photo, prise depuis le bureau vers la porte grande ouverte. Une silhouette dans l'embrasure. Affaire close sans apaisement.
 
 ## Mécaniques à coder
@@ -25,7 +25,7 @@ Dossier sans mail client (mail de la coordination) · notes « anciennes » dat�
 - Avertissement dans le mail : « Contient des images et des sons destinés à effrayer. »
 - Jamais la vraie caméra, la vraie position ni de vraies notifications système.
 - « Réduire les effets brusques » : jumpscare sans flash ni vibration, image en fondu rapide, cri à volume réduit. « Sons du jeu » coupés : jumpscare silencieux mais visible.
-- Le compte « ne bouge plus » se recommence à volonté ; l'aide (ampoule) donne la solution au niveau 3 (« Posez le téléphone et ne touchez à rien pendant une minute »).
+- Le compte « ne bouge plus » se recommence à volonté ; l'aide (ampoule) donne la solution au niveau 3 (« Posez le téléphone et ne touchez à rien pendant 30 secondes »).
 
 ## Images (portrait 3:4, 1086 × 1448, photo réaliste de smartphone)
 1. `maison.jpg` — la maison au crépuscule (photo de Victor, 2024).

@@ -361,12 +361,12 @@ export const dossierZero: CaseDefinition = {
     {
       id: 'bouge',
       solved: { any: [{ flag: 'immobile', equals: 'held' }, { flag: 'immobile', equals: 'left' }] },
-      hints: ['Elle vous demande une chose très simple.', 'Ne faites rien.', 'Posez le téléphone et ne touchez à rien pendant une minute, sans quitter le jeu.'],
+      hints: ['Elle vous demande une chose très simple.', 'Ne faites rien.', 'Posez le téléphone et ne touchez à rien pendant 30 secondes, sans quitter le jeu.'],
     },
   ],
 
   stillness: {
-    seconds: 60,
+    seconds: 30,
     text: 'Ne bouge plus.',
     scareImage: `${DIR}/jumpscare.jpg`,
     scareSound: `${DIR}/jumpscare.mp3`,
