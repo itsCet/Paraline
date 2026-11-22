@@ -124,6 +124,8 @@ export function normalize(raw: Raw, cases: CaseIndex): GameState {
     overrides: isObj(raw.overrides) ? (raw.overrides as GameState['overrides']) : {},
     copies: arr<GameState['copies'][number]>(raw.copies).filter((c) => isObj(c) && typeof c.src === 'string'),
     notes: arr<GameState['notes'][number]>(raw.notes).filter((n) => isObj(n) && typeof n.id === 'string'),
+    ...(raw.unlocked === true ? { unlocked: true } : {}),
+    ...(isObj(raw.away) ? { away: raw.away as GameState['away'] } : {}),
     notifications: [],
   };
   return reconcile(state, cases);

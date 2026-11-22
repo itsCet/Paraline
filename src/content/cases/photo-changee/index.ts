@@ -194,6 +194,7 @@ export const photoChangee: CaseDefinition = {
     },
   ],
 
+  locked: true,
   initialMail: {
     id: 'pc-mail',
     from: 'anna',

@@ -17,6 +17,7 @@ import {
 } from './engine';
 import { initialState } from './save';
 import type { CaseDefinition, GameState, Id, Note, Settings, TutorialStep } from './types';
+import { ACCESS_CODE } from './selectors';
 
 export type Action =
   | { type: 'intro/complete' }
@@ -47,6 +48,7 @@ export type Action =
   | { type: 'note/upsert'; note: Note }
   | { type: 'note/delete'; id: Id }
   | { type: 'settings/update'; patch: Partial<Settings> }
+  | { type: 'access/unlock'; code: string }
   | { type: 'notification/dismiss'; id: Id }
   /** Active le réglage inconnu apparu dans Réglages (override `ghostSetting`). */
   | { type: 'ghost/activate' }
@@ -304,6 +306,9 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
     }
     case 'note/delete':
       return { ...state, notes: state.notes.filter((n) => n.id !== action.id) };
+
+    case 'access/unlock':
+      return action.code.trim() === ACCESS_CODE && !state.unlocked ? { ...state, unlocked: true } : state;
 
     case 'settings/update': {
       const prev = state.settings;

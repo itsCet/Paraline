@@ -227,6 +227,7 @@ export const chambreCondamnee: CaseDefinition = {
     },
   ],
 
+  locked: true,
   initialMail: {
     id: 'cc-mail',
     from: 'elise',

@@ -21,6 +21,17 @@ export interface InboxItem {
   read: boolean;
   /** Durée et ton annoncés (e-mail initial d'une affaire). */
   about?: string;
+  /** Enquête réservée, code d'accès non saisi. */
+  locked?: boolean;
+}
+
+/** Code d'accès des enquêtes réservées. */
+export const ACCESS_CODE = '1234';
+
+/** Une enquête réservée reste fermée tant que le code n'est pas saisi (sauf si elle est déjà commencée). */
+export function isLocked(def: CaseDefinition, state: GameState): boolean {
+  const st = state.cases[def.id]?.status ?? 'new';
+  return !!def.locked && !state.unlocked && (st === 'new' || st === 'postponed');
 }
 
 export function character(def: CaseDefinition, id: Id): Character {
@@ -58,7 +69,8 @@ export function inbox(state: GameState, cases: CaseIndex): InboxItem[] {
       const m = findMail(def, id);
       if (m) items.push(mailItem(def, m, false, state));
     }
-    items.push(mailItem(def, def.initialMail, true, state));
+    const item = mailItem(def, def.initialMail, true, state);
+    items.push(isLocked(def, state) ? { ...item, locked: true, read: true } : item);
   }
   if (state.tutorial.status === 'active') {
     items.unshift({

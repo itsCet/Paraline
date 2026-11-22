@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useGame } from '../game/store';
 import { useIntent, useNav } from '../phone/nav';
-import { character, inbox, resolveMedia, type InboxItem } from '../game/selectors';
+import { ACCESS_CODE, character, inbox, resolveMedia, type InboxItem } from '../game/selectors';
 import { TUTORIAL_MEDIA } from '../content/tutorial';
-import { AttachmentCard, Avatar, Empty, NavBar } from '../components/ui';
+import { AttachmentCard, Avatar, Empty, NavBar, Sheet } from '../components/ui';
 import { Icon } from '../components/icons';
 
 type Filter = 'all' | 'unread' | 'review' | 'postponed' | 'active' | 'solved';
@@ -14,6 +14,7 @@ export function MailApp() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
+  const [codeFor, setCodeFor] = useState<string | null>(null);
   const items = inbox(state, cases);
   const visible = nav.app === 'mail';
 
@@ -22,7 +23,7 @@ export function MailApp() {
     if (visible) dispatch({ type: 'tutorial/step', step: 'openMessage' });
   }, [visible, dispatch]);
 
-  const current = items.find((m) => m.id === openId);
+  const current = items.find((m) => m.id === openId && !m.locked);
   useEffect(() => {
     nav.setScreen('mail', current?.tutorial ? 'tutorial' : current ? 'mail' : 'list');
     if (!current) return;
@@ -81,13 +82,72 @@ export function MailApp() {
           <ul className="list">
             {filtered.map((m) => (
               <li key={m.id}>
-                <MailRow item={m} onOpen={() => setOpenId(m.id)} />
+                <MailRow item={m} onOpen={() => (m.locked ? setCodeFor(m.id) : setOpenId(m.id))} />
               </li>
             ))}
           </ul>
         )}
       </div>
+      {codeFor && (
+        <CodeSheet
+          onClose={() => setCodeFor(null)}
+          onUnlock={() => {
+            setOpenId(codeFor);
+            setCodeFor(null);
+          }}
+        />
+      )}
     </>
+  );
+}
+
+/** Saisie du code d'accès des enquêtes réservées. */
+function CodeSheet({ onClose, onUnlock }: { onClose: () => void; onUnlock: () => void }) {
+  const { state, dispatch } = useGame();
+  const [code, setCode] = useState('');
+  const [wrong, setWrong] = useState(false);
+  useEffect(() => {
+    if (state.unlocked) onUnlock();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.unlocked]);
+  return (
+    <Sheet onClose={onClose} label="Enquête verrouillée">
+      <form
+        className="code-sheet"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (code.trim() === ACCESS_CODE) dispatch({ type: 'access/unlock', code });
+          else {
+            setWrong(true);
+            setCode('');
+          }
+        }}
+      >
+        <span className="code-lock" aria-hidden="true">
+          <Icon.Lock size={28} />
+        </span>
+        <h2>Enquête verrouillée</h2>
+        <p>Entrez le code d’accès pour ouvrir les autres enquêtes.</p>
+        <input
+          className={`code-input${wrong ? ' wrong' : ''}`}
+          inputMode="numeric"
+          autoComplete="off"
+          maxLength={8}
+          aria-label="Code d’accès"
+          aria-invalid={wrong}
+          placeholder="••••"
+          value={code}
+          onChange={(e) => {
+            setCode(e.target.value.replace(/\D/g, ''));
+            setWrong(false);
+          }}
+        />
+        <p className="code-error" role="alert">{wrong ? 'Code incorrect.' : '\u00a0'}</p>
+        <button className="btn btn-primary" type="submit" disabled={!code}>
+          Déverrouiller
+        </button>
+      </form>
+    </Sheet>
   );
 }
 
@@ -106,7 +166,7 @@ function StatusTag({ item }: { item: InboxItem }) {
 function MailRow({ item, onOpen }: { item: InboxItem; onOpen: () => void }) {
   const n = item.attachments.length;
   return (
-    <button className="mail-row" onClick={onOpen} aria-label={`${item.read ? '' : 'Non lu. '}${item.fromName}, ${item.subject}`}>
+    <button className={`mail-row${item.locked ? ' locked' : ''}`} onClick={onOpen} aria-label={`${item.locked ? 'Verrouillé. ' : item.read ? '' : 'Non lu. '}${item.fromName}, ${item.subject}`}>
       <Avatar initials={item.initials} color={item.color} />
       <span style={{ flex: 1, minWidth: 0 }}>
         <span className="mail-head">
@@ -114,7 +174,13 @@ function MailRow({ item, onOpen }: { item: InboxItem; onOpen: () => void }) {
           {!item.tutorial && <span className="mail-time">{item.timeLabel}</span>}
         </span>
         <div className="mail-subject">{item.subject}</div>
-        {!item.tutorial && <div className="mail-preview">{item.preview}</div>}
+        {item.locked ? (
+          <div className="mail-preview mail-locked">
+            <Icon.Lock size={14} /> Verrouillée · code requis
+          </div>
+        ) : (
+          !item.tutorial && <div className="mail-preview">{item.preview}</div>
+        )}
         <span className="mail-meta">
           {item.tutorial && <span>Exemple</span>}
           {item.tutorial && n > 0 && <span aria-hidden="true">·</span>}

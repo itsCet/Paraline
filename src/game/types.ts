@@ -217,6 +217,8 @@ export interface CaseDefinition {
   characters: Character[];
   media: MediaDef[];
   initialMail: MailDef;
+  /** Enquête réservée : son e-mail reste verrouillé tant que le code d'accès n'a pas été saisi. */
+  locked?: boolean;
   followUpMails?: MailDef[];
   threads: ThreadDef[];
   messages: MessageDef[];
@@ -445,6 +447,8 @@ export interface GameState {
   notes: Note[];
   /** Dernière absence du joueur (application quittée puis reprise). */
   away?: { at: number; ms: number; count: number };
+  /** Code d'accès saisi : les enquêtes réservées sont ouvertes. */
+  unlocked?: boolean;
   /** Transitoire : non sauvegardé. */
   notifications: Notification[];
 }

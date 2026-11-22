@@ -106,6 +106,23 @@ await check('États avant acceptation (Messages et Dossiers vides)', async () =>
   await home();
 });
 
+await check('Enquêtes réservées : seul Dossier 0 est ouvert, code 1234', async () => {
+  await openApp('Mail');
+  await page.locator('.mail-row:not(.locked)', { hasText: 'Dossier restauré' }).waitFor();
+  assert((await page.locator('.mail-row.locked').count()) === 4, 'il faut 4 enquêtes verrouillées');
+  await page.locator('.mail-row.locked', { hasText: 'Élise Morel' }).click();
+  await page.getByLabel('Code d’accès').fill('0000');
+  await page.getByRole('button', { name: 'Déverrouiller' }).click();
+  await page.getByText('Code incorrect.').waitFor();
+  await shot(page, 'lock-erreur');
+  await page.getByLabel('Code d’accès').fill('1234');
+  await page.getByRole('button', { name: 'Déverrouiller' }).click();
+  await page.getByRole('button', { name: 'Accepter l’enquête' }).waitFor();
+  await page.locator('section.app-layer:not([hidden]) .navbar-back').click();
+  assert((await page.locator('.mail-row.locked').count()) === 0, 'encore verrouillé');
+  await home();
+});
+
 await check('Exercice : lancement et ouverture du message', async () => {
   await page.getByRole('button', { name: 'Faire l’essai' }).click();
   assert((await coach().textContent()).includes('Ouvrez l’application Mail'), 'guide initial');

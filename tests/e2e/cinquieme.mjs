@@ -117,9 +117,19 @@ const observe = async (x, y, title) => {
   await page.locator('.sheet h2', { hasText: title }).waitFor();
 };
 
+// Les enquêtes réservées s'ouvrent avec le code d'accès (parcours testé dans smoke) :
+// la sauvegarde porte le code saisi avant chaque chargement.
+await page.addInitScript(() => {
+  try {
+    const raw = localStorage.getItem('paraline.save');
+    if (raw) localStorage.setItem('paraline.save', JSON.stringify({ ...JSON.parse(raw), unlocked: true }));
+  } catch {}
+});
 await page.goto(BASE);
 await page.getByRole('button', { name: 'Passer l’introduction' }).click();
 await page.getByRole('button', { name: 'Plus tard' }).click();
+await page.waitForTimeout(800);
+await page.reload();
 
 await check('Acceptation : groupe à quatre voix, Sarah en privé', async () => {
   await openApp('Mail');

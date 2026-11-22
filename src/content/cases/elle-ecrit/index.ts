@@ -157,6 +157,7 @@ export const elleEcrit: CaseDefinition = {
     },
   ],
 
+  locked: true,
   initialMail: {
     id: 'ee-mail',
     from: 'marc',

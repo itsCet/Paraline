@@ -269,6 +269,7 @@ export const leCinquieme: CaseDefinition = {
     },
   ],
 
+  locked: true,
   initialMail: {
     id: 'lc-mail',
     from: 'sarah',
