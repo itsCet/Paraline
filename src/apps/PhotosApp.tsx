@@ -17,7 +17,7 @@ export function PhotosApp() {
     if (!p || (p.status !== 'active' && p.status !== 'solved')) return [];
     return p.grantedMedia
       .map((id) => resolveMedia(def, state, id))
-      .filter((r): r is NonNullable<typeof r> => !!r && (r.def.kind === 'image' || r.def.kind === 'video'))
+      .filter((r): r is NonNullable<typeof r> => !!r && (r.def.kind === 'image' || r.def.kind === 'video' || (r.def.kind === 'audio' && r.def.album === 'Récemment supprimés')))
       .map((r) => ({ caseId: def.id, r }));
   });
 
@@ -48,7 +48,7 @@ export function PhotosApp() {
           ) : (
             groups.map(([album, items]) => (
               <section key={album || 'pj'} aria-label={album ? `Album partagé ${album}` : 'Pièces jointes'}>
-                {groups.length > 1 && <h2 className="section-title">{album ? `Album partagé « ${album} »` : 'Pièces jointes'}</h2>}
+                {groups.length > 1 && <h2 className="section-title">{album === 'Récemment supprimés' ? 'Récemment supprimés' : album ? `Album partagé « ${album} »` : 'Pièces jointes'}</h2>}
                 <div className="photo-grid">
                   {items.map(({ caseId, r }) => {
                     const t = thumbOf(r.variant, r.def.kind);

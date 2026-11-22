@@ -15,7 +15,8 @@
     "e2e:chambre": "node tests/e2e/chambre.mjs",
     "e2e:photo": "node tests/e2e/photo.mjs",
     "e2e:elle": "node tests/e2e/elle.mjs",
-    "e2e:cinquieme": "node tests/e2e/cinquieme.mjs"
+    "e2e:cinquieme": "node tests/e2e/cinquieme.mjs",
+    "e2e:dossier0": "node tests/e2e/dossier0.mjs"
   },
   "dependencies": {
     "react": "^19.1.0",

@@ -1015,3 +1015,28 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .case-stamp { position: absolute; right: 14px; top: 10px; transform: rotate(-9deg); border: 2px solid var(--green); color: var(--green); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 13px; padding: 3px 8px; border-radius: 6px; opacity: .85; }
 .case-stamp.open { border-color: var(--amber); color: var(--amber); }
 .clip-title::before { content: ''; display: inline-block; width: 10px; height: 18px; margin-right: 8px; vertical-align: -3px; border: 2px solid var(--text-3); border-radius: 6px; border-bottom-width: 0; }
+
+/* Localiser */
+.locate-map { border-radius: 18px; overflow: hidden; margin-bottom: 14px; border: 1px solid var(--line); }
+.locate-pulse { animation: locate-pulse 1.8s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes locate-pulse { from { transform: scale(0.6); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+.phone.reduce-motion .locate-pulse { animation: none; }
+
+/* La lumière baisse */
+.phone-dim { position: absolute; inset: 0; background: #000; pointer-events: none; z-index: 150; transition: opacity 4s linear; }
+
+/* Ne bouge plus */
+.stillness { position: absolute; inset: 0; z-index: 400; background: rgba(0, 0, 0, var(--dark, 0.75)); display: grid; place-items: center; touch-action: none; user-select: none; }
+.stillness-text { font-size: 22px; letter-spacing: 0.04em; color: rgba(243, 239, 230, 0.55); animation: still-in 2s ease forwards; margin: 0; }
+.stillness-text.retry { color: rgba(229, 83, 61, 0.85); font-weight: 600; animation-duration: 0.4s; }
+@keyframes still-in { from { opacity: 0; } to { opacity: 1; } }
+.stillness-bar { position: absolute; left: 30%; right: 30%; bottom: 60px; height: 2px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; }
+.stillness-bar i { display: block; height: 100%; background: rgba(239,179,92,.35); transform-origin: left; }
+.stillness-scare { position: absolute; inset: 0; background: #000; }
+.stillness-scare img { width: 100%; height: 100%; object-fit: cover; animation: scare-in 0.18s ease-out, scare-shake 0.12s linear 0.18s 6; }
+.stillness.calm .stillness-scare img { animation: scare-fade 0.25s ease-out; }
+@keyframes scare-in { from { transform: scale(1.35); } to { transform: scale(1); } }
+@keyframes scare-shake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-6px, 4px); } 75% { transform: translate(6px, -4px); } }
+@keyframes scare-fade { from { opacity: 0; } to { opacity: 1; } }
+.stillness-flash { position: absolute; inset: 0; background: #fff; animation: scare-flash 0.22s ease-out forwards; }
+@keyframes scare-flash { from { opacity: 0.95; } to { opacity: 0; } }

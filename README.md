@@ -2,7 +2,7 @@
 
 *Enquêtes paranormales.* Jeu web mobile : le joueur, enquêteur paranormal indépendant, mène ses affaires depuis son téléphone professionnel fictif (Mail, Messages, Photos, Dossiers, Notes, Réglages).
 
-Contenu : téléphone, applications, introduction, exercice de prise en main, moteur d'enquête, sauvegarde, et quatre enquêtes complètes, disponibles dès le lancement : **« La chambre condamnée »** (surnaturelle, `src/content/cases/chambre-condamnee/`), **« Cette photo a changé »** (rationnelle, avec une fin à choix, `src/content/cases/photo-changee/`), **« Elle écrit dans mes notes »** (hantise du téléphone du joueur, `src/content/cases/elle-ecrit/`) et **« Le cinquième »** (longue, 15–20 min, conversation de groupe et trois fins, `src/content/cases/le-cinquieme/`).
+Contenu : téléphone, applications, introduction, exercice de prise en main, moteur d'enquête, sauvegarde, et quatre enquêtes complètes, disponibles dès le lancement : **« La chambre condamnée »** (surnaturelle, `src/content/cases/chambre-condamnee/`), **« Cette photo a changé »** (rationnelle, avec une fin à choix, `src/content/cases/photo-changee/`), **« Elle écrit dans mes notes »** (hantise du téléphone du joueur, `src/content/cases/elle-ecrit/`) **« Le cinquième »** (longue, 15–20 min, conversation de groupe et trois fins, `src/content/cases/le-cinquieme/`) et **« Dossier 0 »** (horreur, ~25 min, le téléphone de l'enquêteur disparu, `src/content/cases/dossier-0/`).
 
 React 19, TypeScript et Vite. Pas de backend, pas de compte, pas d'IA, pas de clé secrète.
 
@@ -28,6 +28,7 @@ npm run e2e:chambre                           # parcours complet de « La chambr
 npm run e2e:photo                             # parcours complet de « Cette photo a changé », sans indice
 npm run e2e:elle                              # parcours complet de « Elle écrit dans mes notes », sans indice (~2 min)
 npm run e2e:cinquieme                         # parcours complet de « Le cinquième » jusqu'à la fin complète, sans indice (~3 min)
+npm run e2e:dossier0                          # parcours complet de « Dossier 0 », sursaut compris (~4 min)
 ```
 
 `build:fixture` remplace le registre des enquêtes par une enquête de test, grâce à un alias Vite. Le build normal n'en contient aucune trace.
@@ -111,7 +112,12 @@ Autres possibilités utilisées par la première enquête :
 - `system` sur un message : ligne centrée sans bulle (« Malik a quitté la conversation. ») ;
 - override `extraApp: 'telephone'` : app Téléphone (messagerie vocale, médias de l'album « Messagerie ») ;
 - `tone: 'imprint'` sur un `overlay` : écriture en creux, presque invisible sans zoom ;
-- `about` sur une enquête : durée et ton affichés dans Mail (« ~20 min · Enquête longue, trois fins »).
+- `about` sur une enquête : durée et ton affichés dans Mail (« ~20 min · Enquête longue, trois fins ») ;
+- `notes[].at` : note datée d'un autre propriétaire (ex. novembre 2024) ;
+- `onReturn` : effets quand le joueur revient après avoir quitté le jeu (Page Visibility) ; jetons `$awayAt`, `$awayMs`, `$now` dans `setFlag`, gabarits `{flag:nom:heure}` / `{flag:nom:duree}` dans les notes et les Infos ;
+- condition `manualDateBetween` ; overrides `dim` (la lumière baisse), `extraApp: 'localiser'` (app Localiser) et `stillness` (épreuve « ne bouge plus ») ;
+- `stillness` sur une enquête : toucher l'écran pendant l'épreuve déclenche le sursaut (image, cri, flash, vibration ; atténué par « Réduire les effets brusques ») et relance le compte ; quitter le jeu y met fin ;
+- album `Récemment supprimés` : il accueille aussi les audios dans Photos.
 
 Côté joueur, le moteur gère aussi :
 - **Rejouer une affaire résolue** depuis son dossier (action `case/replay`) : elle repart de zéro, les autres sont conservées ;

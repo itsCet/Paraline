@@ -8,6 +8,7 @@ import {
   clearOverridesOf,
   deliverMessageNow,
   emptyProgress,
+  evaluate,
   findMessage,
   processQueue,
   rescheduleQueue,
@@ -35,6 +36,10 @@ export type Action =
   | { type: 'reply/prepare'; caseId: Id; replyId: Id | undefined }
   | { type: 'reply/send'; caseId: Id; replyId: Id }
   | { type: 'thread/read'; caseId: Id; threadId: Id }
+  /** Le joueur revient dans le jeu après l'avoir quitté. */
+  | { type: 'app/return'; leftAt: number; awayMs: number }
+  /** Fin de l'épreuve « ne bouge plus » : tenu, ou application quittée ; `touched` compte un sursaut. */
+  | { type: 'stillness/result'; result: 'held' | 'left' | 'touched' }
   /** Rejoue une affaire résolue depuis le début (les autres affaires ne bougent pas). */
   | { type: 'case/replay'; caseId: Id }
   | { type: 'hint/reveal'; caseId: Id; stepId: Id }
@@ -126,6 +131,26 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
     case 'mail/read':
       return state.readMails.includes(action.mailId) ? state : { ...state, readMails: [...state.readMails, action.mailId] };
 
+    case 'app/return': {
+      const away = { at: action.leftAt, ms: action.awayMs, count: (state.away?.count ?? 0) + 1 };
+      let next: GameState = { ...state, away };
+      const def = state.activeCaseId ? cases.byId.get(state.activeCaseId) : undefined;
+      const r = def?.onReturn;
+      if (def && r && state.cases[def.id]?.status === 'active' && action.awayMs >= r.minAwayMs && (!r.when || evaluate(r.when, next, def.id))) {
+        for (const e of r.effects) next = applyEffect(next, def, e, now);
+      }
+      return next;
+    }
+    case 'stillness/result': {
+      const cid = state.overrides.stillness?.caseId;
+      if (!cid) return state;
+      if (action.result === 'touched') {
+        return patchCase(state, cid, (p) => ({ ...p, flags: { ...p.flags, sursauts: Number(p.flags.sursauts ?? 0) + 1 } }));
+      }
+      const overrides = { ...state.overrides };
+      delete overrides.stillness;
+      return patchCase({ ...state, overrides }, cid, (p) => ({ ...p, flags: { ...p.flags, immobile: action.result } }));
+    }
     case 'case/replay': {
       const def = cases.byId.get(action.caseId);
       if (!def || state.cases[def.id]?.status !== 'solved') return state;

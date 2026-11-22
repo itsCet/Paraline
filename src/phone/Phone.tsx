@@ -14,6 +14,8 @@ import { FilesApp } from '../apps/FilesApp';
 import { NotesApp } from '../apps/NotesApp';
 import { SettingsApp } from '../apps/SettingsApp';
 import { PhoneApp, VoiceApp } from '../apps/VoiceApp';
+import { LocateApp } from '../apps/LocateApp';
+import { Stillness } from './Stillness';
 import { HintBulb } from '../components/Hints';
 import { unlockAudio } from '../game/sound';
 import { WALLPAPER } from '../content/assets';
@@ -28,6 +30,7 @@ const APPS: Record<AppId, () => ReactNode> = {
   settings: () => <SettingsApp />,
   voice: () => <VoiceApp />,
   phone: () => <PhoneApp />,
+  locate: () => <LocateApp />,
 };
 
 export function Phone() {
@@ -36,6 +39,22 @@ export function Phone() {
   const s = state.settings;
   const time = usePhoneTime(s);
   const onHome = nav.app === null && !nav.viewer;
+
+  // Le jeu remarque quand le joueur le quitte (onglet caché, écran verrouillé) et combien de temps.
+  const { dispatch } = useGame();
+  const leftAt = useRef<number | null>(null);
+  useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') leftAt.current = Date.now();
+      else if (leftAt.current !== null) {
+        const at = leftAt.current;
+        leftAt.current = null;
+        if (state.introDone) dispatch({ type: 'app/return', leftAt: at, awayMs: Date.now() - at });
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [dispatch, state.introDone]);
 
   // Échap : ferme la visionneuse.
   useEffect(() => {
@@ -79,6 +98,9 @@ export function Phone() {
         <MediaViewer />
       </main>
       <HomeBar onHome={onHome} />
+      {/* Assombrissement voulu par une enquête (la lumière baisse). */}
+      {state.overrides.dim && <div className="phone-dim" aria-hidden="true" style={{ opacity: Math.min(0.7, Number(state.overrides.dim.value) || 0) }} />}
+      <Stillness />
       <Banner />
       <ToastView />
       {!state.introDone && <Intro />}

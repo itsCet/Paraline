@@ -227,7 +227,12 @@ export interface CaseDefinition {
   /** Messages présents dans les fils dès l'acceptation. */
   openingMessages?: Id[];
   /** Notes qui peuvent apparaître dans l'app Notes du joueur. */
-  notes?: { id: Id; title?: string; body: string }[];
+  /** `at` : date fictive de la note (ISO), pour les notes « anciennes » d'un autre propriétaire. */
+  notes?: { id: Id; title?: string; body: string; at?: string }[];
+  /** Le joueur revient dans le jeu après l'avoir quitté (Page Visibility) au moins `minAwayMs`. */
+  onReturn?: { minAwayMs: number; when?: Condition; effects: Effect[] };
+  /** Épreuve « ne bouge plus » (override `stillness`) : toucher l'écran déclenche le sursaut et relance le compte. */
+  stillness?: { seconds: number; scareImage: string; scareSound: string; ambience?: string; steps?: string; whisper?: string; text: string };
   obstacles?: ObstacleDef[];
   conclusion: { title: string; text: string[] };
   /** Conclusions alternatives : la première dont la condition est vraie remplace `conclusion`. */
@@ -257,6 +262,8 @@ export type Condition =
   | { manualTime: string }
   /** Date manuelle exacte, format `YYYY-MM-DD` (mode automatique = faux). */
   | { manualDate: string }
+  /** Date manuelle comprise entre deux dates incluses (`YYYY-MM-DD`). */
+  | { manualDateBetween: [string, string] }
   | { airplane: boolean }
   /** Réglage automatique de la date et de l'heure. */
   | { clockAuto: boolean }
@@ -275,9 +282,10 @@ export type FlagValue = boolean | number | string;
 /* Effets                                                               */
 /* ------------------------------------------------------------------ */
 
-/** `extraApp` : application ajoutée à l'accueil (`dictaphone` ou `telephone`).
+/** `dim` : assombrissement de l'écran (`0` à `0.7`). `stillness` : épreuve « ne bouge plus » en cours (valeur : id de l'enquête).
+ *  `extraApp` : application ajoutée à l'accueil (`dictaphone`, `telephone` ou `localiser`).
  *  `ghostSetting` : réglage inconnu dans Réglages, au format `Libellé::texte de la note écrite à l'activation`. */
-export type PhoneOverrideKey = 'wallpaper' | 'homeMessage' | 'extraApp' | 'ghostSetting';
+export type PhoneOverrideKey = 'wallpaper' | 'homeMessage' | 'extraApp' | 'ghostSetting' | 'dim' | 'stillness';
 
 export type Effect =
   /** Message dans un fil. Suspendu en mode avion sauf `ignoreAirplane`. */
@@ -309,7 +317,7 @@ export type Effect =
 /* État sauvegardé                                                      */
 /* ------------------------------------------------------------------ */
 
-export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone';
+export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone' | 'locate';
 
 export type CaseStatus = 'new' | 'postponed' | 'active' | 'solved';
 
@@ -435,6 +443,8 @@ export interface GameState {
   overrides: Partial<Record<PhoneOverrideKey, PhoneOverride>>;
   copies: SavedCopy[];
   notes: Note[];
+  /** Dernière absence du joueur (application quittée puis reprise). */
+  away?: { at: number; ms: number; count: number };
   /** Transitoire : non sauvegardé. */
   notifications: Notification[];
 }

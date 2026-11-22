@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../game/store';
+import { fillTemplate } from '../game/engine';
 import { useNav, type ViewerSource } from './nav';
 import { character, resolveMedia } from '../game/selectors';
 import { TUTORIAL_MEDIA, TUTORIAL_OBSERVATION } from '../content/tutorial';
@@ -116,6 +117,19 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
           ? { left: { label: r.media.name, src: r.src }, right: { label: compareTarget.def.name, src: compareTarget.variant.src } }
           : undefined;
 
+  /** Relève un passage de document ou une ligne de transcription ; propose la question associée, comme une zone de photo. */
+  const relever = (id: string, label: string) => {
+    if (!caseId || foundIds.includes(id)) return;
+    dispatch({ type: 'observation/found', caseId, observationId: id });
+    const ask = r!.caseDef?.observations.find((o) => o.id === id)?.actions.find((a) => a.type === 'ask');
+    const reply = ask && ask.type === 'ask' ? r!.caseDef!.replies.find((x) => x.id === ask.replyId) : undefined;
+    const thread = reply && r!.caseDef!.threads.find((t) => t.id === reply.threadId);
+    if (reply && thread && ask && ask.type === 'ask') {
+      const who = character(r!.caseDef!, thread.contact).name.split(' ')[0];
+      nav.showToast(label, { label: ask.label ?? `Questionner ${who}`, run: () => nav.open('messages', { caseId, threadId: reply.threadId }) });
+    } else nav.showToast(`${label} dans le dossier`);
+  };
+
   const saveCopy = () => {
     if (!caseId) return;
     dispatch({ type: 'copy/save', caseId, mediaId: r!.media.id, variantId: r!.variantId, src: r!.src, name: r!.media.name });
@@ -166,10 +180,7 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
           volume={state.settings.volume}
           muted={!state.settings.sound}
           found={foundIds}
-          onCue={(id) => {
-            if (!caseId || foundIds.includes(id)) return;
-            dispatch({ type: 'observation/found', caseId, observationId: id });
-          }}
+          onCue={(id) => relever(id, 'Ligne relevée')}
         />
       )}
       {r.media.kind === 'document' && (
@@ -178,16 +189,7 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
           name={r.media.name}
           found={foundIds}
           onPassage={(id) => {
-            if (!caseId || foundIds.includes(id)) return;
-            dispatch({ type: 'observation/found', caseId, observationId: id });
-            // Comme sur une photo : si ce passage ouvre une question, on la propose depuis la confirmation.
-            const ask = r!.caseDef?.observations.find((o) => o.id === id)?.actions.find((a) => a.type === 'ask');
-            const reply = ask && ask.type === 'ask' ? r!.caseDef!.replies.find((x) => x.id === ask.replyId) : undefined;
-            const thread = reply && r!.caseDef!.threads.find((t) => t.id === reply.threadId);
-            if (reply && thread) {
-              const who = character(r!.caseDef!, thread.contact).name.split(' ')[0];
-              nav.showToast('Passage relevé', { label: ask && ask.type === 'ask' && ask.label ? ask.label : `Questionner ${who}`, run: () => nav.open('messages', { caseId, threadId: reply.threadId }) });
-            } else nav.showToast('Passage relevé dans le dossier');
+            relever(id, 'Passage relevé');
           }}
         />
       )}
@@ -290,7 +292,7 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
                 >
                   <span className="row-main">
                     <div className="row-sub">{row.label}</div>
-                    <div className="row-title" style={{ fontWeight: 500 }}>{row.value}</div>
+                    <div className="row-title" style={{ fontWeight: 500 }}>{caseId ? fillTemplate(row.value, state.cases[caseId]?.flags ?? {}) : row.value}</div>
                   </span>
                   {seen && <Icon.Check size={18} />}
                 </button>

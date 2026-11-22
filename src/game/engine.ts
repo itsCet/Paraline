@@ -93,6 +93,7 @@ export function evaluate(cond: Condition, state: GameState, caseId: Id): boolean
   }
   if ('manualTime' in cond) return !s.clockAuto && s.manualTime === cond.manualTime;
   if ('manualDate' in cond) return !s.clockAuto && s.manualDate === cond.manualDate;
+  if ('manualDateBetween' in cond) return !s.clockAuto && s.manualDate >= cond.manualDateBetween[0] && s.manualDate <= cond.manualDateBetween[1];
   if ('airplane' in cond) return s.airplane === cond.airplane;
   if ('clockAuto' in cond) return s.clockAuto === cond.clockAuto;
   if ('sound' in cond) return s.sound === cond.sound;
@@ -195,15 +196,29 @@ export function deliverMessageNow(state: GameState, def: CaseDefinition, message
   return next;
 }
 
+/** Remplace `{flag:nom:heure}` et `{flag:nom:duree}` par la valeur d'un drapeau (heure HH:MM ou durée « 3 min 12 s »). */
+export function fillTemplate(text: string, flags: Record<string, unknown>): string {
+  return text.replace(/\{flag:([\w-]+):(heure|duree)\}/g, (_, name: string, kind: string) => {
+    const v = Number(flags[name] ?? 0);
+    if (kind === 'heure') {
+      const d = new Date(v);
+      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    }
+    const sec = Math.max(1, Math.round(v / 1000));
+    return sec < 60 ? `${sec} s` : `${Math.floor(sec / 60)} min ${String(sec % 60).padStart(2, '0')} s`;
+  });
+}
+
 /** Écrit une note d'enquête dans Notes (sans notification : elle est simplement là). */
 export function writeNoteNow(state: GameState, def: CaseDefinition, noteId: Id, now: number): GameState {
   const n = def.notes?.find((x) => x.id === noteId);
   if (!n || isDelivered(state, def.id, 'note', noteId)) return state;
   const p = state.cases[def.id];
   const next = p ? updateCase(state, def.id, (q) => ({ ...q, writtenNotes: add(q.writtenNotes ?? [], noteId) })) : state;
+  const at = n.at ? Date.parse(n.at) : now;
   return {
     ...next,
-    notes: [{ id: noteKey(def.id, noteId), title: n.title ?? '', body: n.body, caseId: def.id, createdAt: now, updatedAt: now }, ...next.notes],
+    notes: [{ id: noteKey(def.id, noteId), title: n.title ?? '', body: fillTemplate(n.body, p?.flags ?? {}), caseId: def.id, createdAt: at, updatedAt: at }, ...next.notes],
   };
 }
 
@@ -245,8 +260,11 @@ export function applyEffect(state: GameState, def: CaseDefinition, effect: Effec
       return updateCase(state, cid, (p) => ({ ...p, grantedMedia: add(p.grantedMedia, effect.mediaId) }));
     case 'setStep':
       return updateCase(state, cid, (p) => ({ ...p, stepId: effect.stepId }));
-    case 'setFlag':
-      return updateCase(state, cid, (p) => ({ ...p, flags: { ...p.flags, [effect.name]: effect.value } }));
+    case 'setFlag': {
+      // Jetons : `$now`, `$awayAt` (heure de départ du joueur), `$awayMs` (durée de son absence).
+      const v = effect.value === '$now' ? now : effect.value === '$awayAt' ? (state.away?.at ?? now) : effect.value === '$awayMs' ? (state.away?.ms ?? 0) : effect.value;
+      return updateCase(state, cid, (p) => ({ ...p, flags: { ...p.flags, [effect.name]: v } }));
+    }
     case 'phoneOverride':
       return {
         ...state,
