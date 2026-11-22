@@ -124,10 +124,16 @@ await check('Agnès écrit encore à Victor ; ses anciens messages s’affichent
   await reply('Je ne suis pas Victor. J’ai récupéré son téléphone.').click();
   await page.getByRole('button', { name: 'Ouvrir gazette_05-03-1998' }).waitFor({ timeout: 30000 });
   await shot('01-agnes');
+  // Repères : les passages à relever sont soulignés.
+  await page.getByRole('button', { name: 'Ouvrir gazette_05-03-1998' }).click();
+  await viewer().getByText('Touchez un passage souligné').waitFor();
+  await shot('01b-gazette');
+  await closeViewer();
 });
 
 await check('Le dictaphone, puis la chambre change : elle est là', async () => {
   await openMedia('IMG_7744.jpg');
+  await viewer().getByText('1 détail à relever').waitFor();
   await tapRel(0.17, 0.835);
   await page.locator('.sheet h2', { hasText: 'dictaphone' }).waitFor();
   await page.getByRole('button', { name: 'Demander à Agnès' }).click();

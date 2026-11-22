@@ -96,6 +96,20 @@ export function AudioPlayer({
   useEffect(() => {
     activeRef.current?.scrollIntoView({ block: 'nearest' });
   }, [active]);
+  // Une ligne importante écoutée jusqu'au bout est relevée d'elle-même : écouter suffit,
+  // inutile de deviner qu'il faut aussi la toucher. Un saut en avant ne compte pas.
+  const lastT = useRef(0);
+  useEffect(() => {
+    const prev = lastT.current;
+    lastT.current = m.t;
+    if (!onCue || !variant.cues || m.t <= prev || m.t - prev > 1.5) return;
+    for (const c of variant.cues) {
+      if (!c.observationId || found.includes(c.observationId)) continue;
+      const end = m.dur > 0 ? Math.min(c.end, m.dur - 0.25) : c.end;
+      if (prev < end && m.t >= end) onCue(c.observationId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [m.t]);
   return (
     <>
       <div className="viewer-stage">
@@ -242,7 +256,7 @@ export function DocView({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const hasPassages = /data-obs=/.test(variant.html ?? '');
-  // Marque les passages déjà relevés, sans jamais signaler ceux qui ne le sont pas.
+  // Les passages à relever sont soulignés en pointillé (on sait quoi toucher) ; relevés, ils passent en ambre.
   useEffect(() => {
     ref.current?.querySelectorAll<HTMLElement>('[data-obs]').forEach((el) => {
       el.classList.toggle('passage-found', found.includes(el.dataset.obs ?? ''));
@@ -276,7 +290,7 @@ export function DocView({
         }}
       >
         {error ? <p>Document indisponible.</p> : html ? <div ref={ref} dangerouslySetInnerHTML={{ __html: html }} /> : <p>Chargement…</p>}
-        {hasPassages && onPassage && <p className="doc-hint">Touchez un passage pour le relever dans le dossier.</p>}
+        {hasPassages && onPassage && <p className="doc-hint">Touchez un passage souligné pour le relever dans le dossier.</p>}
       </article>
     </div>
   );

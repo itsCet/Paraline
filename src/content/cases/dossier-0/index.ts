@@ -222,7 +222,7 @@ export const dossierZero: CaseDefinition = {
 
     { id: 'a-qui1', threadId: 't-agnes', from: 'agnes', text: 'Alors il n’est jamais revenu…' },
     { id: 'a-qui2', threadId: 't-agnes', from: 'agnes', text: 'Je l’avais appelé pour la maison d’à côté. Le 12. Celle des Morand. Personne n’y vit depuis 1998.' },
-    { id: 'a-qui3', threadId: 't-agnes', from: 'agnes', text: 'Je vous envoie ce qu’il m’avait montré.' },
+    { id: 'a-qui3', threadId: 't-agnes', from: 'agnes', text: 'Je vous envoie ce qu’il m’avait montré. Dans la chambre, il est resté longtemps penché sur la table de nuit.' },
     { id: 'a-qui4', threadId: 't-agnes', from: 'agnes', attachments: ['maison', 'chambre'], notify: false },
     { id: 'a-qui5', threadId: 't-agnes', from: 'agnes', attachments: ['article'], notify: false },
 
@@ -236,6 +236,7 @@ export const dossierZero: CaseDefinition = {
 
     { id: 'a-dicta1', threadId: 't-agnes', from: 'agnes', text: 'Il l’avait copiée sur son téléphone. Il disait qu’on entendait Clara.' },
     { id: 'a-dicta2', threadId: 't-agnes', from: 'agnes', text: 'Sur votre téléphone, donc.' },
+    { id: 'a-dicta3', threadId: 't-agnes', from: 'agnes', text: 'Attendez. La photo de la chambre que je vous ai envoyée… regardez-la encore. Derrière la porte.' },
 
     { id: 'a-envoi1', threadId: 't-agnes', from: 'agnes', text: '…' },
     { id: 'a-envoi2', threadId: 't-agnes', from: 'agnes', text: 'Je l’apporte à la gendarmerie demain matin. Cette fois, ils ne pourront pas l’ignorer.' },
@@ -245,6 +246,7 @@ export const dossierZero: CaseDefinition = {
     { id: 'i-1', threadId: 't-inconnu', from: 'inconnu', text: 'Tu as son téléphone.' },
     { id: 'i-vu', threadId: 't-inconnu', from: 'inconnu', text: 'Je te regarde.' },
     { id: 'i-viens', threadId: 't-inconnu', from: 'inconnu', text: 'Je viens.' },
+    { id: 'i-16', threadId: 't-inconnu', from: 'inconnu', text: 'Le 16 novembre. Ramène-moi au 16 novembre.' },
     { id: 'i-trouvee', threadId: 't-inconnu', from: 'inconnu', text: 'Tu m’as trouvée.' },
     { id: 'i-bouge', threadId: 't-inconnu', from: 'inconnu', text: 'Ne bouge plus.' },
     { id: 'i-merci', threadId: 't-inconnu', from: 'inconnu', text: 'Merci.' },
@@ -289,7 +291,7 @@ export const dossierZero: CaseDefinition = {
       threadId: 't-agnes',
       label: 'Il y avait un dictaphone dans la chambre. Victor a trouvé la cassette ?',
       available: { observationFound: 'dictaphone' },
-      effects: say(['a-dicta1', 3000], ['a-dicta2', 2500]),
+      effects: say(['a-dicta1', 3000], ['a-dicta2', 2500], ['a-dicta3', 6000]),
     },
     {
       id: 'r-envoyer',
@@ -397,9 +399,12 @@ export const dossierZero: CaseDefinition = {
     },
     { id: 'note-morand', when: { any: [{ observationFound: 'fugue' }, { observationFound: 'porte-fermee' }] }, effects: [{ type: 'writeNote', noteId: 'v3', delayMs: 4000 }] },
     { id: 'note-supprime', when: { mediaViewed: 'victor-vocal' }, effects: [{ type: 'writeNote', noteId: 'v4', delayMs: 6000 }] },
+    { id: 'note-supprime-vue', when: { noteWritten: 'v4' }, effects: [{ type: 'notify', title: 'Notes', body: 'Note restaurée · 16 nov. 2024, 22:31', app: 'notes' }] },
+    // Elle pousse le joueur vers la date (sans dire « Réglages ») une fois qu'il sait que l'enregistrement a été supprimé.
+    { id: 'ramene-moi', when: { all: [hante, { noteWritten: 'v4' }, { not: { mediaViewed: 'temoignage' } }] }, effects: [elle('i-16', 20000)] },
 
     /* Bascule : la chambre change ; quand on la voit, elle est là. */
-    { id: 'chambre-change', when: { all: [{ observationFound: 'dictaphone' }, recu('a-dicta2')] }, effects: [{ type: 'setMediaVariant', mediaId: 'chambre', variantId: 'elle' }] },
+    { id: 'chambre-change', when: { all: [{ observationFound: 'dictaphone' }, recu('a-dicta2')] }, effects: [{ type: 'setMediaVariant', mediaId: 'chambre', variantId: 'elle' }, { type: 'notify', title: 'Photos', body: 'IMG_7744.jpg · modifiée à l’instant', app: 'photos' }] },
     {
       id: 'bascule',
       when: { any: [{ mediaViewed: 'chambre@elle' }, { observationFound: 'coin' }] },

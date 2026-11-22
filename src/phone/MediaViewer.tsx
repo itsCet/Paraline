@@ -201,10 +201,17 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
               {isTutorial ? (
                 <p className="viewer-hint">Touchez le tiroir entrouvert pour relever une observation.</p>
               ) : (
-                <>
-                  <h3>Un détail vous intrigue ?</h3>
-                  <p>Touchez une zone de l’image.</p>
-                </>
+                (() => {
+                  const left = new Set(hotspots.map((h) => h.observationId).filter((id) => !foundIds.includes(id))).size;
+                  return left === 0 ? (
+                    <h3>Vous avez tout relevé sur cette photo.</h3>
+                  ) : (
+                    <>
+                      <h3>Un détail vous intrigue ?</h3>
+                      <p>Touchez l’image · {left === 1 ? '1 détail' : `${left} détails`} à relever</p>
+                    </>
+                  );
+                })()
               )}
               {observationsHere.map((o) => (
                 <button key={o.id} className="obs-chip" onClick={() => setSheet(o.id)}>
