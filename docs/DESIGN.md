@@ -1,6 +1,6 @@
 # Paraline : système de design et plan d'interface
 
-Source de vérité pour toute nouvelle interface ou enquête. Rédigé le 21/11/2026 par `/plan-design-review`, à partir du jeu tel qu'il est codé (`src/styles/global.css`, `src/apps/`, `src/phone/`). Une ligne marquée **À FAIRE** est une décision prise, pas encore codée (voir `TODOS.md`).
+Source de vérité pour toute nouvelle interface ou enquête. Rédigé le 21/11/2026 par `/plan-design-review`, à partir du jeu tel qu'il est codé (`src/styles/global.css`, `src/apps/`, `src/phone/`). Les décisions de la revue ont toutes été codées le 22/11/2026 (`TODOS.md`).
 
 ---
 
@@ -10,8 +10,8 @@ Source de vérité pour toute nouvelle interface ou enquête. Rédigé le 21/11/
 
 **Signatures Paraline** (ce qui distingue le jeu de Simulacra ou Sara Is Missing) :
 1. **Ambre sur nuit.** Un seul accent, l'ambre (`--amber`), réservé à ce qui fait avancer l'enquête : observation, réponse, indice, bouton principal. Tout le reste est neutre.
-2. **La porte.** Le logo (porte entrouverte, lumière qui filtre) est le motif du jeu : écran d'accueil du bureau, fin des vidéos. **À FAIRE :** il apparaît aussi dans les états vides et les chargements.
-3. **Le dossier d'enquêteur.** Dossiers est l'app « à soi » du joueur, pas une app d'iPhone. **À FAIRE :** elle prend l'allure d'un dossier papier (onglet, tampon « Résolu », trombone sur les pièces), tout en restant sur fond sombre.
+2. **La porte.** Le logo (porte entrouverte, lumière qui filtre) est le motif du jeu : écran d'accueil du bureau, fin des vidéos. Il apparaît aussi, en sourdine, dans les états vides.
+3. **Le dossier d'enquêteur.** Dossiers est l'app « à soi » du joueur, pas une app d'iPhone. Elle a l'allure d'un dossier papier sur fond sombre : onglet « Dossier », tampon (« En cours », « Résolu »), trombone sur les pièces.
 4. **Le téléphone hanté.** Les enquêtes surnaturelles modifient le téléphone lui-même (fond d'écran, notes, app qui apparaît, réglage inconnu). C'est la marque du jeu : l'interface *est* un personnage.
 
 **Anti-références :** pas d'interface de « jeu d'horreur » (sang, typographie gothique, effets de glitch gratuits) ; pas de bulles de tutoriel par-dessus l'écran ; pas d'aide qui s'affiche sans qu'on la demande.
@@ -24,7 +24,7 @@ Source de vérité pour toute nouvelle interface ou enquête. Rédigé le 21/11/
 | `--surface` / `-2` / `-3` | `#1e1f24` / `#2a2b31` / `#3a3b42` | Cartes, lignes, bulles reçues |
 | `--text` | `#f4f1ea` | Texte principal (16,2:1 sur le fond) |
 | `--text-2` | `#a8a8ae` | Texte secondaire (7,7:1) |
-| `--text-3` | `#74757c` → **À FAIRE `#8e8f96`** | Légendes, messages système. Actuellement 3,6:1 sur `--surface`, sous le seuil AA de 4,5:1 pour du texte de 12–13 px. `#8e8f96` donne 5,1:1 |
+| `--text-3` | `#8e8f96` | Légendes, messages système. 5,1:1 sur `--surface` (AA). Ancienne valeur `#74757c` : 3,6:1 |
 | `--amber` | `#efb35c` | Accent unique (9,8:1 sur le fond). Bouton principal en dégradé `--amber-grad`, texte `--amber-ink` (9,8:1) |
 | `--green` / `--red` / `--blue` | `#30d158` / `#ff453a` / `#0a84ff` | Uniquement pour les éléments système d'iOS (interrupteurs, badges, suppression). Jamais pour une information d'enquête |
 
@@ -37,7 +37,7 @@ Règle : aucune information n'est donnée par la couleur seule. Les étiquettes 
 | Titre d'app | 36 px, très gras | « Messages », « Dossiers » (titre large iOS) |
 | Titre de section / feuille | 20–22 px | Feuille d'observation, titre de dossier |
 | Corps | 16–17 px | Bulles, e-mails, lignes |
-| Légende | 13 px minimum | Méta, notes de bas de page. **À FAIRE :** remonter à 13 px les cinq styles à 11–12 px (sous-titre de l'en-tête de fil, horodatage et messages système, nom d'auteur dans un groupe, étiquette d'objectif, niveau d'indice) |
+| Légende | 13 px minimum | Méta, notes de bas de page, horodatages, nom d'auteur en groupe, étiquette d'objectif, niveau d'indice |
 
 Police : celle du système (San Francisco sur iPhone, Roboto sur Android), pour le réalisme. Écriture manuscrite des pièces : police manuscrite du système, ou Caveat. Le réglage « Texte plus grand » agrandit l'ensemble.
 
@@ -49,10 +49,10 @@ Police : celle du système (San Francisco sur iPhone, Roboto sur Android), pour 
 | Bouton secondaire | Surface, texte clair | Conserver une copie, Comparer, Rejouer l'enquête |
 | Réponse proposée | Ligne bordée, chevron | Panneau « Votre réponse » en bas du fil |
 | Feuille (sheet) | Panneau qui monte du bas | Observation, Infos du fichier, Indices, Accepter |
-| Bannière | Notification en haut | Bouton fermer : **À FAIRE 44 px** (actuellement 32 px) |
-| Toast | Confirmation en bas, avec action facultative | « Passage relevé · Demander à Sarah ». Bouton d'action : **À FAIRE 44 px** (actuellement 32 px) |
+| Bannière | Notification en haut | Bouton fermer : 44 px |
+| Toast | Confirmation en bas, avec action facultative | « Passage relevé · Demander à Sarah ». Bouton d'action : 44 px |
 | Pastille de fil | Point ambre plein | Message non lu |
-| Marqueur de réponse | **À FAIRE :** petite bulle ambre au contour seul | Nouvelle réponse possible (distinct du non-lu) |
+| Marqueur de réponse | Petite bulle ambre au contour seul | Nouvelle réponse possible (distinct du non-lu) |
 | Anneau d'observation | Ellipse ambre | Zone relevée sur une photo |
 
 ## 5. Mouvement
@@ -90,17 +90,17 @@ Légende : ✅ conçu et codé · **À FAIRE** décidé · — sans objet.
 
 | Fonction | Vide | Chargement | Erreur / réseau | Verrouillé | Hors ligne (mode avion du jeu) | Résolu |
 |---|---|---|---|---|---|---|
-| Mail | ✅ « Aucune nouvelle demande… » (**À FAIRE** : voix du jeu + porte) | — | — | ✅ « Une enquête est déjà en cours » | ✅ e-mails retenus | ✅ étiquette Résolu |
-| Messages | ✅ texte (**À FAIRE** voix du jeu) | ✅ « en train d'écrire » si imminent | — | ✅ contact indisponible ou bloqué | ✅ réponse préparée, envoyée au retour | ✅ épilogue (`whenSolved`) |
-| Visionneuse image | — | **À FAIRE** squelette ambre | **À FAIRE** « Photo indisponible, pas de réseau » + Réessayer | — | — | ✅ |
+| Mail | ✅ « Personne n'a encore frappé à votre porte. » + porte | — | — | ✅ « Une enquête est déjà en cours » | ✅ e-mails retenus | ✅ étiquette Résolu |
+| Messages | ✅ « Aucune conversation… vos témoins vous écriront ici. » + porte | ✅ « en train d'écrire » si imminent | — | ✅ contact indisponible ou bloqué | ✅ réponse préparée, envoyée au retour | ✅ épilogue (`whenSolved`) |
+| Visionneuse image | — | ✅ reflet ambre | ✅ « Photo indisponible. Vérifiez votre connexion. » + Réessayer | — | — | ✅ |
 | Audio / vidéo | ✅ « Enregistrement vide » | — | ✅ « Fichier audio indisponible. La transcription reste disponible. » | — | — | — |
 | Document | — | ✅ « Chargement… » | ✅ « Document indisponible » | — | — | — |
-| Dossiers | ✅ texte (**À FAIRE** voix du jeu) | — | — | ✅ « Pour rejouer, terminez d'abord… » | — | ✅ conclusion + Rejouer |
+| Dossiers | ✅ « Aucun dossier ouvert… » + porte | — | — | ✅ « Pour rejouer, terminez d'abord… » | — | ✅ conclusion + Rejouer |
 | Aide | — | — | — | — | — | ✅ ampoule masquée |
 | Sauvegarde | — | — | ✅ sauvegarde illisible copiée + bandeau | — | — | — |
-| Jeu entier, réseau réel coupé | — | — | **À FAIRE** jouable hors ligne après la 1re visite (mise en cache du jeu et des médias) | — | — | — |
+| Jeu entier, réseau réel coupé | — | — | ✅ jouable hors ligne après la 1re visite (`public/sw.js` : code et médias en cache, audio compris) | — | — | — |
 
-Couverture des cases concernées : 21 sur 28 conçues (75 %). Avec les **À FAIRE** : 28 sur 28.
+Couverture des cases concernées : 28 sur 28.
 
 ## 8. Parcours et émotions
 
@@ -118,10 +118,10 @@ Non conçu, et assumé : rétention long terme (jeu narratif fini) et notificati
 
 ## 9. Saisie et accessibilité
 
-- **Tactile d'abord** : cibles de 44 px minimum (boutons, icônes, lignes), à l'exception des **À FAIRE** de la section 4. Tolérance de 22 px autour des zones de photo. Pincer et double-toucher pour zoomer.
+- **Tactile d'abord** : cibles de 44 px minimum (boutons, icônes, lignes), sans exception. Tolérance de 22 px autour des zones de photo. Pincer et double-toucher pour zoomer.
 - **Ordinateur** : téléphone encadré au centre ; molette et boutons + / − pour zoomer, Échap pour fermer.
 - **Paysage** : écran « Tournez votre téléphone » sur mobile.
-- **Accessibilité** : chaque audio a sa transcription (le son n'est jamais obligatoire, sauf l'énigme qui demande au contraire de le couper) ; chaque variante d'image a une description (`alt`) ; réglages Réduire les animations, Réduire les effets brusques, Texte plus grand. Contraste : **À FAIRE** `--text-3`.
+- **Accessibilité** : chaque audio a sa transcription (le son n'est jamais obligatoire, sauf l'énigme qui demande au contraire de le couper) ; chaque variante d'image a une description (`alt`) ; réglages Réduire les animations, Réduire les effets brusques, Texte plus grand. Contraste AA sur tous les textes.
 
 ## 10. Décisions
 
@@ -138,4 +138,4 @@ Non conçu, et assumé : rétention long terme (jeu narratif fini) et notificati
 
 | Review | Date | Score | Status |
 |--------|------|-------|--------|
-| /plan-design-review | 2026-11-21 | 3,5/10 → 8,5/10 | DONE_WITH_CONCERNS (décisions prises, code à faire : `TODOS.md`) |
+| /plan-design-review | 2026-11-21 | 3,5/10 → 8,5/10 | DONE (décisions codées le 22/11/2026) |

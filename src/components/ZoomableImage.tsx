@@ -91,6 +91,12 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
     setView({ z: 1, x: 0, y: 0 });
   }, [src]);
 
+  // Chargement de la photo : reflet pendant l'attente, message si le réseau manque.
+  const [load, setLoad] = useState<{ src: string; state: 'loading' | 'ok' | 'error'; attempt: number }>({ src, state: 'loading', attempt: 0 });
+  const loadState = load.src === src ? load.state : 'loading';
+  const attempt = load.src === src ? load.attempt : 0;
+  const imgSrc = attempt ? `${src}${src.includes('?') ? '&' : '?'}r=${attempt}` : src;
+
   useEffect(() => {
     if (!focus || !w0) return;
     const z = Math.min(MAX, Math.max(MIN, focus.scale));
@@ -250,6 +256,18 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
         onPointerCancel={onPointerUp}
         onKeyDown={onKeyDown}
       >
+        {loadState === 'loading' && <div className="img-state img-loading" aria-hidden="true" />}
+        {loadState === 'error' && (
+          <div className="img-state img-error" role="alert" onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()}>
+            <div>
+              <Icon.Image size={36} />
+              <p>Photo indisponible. Vérifiez votre connexion.</p>
+              <button className="btn btn-secondary btn-sm" onClick={() => setLoad({ src, state: 'loading', attempt: attempt + 1 })}>
+                Réessayer
+              </button>
+            </div>
+          </div>
+        )}
         {fit > 0 && (
           <div
             ref={contentRef}
@@ -262,7 +280,14 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
               transform: `translate(${view.x}px, ${view.y}px) scale(${view.z})`,
             }}
           >
-            <img src={src} alt="" draggable={false} />
+            <img
+              key={imgSrc}
+              src={imgSrc}
+              alt=""
+              draggable={false}
+              onLoad={() => setLoad({ src, state: 'ok', attempt })}
+              onError={() => setLoad({ src, state: 'error', attempt })}
+            />
             {overlay && <SheetWriting overlay={overlay} calm={calm} />}
             {foundSpots.map((h) => {
               const pad = 0.12;

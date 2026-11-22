@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Icon } from './icons';
+import { Icon, LogoMark } from './icons';
 import type { MediaDef, MediaVariant } from '../game/types';
 import { thumbOf } from '../game/selectors';
 
@@ -38,10 +38,11 @@ export function Avatar({ initials, color, small }: { initials: string; color?: s
   );
 }
 
+/** État vide : par défaut, le motif de la porte de Paraline (signature du jeu). */
 export function Empty({ icon, children }: { icon?: ReactNode; children: ReactNode }) {
   return (
     <div className="empty" role="status">
-      {icon}
+      {icon ?? <span className="door" aria-hidden="true"><LogoMark size={44} /></span>}
       <p>{children}</p>
     </div>
   );

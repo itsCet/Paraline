@@ -74,7 +74,7 @@ export function MailApp() {
           ))}
         </div>
         {items.length === 0 ? (
-          <Empty icon={<Icon.Compose size={40} />}>Aucune nouvelle demande pour le moment.</Empty>
+          <Empty>Personne n’a encore frappé à votre porte.</Empty>
         ) : filtered.length === 0 ? (
           <Empty>{query ? 'Aucun résultat.' : 'Aucun message dans ce filtre.'}</Empty>
         ) : (

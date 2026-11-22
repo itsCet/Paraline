@@ -44,7 +44,7 @@ export function PhotosApp() {
         </div>
         {tab === 'received' &&
           (received.length === 0 ? (
-            <Empty icon={<Icon.Image size={40} />}>Les photos et vidéos des enquêtes acceptées apparaîtront ici.</Empty>
+            <Empty>Aucune pièce pour l’instant. Les photos de vos enquêtes arriveront ici.</Empty>
           ) : (
             groups.map(([album, items]) => (
               <section key={album || 'pj'} aria-label={album ? `Album partagé ${album}` : 'Pièces jointes'}>

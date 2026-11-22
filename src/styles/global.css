@@ -11,7 +11,7 @@
   --sep: rgba(255, 255, 255, 0.08);
   --text: #f4f1ea;
   --text-2: #a8a8ae;
-  --text-3: #74757c;
+  --text-3: #8e8f96; /* 5,1:1 sur --surface (AA) */
   --amber: #efb35c;
   --amber-grad: linear-gradient(100deg, #f6c987 0%, #eaa64f 100%);
   --amber-soft: rgba(239, 179, 92, 0.14);
@@ -546,7 +546,7 @@ img { display: block; max-width: 100%; }
 .thread-head { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
 .thread-head .who { min-width: 0; }
 .thread-head .name { font-weight: 600; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.thread-head .sub { font-size: 12px; color: var(--text-2); }
+.thread-head .sub { font-size: 13px; color: var(--text-2); }
 .bubbles { display: flex; flex-direction: column; gap: 6px; padding: 12px 0; }
 .bubble {
   max-width: 78%;
@@ -569,8 +569,8 @@ img { display: block; max-width: 100%; }
 .typing i:nth-child(2) { animation-delay: 0.15s; }
 .typing i:nth-child(3) { animation-delay: 0.3s; }
 @keyframes typing { 0%, 60%, 100% { opacity: 0.3; } 30% { opacity: 1; } }
-.stamp { text-align: center; font-size: 12px; color: var(--text-3); margin: 8px 0; }
-.bubble-sender { font-size: 12px; font-weight: 600; margin: 6px 0 -2px 12px; align-self: flex-start; }
+.stamp { text-align: center; font-size: 13px; color: var(--text-3); margin: 8px 0; }
+.bubble-sender { font-size: 13px; font-weight: 600; margin: 6px 0 -2px 12px; align-self: flex-start; }
 .replies {
   flex: none;
   border-top: 1px solid var(--sep);
@@ -772,7 +772,7 @@ img { display: block; max-width: 100%; }
 }
 @keyframes banner-in { from { transform: translateY(-120%); opacity: 0; } }
 .banner .widget-icon { width: 34px; height: 34px; border-radius: 9px; }
-.banner-close { color: var(--text-2); min-width: 32px; min-height: 32px; display: flex; align-items: center; justify-content: center; }
+.banner-close { color: var(--text-2); min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
 
 .toast {
   position: absolute;
@@ -794,7 +794,7 @@ img { display: block; max-width: 100%; }
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
 .toast > span { overflow: hidden; text-overflow: ellipsis; }
-.toast button { color: var(--amber); font-weight: 600; pointer-events: auto; min-height: 32px; }
+.toast button { color: var(--amber); font-weight: 600; pointer-events: auto; min-height: 44px; padding: 0 6px; }
 
 .coach {
   flex: none;
@@ -812,7 +812,7 @@ img { display: block; max-width: 100%; }
 }
 .coach-label { color: var(--amber); font-weight: 700; }
 .coach-text { font-size: 14px; color: #e9e2d3; margin: 0; flex: 1; min-width: 0; line-height: 1.4; }
-.coach-quit { margin-left: auto; font-size: 13px; color: var(--text-2); flex: none; min-height: 32px; padding: 0 4px; }
+.coach-quit { margin-left: auto; font-size: 13px; color: var(--text-2); flex: none; min-height: 44px; padding: 0 8px; }
 
 .warning-bar { background: #3a1f12; color: #ffd8b0; padding: calc(10px + var(--safe-top)) 14px 10px; font-size: 13px; display: flex; gap: 10px; align-items: center; z-index: 120; position: relative; }
 
@@ -862,10 +862,10 @@ img { display: block; max-width: 100%; }
 .case-card h3 { margin: 0 0 2px; font-size: 17px; }
 .case-card .row-sub { margin-bottom: 8px; }
 .objective { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; border-left: 3px solid var(--amber); }
-.objective small { color: var(--amber); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; }
+.objective small { color: var(--amber); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; font-size: 13px; }
 .objective p { margin: 4px 0 0; font-size: 16px; }
 .hint { padding: 12px 14px; }
-.hint-level { font-size: 12px; color: var(--amber); font-weight: 600; }
+.hint-level { font-size: 13px; color: var(--amber); font-weight: 600; }
 .hint p { margin: 2px 0 0; }
 .log { font-size: 14px; color: var(--text-2); }
 .log li { padding: 8px 14px; }
@@ -895,7 +895,7 @@ img { display: block; max-width: 100%; }
 .wheel-col { display: flex; flex-direction: column; align-items: center; }
 .wheel-col button.near { color: var(--text-3); font-size: 20px; min-height: 36px; min-width: 64px; font-variant-numeric: tabular-nums; }
 .wheel-col .current { font-size: 30px; font-weight: 500; padding: 2px 16px; border-radius: 10px; background: #33291a; color: var(--text); font-variant-numeric: tabular-nums; min-width: 72px; text-align: center; }
-.wheel-col .arrow { color: var(--amber); min-height: 32px; min-width: 64px; display: flex; justify-content: center; align-items: center; }
+.wheel-col .arrow { color: var(--amber); min-height: 44px; min-width: 64px; display: flex; justify-content: center; align-items: center; }
 .big-time { text-align: center; padding: 14px 0 4px; }
 .big-time small { color: var(--text-2); font-size: 14px; }
 .big-time div { font-size: 52px; font-weight: 300; font-variant-numeric: tabular-nums; }
@@ -994,3 +994,24 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
   .intro-body:has(.intro-tips) h1 { font-size: 23px; margin-bottom: 10px; }
   .intro-tips li { font-size: 13.5px; }
 }
+
+/* Nouvelle réponse possible : bulle au contour (distincte du point « non lu »). */
+.mail-row .reply-mark { flex: none; color: var(--amber); display: inline-flex; }
+
+/* États vides : le motif de la porte, en sourdine. */
+.empty .door { opacity: 0.55; filter: grayscale(0.2); margin-bottom: 4px; }
+
+/* Chargement d'une photo : reflet ambre discret, puis message si le réseau manque. */
+.img-state { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; pointer-events: none; }
+.img-loading { background: linear-gradient(110deg, rgba(239,179,92,0) 30%, rgba(239,179,92,.10) 50%, rgba(239,179,92,0) 70%) #17181d; background-size: 250% 100%; animation: img-sheen 1.6s linear infinite; }
+@keyframes img-sheen { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+.phone.reduce-motion .img-loading { animation: none; }
+.img-error { pointer-events: auto; background: #17181d; text-align: center; padding: 24px; color: var(--text-2); }
+.img-error p { margin: 10px 0 14px; }
+
+/* Dossier d'enquêteur : onglet, tampon, trombone. */
+.case-tab { display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--amber-ink); background: var(--amber); padding: 4px 12px 3px; border-radius: 8px 8px 0 0; }
+.case-sheet { position: relative; background: linear-gradient(180deg, #23241f 0%, #1c1d1a 100%); border: 1px solid rgba(239,179,92,.22); border-radius: 0 14px 14px 14px; padding: 14px 16px; margin-bottom: 14px; }
+.case-stamp { position: absolute; right: 14px; top: 10px; transform: rotate(-9deg); border: 2px solid var(--green); color: var(--green); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 13px; padding: 3px 8px; border-radius: 6px; opacity: .85; }
+.case-stamp.open { border-color: var(--amber); color: var(--amber); }
+.clip-title::before { content: ''; display: inline-block; width: 10px; height: 18px; margin-right: 8px; vertical-align: -3px; border: 2px solid var(--text-3); border-radius: 6px; border-bottom-width: 0; }

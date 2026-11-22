@@ -9,6 +9,8 @@ const cases = fixture ? './src/game/__tests__/uiFixture.ts' : './src/content/cas
 
 export default defineConfig({
   plugins: [react()],
+  // Version du build : nomme le cache hors ligne (public/sw.js).
+  define: { __BUILD_ID__: JSON.stringify(Date.now().toString(36)) },
   resolve: {
     alias: { '@paraline/cases': fileURLToPath(new URL(cases, import.meta.url)) },
   },

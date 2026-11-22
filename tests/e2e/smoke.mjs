@@ -99,10 +99,10 @@ await check('États avant acceptation (Messages et Dossiers vides)', async () =>
   await page.locator('.mail-row', { hasText: 'Élise Morel' }).waitFor();
   await home();
   await openApp('Messages');
-  await page.getByText('Vos échanges apparaîtront ici lorsque vous accepterez une enquête.').waitFor();
+  await page.getByText('Aucune conversation. Acceptez une enquête : vos témoins vous écriront ici.').waitFor();
   await home();
   await openApp('Dossiers');
-  await page.getByText('Vos enquêtes acceptées seront regroupées ici.').waitFor();
+  await page.getByText('Aucun dossier ouvert. Une demande vous attend peut-être dans Mail.').waitFor();
   await home();
 });
 
@@ -249,7 +249,7 @@ await check('Mode avion', async () => {
   assert((await page.locator('.statusbar .sr-only').textContent()).includes('Mode avion'), 'indicateur');
   await home();
   await openApp('Messages');
-  await page.getByText('Vos échanges apparaîtront ici', { exact: false }).waitFor();
+  await page.getByText('Aucune conversation.', { exact: false }).waitFor();
   await home();
   await openApp('Réglages');
   await page.getByRole('switch', { name: 'Mode avion' }).click();

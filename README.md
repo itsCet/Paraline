@@ -118,6 +118,9 @@ Côté joueur, le moteur gère aussi :
 - **pastille « nouvelle réponse possible »** sur une conversation dès qu'une réponse s'y débloque (`newReplies`) ;
 - un **passage relevé** dans un document propose directement la question associée, comme une zone de photo ;
 - à la résolution, un **rappel** de réactiver l'heure automatique si une énigme l'a modifiée.
+- **jouable hors ligne** après la première visite : `public/sw.js` met en cache le code et tous les médias (audio servi par plages depuis le cache). Une photo qui ne charge pas affiche « Photo indisponible » avec Réessayer.
+
+Le système de design (couleurs, typographie, composants, écrans, états) est décrit dans `docs/DESIGN.md`.
 
 Effets disponibles : `deliverMessage`, `deliverMail` (suspendus en mode avion, sauf `ignoreAirplane`), `setMediaVariant`, `unlockReply`, `grantMedia`, `setStep`, `setFlag`, `phoneOverride` (temporaire, avec condition de fin `until`), `clearPhoneOverride`, `notify`, `log`, `solveCase`.
 

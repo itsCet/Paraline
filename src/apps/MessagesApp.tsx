@@ -48,7 +48,7 @@ export function MessagesApp() {
       <div className="scroll">
         <h1 className="large-title">Messages</h1>
         {threads.length === 0 ? (
-          <Empty icon={<Icon.Message size={40} />}>Vos échanges apparaîtront ici lorsque vous accepterez une enquête.</Empty>
+          <Empty>Aucune conversation. Acceptez une enquête : vos témoins vous écriront ici.</Empty>
         ) : (
           <ul className="list">
             {threads.map(({ def: d, t, entries, unread, fresh }) => {
@@ -58,7 +58,13 @@ export function MessagesApp() {
               return (
                 <li key={`${d.id}:${t.id}`}>
                   <button className="mail-row" onClick={() => setOpen({ caseId: d.id, threadId: t.id })} aria-label={`${who.name}${unread > 0 ? `, ${unread} non lu` : fresh ? ', nouvelle réponse possible' : ''}`}>
-                    {(unread > 0 || fresh) && <span className="dot" aria-hidden="true" />}
+                    {unread > 0 ? (
+                      <span className="dot" aria-hidden="true" />
+                    ) : fresh ? (
+                      <span className="reply-mark" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"><path d="M20 12a7.5 7.5 0 01-11 6.6L4 20l1.4-4.3A7.5 7.5 0 1120 12z" /></svg>
+                      </span>
+                    ) : null}
                     <Avatar initials={who.initials} color={who.color} />
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span className="mail-head">

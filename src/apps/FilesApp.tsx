@@ -34,7 +34,7 @@ export function FilesApp() {
       <NavBar />
       <div className="scroll">
         <h1 className="large-title">Dossiers</h1>
-        {accepted.length === 0 && !showTutorial && <Empty icon={<Icon.Folder size={40} />}>Vos enquêtes acceptées seront regroupées ici.</Empty>}
+        {accepted.length === 0 && !showTutorial && <Empty>Aucun dossier ouvert. Une demande vous attend peut-être dans Mail.</Empty>}
         {accepted.map((d) => {
           const p = state.cases[d.id];
           const step = d.steps.find((s) => s.id === p.stepId);
@@ -137,12 +137,15 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
     <>
       <NavBar back="Dossiers" onBack={onBack} title={def.title} />
       <div className="scroll">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '6px 0 14px' }}>
-          <div style={{ flex: 1 }}>
+        {/* En-tête façon dossier d'enquêteur : onglet, fiche, tampon. */}
+        <div style={{ marginTop: 6 }}>
+          <span className="case-tab">Dossier</span>
+          <div className="case-sheet">
+            <span className={`case-stamp${p.status === 'solved' ? '' : ' open'}`}>{caseStatusLabel[p.status]}</span>
             <div className="row-sub">Client</div>
-            <div style={{ fontWeight: 600 }}>{client.name}</div>
+            <div style={{ fontWeight: 600, fontSize: 18 }}>{client.name}</div>
+            {def.about && <div className="row-sub" style={{ marginTop: 6 }}>{def.about.duration} · {def.about.tone}</div>}
           </div>
-          <span className={`tag${p.status === 'solved' ? ' ok' : ''}`}>{caseStatusLabel[p.status]}</span>
         </div>
 
         {p.status === 'active' && step && (
@@ -214,7 +217,7 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
 
         {(media.length > 0 || copies.length > 0) && (
           <>
-            <h2 className="section-title">Pièces conservées</h2>
+            <h2 className="section-title clip-title">Pièces conservées</h2>
             <div className="group">
               {media.map((r) => (
                 <button key={r.def.id} className="row" onClick={() => nav.openViewer({ kind: 'case', caseId: def.id, mediaId: r.def.id })}>
