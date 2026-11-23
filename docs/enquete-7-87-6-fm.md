@@ -1,6 +1,6 @@
 # Enquête 7 — « 87.6 FM » (étrange, énigmes sonores)
 
-Statut : écrite et codée le 23/11/2026 (`src/content/cases/quatre-vingt-sept/`), sons générés (voix ElevenLabs, mixage et images cachées par le jeu), images provisoires en attendant celles de l'auteur. Enquête réservée (code d'accès). Durée : ~20 min. Casque conseillé.
+Statut : écrite et codée le 23/11/2026 (`src/content/cases/quatre-vingt-sept/`), sons générés (voix ElevenLabs, mixage et images cachées par le jeu), images de l'auteur installées (zones recalées). Enquête réservée (code d'accès). Durée : ~20 min. Casque conseillé.
 
 ## Vérité
 Radio Vallée (87.6 FM), petite station de la colline de Saint-Clair. Henri Vasseur en était le technicien de nuit. Chaque nuit à 3 h, il fermait l'antenne par : « Ici Radio Vallée. Fin des émissions. Bonne nuit. »
@@ -29,10 +29,9 @@ Henri n'en a jamais parlé, même à sa petite-fille Noémie, qui ignore avoir e
 - **Fin des émissions** (Noémie sait ce qui s'est passé cette nuit-là) : la dernière nuit écoutée et racontée.
 - **Fin des émissions** : sans la dernière nuit.
 
-## Images à fournir (photo réaliste)
-Remplacer les fichiers provisoires de `public/media/cases/quatre-vingt-sept/` (mêmes noms), puis retirer `placeholder: true` dans `src/content/assets.ts` et recaler les zones si besoin.
+## Images (fournies par l'auteur) et zones à toucher
 
-1. `radio-reveil.jpg` (portrait 1086 × 1448) : vieux radio-réveil des années 80 en plastique imitation bois, sur une table de nuit, dans le noir. **Écran à gauche : « 3:00 » en chiffres rouges** (zone x 0,16–0,46 ; y 0,42–0,58). **Cadran à droite, aiguille sur 87.6** (x 0,52–0,82 ; y 0,50–0,62). Photo prise au téléphone, lueur rouge de l'écran.
+1. `radio-reveil.jpg` (portrait 1086 × 1448) : vieux radio-réveil des années 80 en plastique imitation bois, sur une table de nuit, dans le noir. **Écran à gauche : « 3:00 » en chiffres rouges** (zone x 0,13–0,51 ; y 0,46–0,56). **Cadran à droite, aiguille sur 87.6** (x 0,53–0,89 ; y 0,47–0,56). Photo prise au téléphone, lueur rouge de l'écran.
 2. `emetteur-1987.jpg` (paysage 1086 × 724) : petit bâtiment technique en béton noirci par un incendie, au pied d'un pylône d'antenne radio en treillis, sur une colline, 1987. Photo de presse argentique, noir et blanc.
 3. `theo-1987.jpg` (portrait 600 × 800) : un garçon de 8 ans souriant, assis devant un gros micro de studio radio des années 80, casque trop grand sur les épaules. Photo de famille argentique, couleurs passées.
 4. `fin.jpg` (portrait 1086 × 1448) : au petit matin, chambre de maison de retraite, les mains ridées d'un vieil homme endormi posées sur le vieux radio-réveil éteint, lumière douce. Pas de visage.

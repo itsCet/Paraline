@@ -26,7 +26,7 @@ const ARTICLE = `
 <h2 style="font-size:23px;line-height:1.2;margin:8px 0 14px">Incendie à Radio Vallée : un enfant périt dans le studio</h2>
 <img src="${DIR}/emetteur-1987.jpg" alt="Le bâtiment de l’émetteur de Radio Vallée, noirci par le feu, sous son pylône." style="width:100%;height:auto;margin:0 0 12px;filter:grayscale(1) contrast(1.05)"/>
 <p>Le petit bâtiment de Radio Vallée (87.6 FM), sur la colline de Saint-Clair, a été ravagé par les flammes. <span data-obs="incendie">Le feu a pris peu avant 3 heures du matin, le samedi 14 mars.</span></p>
-<img src="${DIR}/theo-1987.jpg" alt="Photo de Théo Vasseur, 8 ans, souriant devant un micro." style="float:right;width:110px;height:146px;object-fit:cover;margin:0 0 8px 12px;filter:grayscale(.5)"/>
+<img src="${DIR}/theo-1987.jpg" alt="Photo de Théo Vasseur, 8 ans, souriant devant un micro de studio, un casque autour du cou." style="float:right;width:110px;height:146px;object-fit:cover;margin:0 0 8px 12px;filter:grayscale(.5)"/>
 <p><span data-obs="theo">Théo Vasseur, 8 ans, fils du technicien de nuit, se trouvait seul dans le studio.</span> Il n’a pas pu être sauvé. <span data-obs="absent">Le technicien, Henri V., s’était absenté quelques minutes.</span></p>
 <p>Les auditeurs de la nuit se souviennent de sa voix : <span data-obs="rituel">chaque nuit à 3 heures, il fermait l’antenne par les mêmes mots : « Ici Radio Vallée. Fin des émissions. Bonne nuit. »</span> Cette nuit-là, personne ne les a prononcés.</p>
 <p>La station n’émettra plus.</p>
@@ -80,14 +80,14 @@ export const quatreVingtSept: CaseDefinition = {
           src: `${DIR}/radio-reveil.jpg`,
           ...IMG,
           maxZoom: 6,
-          alt: 'Un vieux radio-réveil des années 80 sur une table de nuit, dans le noir. L’écran affiche 3:00 en chiffres rouges. Sur le cadran, l’aiguille est sur 87.6.',
+          alt: 'Un vieux radio-réveil des années 80 en imitation bois, sur une table de nuit, dans le noir. À gauche, l’écran affiche 3:00 en chiffres rouges. À droite, sur le cadran FM, l’aiguille orange est sur 87.6.',
           info: [
             { label: 'Date', value: 'Cette nuit · 03:00' },
             { label: 'Appareil', value: 'Téléphone de Noémie' },
           ],
           hotspots: [
-            { id: 'r-aiguille', x: 0.52, y: 0.5, w: 0.3, h: 0.12, observationId: 'aiguille' },
-            { id: 'r-ecran', x: 0.16, y: 0.42, w: 0.3, h: 0.16, observationId: 'ecran' },
+            { id: 'r-aiguille', x: 0.53, y: 0.47, w: 0.36, h: 0.09, observationId: 'aiguille' },
+            { id: 'r-ecran', x: 0.13, y: 0.46, w: 0.38, h: 0.1, observationId: 'ecran' },
           ],
         },
       },
@@ -186,7 +186,7 @@ export const quatreVingtSept: CaseDefinition = {
         v: {
           src: `${DIR}/fin.jpg`,
           ...IMG,
-          alt: 'Au petit matin, dans une chambre de maison de retraite, les mains d’un vieil homme endormi reposent sur un vieux radio-réveil éteint.',
+          alt: 'Au petit matin, dans une chambre de maison de retraite, les mains ridées d’un vieil homme reposent sur le vieux radio-réveil éteint. Un bouquet de fleurs séchées, la lumière du jour par la fenêtre.',
         },
       },
     },
