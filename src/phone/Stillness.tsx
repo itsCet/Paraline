@@ -1,17 +1,32 @@
 /**
  * Épreuve « ne bouge plus » (override `stillness`).
- * Le joueur ne doit rien toucher pendant N secondes. Toucher l'écran (ou une touche) déclenche
- * le sursaut : visage plein écran, cri, flash et vibration, puis « Recommence. » et le compte repart.
+ * Un écran explique d'abord pourquoi (`ready`) ; son bouton demande l'accès au mouvement sur iPhone.
+ * Le joueur ne doit rien toucher ni bouger pendant N secondes. Toucher l'écran (ou une touche), ou bouger
+ * le téléphone (gyroscope, accéléromètre), déclenche le sursaut : visage plein écran, cri, flash et vibration,
+ * puis « Recommence. » et le compte repart. Sans capteur ou sans permission, seul le toucher compte.
  * Quitter l'application pendant l'épreuve met fin à l'épreuve (résultat `left`).
  * « Réduire les effets brusques » : pas de flash ni de vibration, apparition en fondu, cri moins fort.
  */
 import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../game/store';
 
-type Phase = 'intro' | 'count' | 'scare' | 'retry';
+type Phase = 'ready' | 'intro' | 'count' | 'scare' | 'retry';
 const GRACE_MS = 2600; // le temps de lever le doigt
 const SCARE_MS = 1500;
 const RETRY_MS = 1700;
+/** Seuils de mouvement : rotation (°/s), accélération hors gravité (m/s²), écart de gravité (m/s²) si l'accélération seule manque. */
+const MOTION_ROT = 22;
+const MOTION_ACC = 0.8;
+const MOTION_TILT = 1.4;
+const MOTION_SETTLE_MS = 900;
+
+/** Demande l'accès au mouvement (iPhone : doit être appelé pendant le geste du joueur). */
+function askMotion(): Promise<boolean> {
+  const DM = (window as unknown as { DeviceMotionEvent?: { requestPermission?: () => Promise<string> } }).DeviceMotionEvent;
+  if (!DM) return Promise.resolve(false);
+  if (typeof DM.requestPermission !== 'function') return Promise.resolve(true);
+  return DM.requestPermission().then((r) => r === 'granted').catch(() => false);
+}
 
 export function Stillness() {
   const { state, dispatch, cases } = useGame();
@@ -34,9 +49,9 @@ function StillnessRun({
   calm: boolean;
   onResult: (r: 'held' | 'left' | 'touched') => void;
 }) {
-  const [phase, setPhase] = useState<Phase>('intro');
+  const [phase, setPhase] = useState<Phase>(cfg.ready ? 'ready' : 'intro');
   const [elapsed, setElapsed] = useState(0);
-  const phaseRef = useRef<Phase>('intro');
+  const phaseRef = useRef<Phase>(cfg.ready ? 'ready' : 'intro');
   const startRef = useRef(0);
   const audio = useRef<Record<string, HTMLAudioElement>>({});
   const stepsPlayed = useRef(false);
@@ -111,14 +126,44 @@ function StillnessRun({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
+  const sursaut = () => {
+    if (phaseRef.current !== 'count' || done.current) return;
+    onResult('touched');
+    go('scare');
+  };
+
+  // Bouger le téléphone pendant le compte : même effet que toucher l'écran.
+  useEffect(() => {
+    if (phase !== 'count') return;
+    const since = performance.now();
+    let base: { x: number; y: number; z: number } | null = null;
+    const onMotion = (e: DeviceMotionEvent) => {
+      if (performance.now() - since < MOTION_SETTLE_MS) return;
+      const r = e.rotationRate;
+      const rot = r ? Math.hypot(r.alpha ?? 0, r.beta ?? 0, r.gamma ?? 0) : 0;
+      const a = e.acceleration;
+      let moved = rot > MOTION_ROT;
+      if (a && a.x != null) moved ||= Math.hypot(a.x ?? 0, a.y ?? 0, a.z ?? 0) > MOTION_ACC;
+      else if (e.accelerationIncludingGravity?.x != null) {
+        const g = e.accelerationIncludingGravity;
+        const v = { x: g.x ?? 0, y: g.y ?? 0, z: g.z ?? 0 };
+        if (!base) base = v;
+        moved ||= Math.hypot(v.x - base.x, v.y - base.y, v.z - base.z) > MOTION_TILT;
+      }
+      if (moved) sursaut();
+    };
+    window.addEventListener('devicemotion', onMotion);
+    return () => window.removeEventListener('devicemotion', onMotion);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
   // Le moindre geste pendant le compte déclenche le sursaut ; quitter l'application termine l'épreuve.
   useEffect(() => {
     const touched = (e: Event) => {
+      if (phaseRef.current === 'ready') return; // l'écran d'explication reste utilisable
       e.preventDefault();
       e.stopPropagation();
-      if (phaseRef.current !== 'count' || done.current) return;
-      onResult('touched');
-      go('scare');
+      sursaut();
     };
     const vis = () => {
       if (document.visibilityState === 'hidden' && !done.current && (phaseRef.current === 'count' || phaseRef.current === 'intro')) {
@@ -140,10 +185,31 @@ function StillnessRun({
 
   const k = Math.min(1, elapsed / cfg.seconds);
   return (
-    <div className={`stillness phase-${phase}${calm ? ' calm' : ''}`} role="dialog" aria-modal="true" aria-label={cfg.text} style={{ ['--dark' as string]: String(0.88 + 0.11 * k) }}>
+    <div className={`stillness phase-${phase}${calm ? ' calm' : ''}`} role="dialog" aria-modal="true" aria-label={cfg.text} style={{ ['--dark' as string]: String(phase === 'ready' ? 0.96 : 0.88 + 0.11 * k) }}>
+      {phase === 'ready' && cfg.ready && (
+        <div className="stillness-ready">
+          <h2>{cfg.ready.title}</h2>
+          {cfg.ready.text.map((t, i) => (
+            <p key={i}>{t}</p>
+          ))}
+          <button
+            className="btn btn-primary btn-block"
+            onClick={() => {
+              // Appel immédiat dans le geste : condition imposée par iOS.
+              void askMotion();
+              go('intro');
+            }}
+          >
+            {cfg.ready.button}
+          </button>
+        </div>
+      )}
       {(phase === 'intro' || phase === 'count') && (
         <>
-          <p className="stillness-text">{cfg.text}</p>
+          <div className="stillness-center">
+            <p className="stillness-text">{cfg.text}</p>
+            {cfg.subtitle && <p className="stillness-sub">{cfg.subtitle}</p>}
+          </div>
           <div className="stillness-bar" aria-hidden="true">
             <i style={{ transform: `scaleX(${k})` }} />
           </div>
@@ -155,7 +221,7 @@ function StillnessRun({
           {!calm && <div className="stillness-flash" />}
         </div>
       )}
-      {phase === 'retry' && <p className="stillness-text retry">Recommence.</p>}
+      {phase === 'retry' && <p className="stillness-text retry">{cfg.retryText ?? 'Recommence.'}</p>}
     </div>
   );
 }

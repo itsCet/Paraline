@@ -248,6 +248,9 @@ export const dossierZero: CaseDefinition = {
     { id: 'i-viens', threadId: 't-inconnu', from: 'inconnu', text: 'Je viens.' },
     { id: 'i-16', threadId: 't-inconnu', from: 'inconnu', text: 'Le 16 novembre. Ramène-moi au 16 novembre.' },
     { id: 'i-trouvee', threadId: 't-inconnu', from: 'inconnu', text: 'Tu m’as trouvée.' },
+    { id: 'i-partir1', threadId: 't-inconnu', from: 'inconnu', text: 'Ils vont m’entendre.' },
+    { id: 'i-partir2', threadId: 't-inconnu', from: 'inconnu', text: 'Je peux partir, maintenant.' },
+    { id: 'i-partir3', threadId: 't-inconnu', from: 'inconnu', text: 'Mais si quelqu’un me retient, je reste. Pose le téléphone.' },
     { id: 'i-bouge', threadId: 't-inconnu', from: 'inconnu', text: 'Ne bouge plus.' },
     { id: 'i-merci', threadId: 't-inconnu', from: 'inconnu', text: 'Merci.' },
     { id: 'i-eteindre', threadId: 't-inconnu', from: 'inconnu', text: 'Tu peux éteindre.' },
@@ -361,13 +364,23 @@ export const dossierZero: CaseDefinition = {
     {
       id: 'bouge',
       solved: { any: [{ flag: 'immobile', equals: 'held' }, { flag: 'immobile', equals: 'left' }] },
-      hints: ['Elle vous demande une chose très simple.', 'Ne faites rien.', 'Posez le téléphone et ne touchez à rien pendant 30 secondes, sans quitter le jeu.'],
+      hints: ['Elle peut partir, si personne ne la retient.', 'Ne faites rien. Vraiment rien.', 'Posez le téléphone à plat et ne le touchez ni ne le bougez pendant 30 secondes, sans quitter le jeu.'],
     },
   ],
 
   stillness: {
     seconds: 30,
     text: 'Ne bouge plus.',
+    subtitle: 'Si tu bouges, je reste.',
+    retryText: 'Tu as bougé. Elle est encore là.',
+    ready: {
+      title: 'Laisse-la partir',
+      text: [
+        'Clara a été entendue. Elle peut enfin partir, mais seulement si personne ne la retient.',
+        'Posez le téléphone à plat. Pendant 30 secondes, ne le touchez plus et ne le bougez plus.',
+      ],
+      button: 'Je pose le téléphone',
+    },
     scareImage: `${DIR}/jumpscare.jpg`,
     scareSound: `${DIR}/jumpscare.mp3`,
     ambience: `${DIR}/coeur.mp3`,
@@ -458,7 +471,8 @@ export const dossierZero: CaseDefinition = {
     { id: 'ecoutee', when: { observationFound: 'entendue' }, effects: [{ type: 'setFlag', name: 'distance', value: 1 }, dim(0.4)] },
 
     /* Ne bouge plus. */
-    { id: 'bouge', when: recu('a-envoi2'), effects: [elle('i-bouge', 5000)] },
+    // Elle explique pourquoi : elle peut partir, mais seulement si personne ne la retient.
+    { id: 'bouge', when: recu('a-envoi2'), effects: [elle('i-partir1', 5000), elle('i-partir2', 3000), elle('i-partir3', 3500), elle('i-bouge', 3500)] },
     { id: 'epreuve', when: recu('i-bouge'), effects: [{ type: 'phoneOverride', key: 'stillness', value: 'dossier-0' }] },
 
     /* Fin complète : elle a été entendue. */

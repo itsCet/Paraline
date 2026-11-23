@@ -243,7 +243,20 @@ export interface CaseDefinition {
    *  est diffusée ; sinon, du souffle. Le joueur peut enregistrer une émission (le média rejoint l'album « Radio »). */
   radio?: { stations: { freq: number; mediaId: Id; name?: string; when?: Condition }[] };
   battery?: { flag: string; threadId: Id; everyMs: number; floor: number; while: Condition };
-  stillness?: { seconds: number; scareImage: string; scareSound: string; ambience?: string; steps?: string; whisper?: string; text: string };
+  /** `ready` : écran d'explication avant l'épreuve (son bouton demande aussi l'accès au mouvement sur iPhone).
+   *  Pendant le compte, toucher l'écran OU bouger le téléphone déclenche le sursaut. */
+  stillness?: {
+    seconds: number;
+    scareImage: string;
+    scareSound: string;
+    ambience?: string;
+    steps?: string;
+    whisper?: string;
+    text: string;
+    subtitle?: string;
+    retryText?: string;
+    ready?: { title: string; text: string[]; button: string };
+  };
   obstacles?: ObstacleDef[];
   conclusion: { title: string; text: string[] };
   /** Conclusions alternatives : la première dont la condition est vraie remplace `conclusion`. */

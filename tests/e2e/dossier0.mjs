@@ -190,16 +190,39 @@ await check('Récemment supprimés : la date dans les 30 jours fait réapparaît
   await bubble('ils ne pourront pas l’ignorer').waitFor({ timeout: 30000 });
 });
 
-await check('« Ne bouge plus » : toucher l’écran déclenche le sursaut, puis « Recommence. »', async () => {
-  await page.locator('.stillness').waitFor({ timeout: 30000 });
+await check('Elle explique pourquoi ; « Laisse-la partir », puis le compte', async () => {
+  await page.locator('.stillness').waitFor({ timeout: 40000 });
+  await page.locator('.stillness-ready h2', { hasText: 'Laisse-la partir' }).waitFor();
+  await page.getByText('mais seulement si personne ne la retient', { exact: false }).waitFor();
+  await shot('04a-laisse-la-partir');
+  await page.getByRole('button', { name: 'Je pose le téléphone' }).click();
   await page.locator('.stillness-text', { hasText: 'Ne bouge plus.' }).waitFor();
+  await page.locator('.stillness-sub', { hasText: 'Si tu bouges, je reste.' }).waitFor();
+});
+
+await check('« Ne bouge plus » : toucher l’écran déclenche le sursaut', async () => {
   await page.waitForTimeout(3500);
   await page.mouse.click(200, 400);
   await page.locator('.stillness-scare img').waitFor({ timeout: 2000 });
   await shot('04-sursaut');
-  await page.locator('.stillness-text.retry', { hasText: 'Recommence.' }).waitFor({ timeout: 5000 });
+  await page.locator('.stillness-text.retry', { hasText: 'Tu as bougé.' }).waitFor({ timeout: 5000 });
   const s = await save();
   assert(s.cases['dossier-0'].flags.sursauts === 1, 'sursaut non compté');
+});
+
+await check('Bouger le téléphone (gyroscope) déclenche aussi le sursaut', async () => {
+  await page.locator('.stillness-text', { hasText: 'Ne bouge plus.' }).waitFor({ timeout: 6000 });
+  await page.waitForTimeout(4000); // fin de la mise en place + stabilisation
+  // Téléphone posé : petits bruits du capteur, sans effet.
+  await page.evaluate(() => window.dispatchEvent(new DeviceMotionEvent('devicemotion', { rotationRate: { alpha: 1, beta: 0.5, gamma: 0.3 }, acceleration: { x: 0.05, y: 0.02, z: 0.04 } })));
+  await page.waitForTimeout(300);
+  assert((await page.locator('.stillness-scare').count()) === 0, 'sursaut sur un simple bruit de capteur');
+  // On le soulève.
+  await page.evaluate(() => window.dispatchEvent(new DeviceMotionEvent('devicemotion', { rotationRate: { alpha: 40, beta: 25, gamma: 10 }, acceleration: { x: 1.2, y: 0.4, z: 0.9 } })));
+  await page.locator('.stillness-scare img').waitFor({ timeout: 2000 });
+  await page.locator('.stillness-text.retry').waitFor({ timeout: 5000 });
+  const s = await save();
+  assert(s.cases['dossier-0'].flags.sursauts === 2, 'mouvement non compté');
 });
 
 await check('Tenir 30 secondes sans toucher : fin « Entendue »', async () => {
