@@ -43,7 +43,7 @@ const PLAN = `
 const AVIS = `
 <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;text-align:center">
 <div style="background:#b3261e;color:#fff;font-weight:800;letter-spacing:.12em;padding:8px;margin-bottom:14px">DISPARITION INQUIÉTANTE</div>
-<img src="${DIR}/lea-portrait.jpg" alt="Photo de Léa Garnier, souriante." style="width:160px;height:213px;object-fit:cover;border-radius:4px;margin:0 auto 12px;display:block"/>
+<img src="${DIR}/lea-portrait.jpg" alt="Photo de Léa Garnier, souriante, en veste en jean." style="width:160px;height:213px;object-fit:cover;border-radius:4px;margin:0 auto 12px;display:block"/>
 <h2 style="font-size:24px;margin:0 0 4px">Léa GARNIER</h2>
 <div style="color:#666;margin-bottom:14px">24 ans · 1,65 m · cheveux châtains · veste en jean</div>
 <p style="text-align:left">Vue pour la dernière fois à la sortie d’un bar du centre-ville de Vernay-les-Eaux. Son téléphone a cessé d’émettre dans la nuit.</p>
@@ -76,16 +76,16 @@ export const douzePourcent: CaseDefinition = {
           src: `${DIR}/piece.jpg`,
           ...IMG,
           maxZoom: 6,
-          alt: 'Photo au flash dans le noir : un petit local carrelé de bleu, de gros tuyaux et des vannes le long du mur. Sur un tuyau, peint au pochoir : B-14. En haut à droite, un soupirail grillagé au ras du plafond.',
+          alt: 'Photo au flash dans le noir : un petit local carrelé de bleu, de gros tuyaux et des vannes le long du mur. Sur le gros tuyau du milieu, peint au pochoir : B-14. En haut à droite, un soupirail grillagé au ras du plafond. De l’eau au sol.',
           info: [
             { label: 'Date', value: 'Aujourd’hui' },
             { label: 'Appareil', value: 'Téléphone de Léa' },
             { label: 'Lieu', value: 'Inconnu (localisation désactivée)' },
           ],
           hotspots: [
-            { id: 'p-soupirail', x: 0.68, y: 0.06, w: 0.26, h: 0.14, observationId: 'soupirail' },
-            { id: 'p-b14', x: 0.3, y: 0.42, w: 0.22, h: 0.1, observationId: 'b14' },
-            { id: 'p-carrelage', x: 0.04, y: 0.55, w: 0.22, h: 0.3, observationId: 'carrelage' },
+            { id: 'p-soupirail', x: 0.68, y: 0.05, w: 0.26, h: 0.09, observationId: 'soupirail' },
+            { id: 'p-b14', x: 0.3, y: 0.34, w: 0.18, h: 0.08, observationId: 'b14' },
+            { id: 'p-carrelage', x: 0.6, y: 0.2, w: 0.3, h: 0.18, observationId: 'carrelage' },
           ],
         },
       },
@@ -102,7 +102,7 @@ export const douzePourcent: CaseDefinition = {
           ...IMG,
           maxZoom: 6,
           alt: 'Une porte métallique grise, au flash. À hauteur d’yeux, un vieil autocollant : « Ville de Vernay-les-Eaux · Service des sports · Local technique ». Pas de poignée de ce côté.',
-          hotspots: [{ id: 'po-autocollant', x: 0.3, y: 0.3, w: 0.4, h: 0.14, observationId: 'mairie' }],
+          hotspots: [{ id: 'po-autocollant', x: 0.29, y: 0.38, w: 0.4, h: 0.18, observationId: 'mairie' }],
         },
       },
     },
@@ -117,10 +117,10 @@ export const douzePourcent: CaseDefinition = {
           src: `${DIR}/dehors.jpg`,
           ...IMG,
           maxZoom: 6,
-          alt: 'À travers une grille, au ras du sol, la nuit : un parking désert et mouillé. Plus loin, sous un lampadaire, la silhouette d’un grand toboggan. Derrière, un clocher d’église éclairé.',
+          alt: 'À travers une grille, au ras du sol, la nuit : un parking désert et mouillé. À gauche, sous un lampadaire orange, la structure d’un grand toboggan. Tout au fond à droite, un petit clocher d’église éclairé.',
           hotspots: [
-            { id: 'd-toboggan', x: 0.18, y: 0.3, w: 0.34, h: 0.3, observationId: 'toboggan' },
-            { id: 'd-clocher', x: 0.62, y: 0.08, w: 0.2, h: 0.36, observationId: 'clocher' },
+            { id: 'd-toboggan', x: 0, y: 0.33, w: 0.32, h: 0.17, observationId: 'toboggan' },
+            { id: 'd-clocher', x: 0.79, y: 0.34, w: 0.11, h: 0.12, observationId: 'clocher' },
           ],
         },
       },

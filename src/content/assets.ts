@@ -85,12 +85,12 @@ export const ASSETS: AssetEntry[] = [
   { path: '/media/cases/dossier-0/piece.mp3', kind: 'audio', usage: 'Silence de la pièce', source: 'Généré avec ElevenLabs (compte de l’auteur)' },
   { path: '/media/cases/dossier-0/coeur.mp3', kind: 'audio', usage: 'Battements de cœur (épreuve)', source: 'Généré avec ElevenLabs (compte de l’auteur)' },
   { path: '/media/cases/dossier-0/ne-bouge-plus.mp3', kind: 'audio', usage: '« Ne bouge plus » chuchoté', source: 'Généré avec ElevenLabs (compte de l’auteur)' },
-  // Enquête « 12 % » (images provisoires tant que l'auteur n'a pas fourni les siennes)
-  { path: '/media/cases/douze-pourcent/piece.jpg', kind: 'image', usage: 'IMG_2231.jpg — le local carrelé au flash (soupirail, B-14)', source: 'Provisoire, généré par le jeu', placeholder: true },
-  { path: '/media/cases/douze-pourcent/porte.jpg', kind: 'image', usage: 'IMG_2232.jpg — la porte métallique, autocollant de la mairie', source: 'Provisoire, généré par le jeu', placeholder: true },
-  { path: '/media/cases/douze-pourcent/dehors.jpg', kind: 'image', usage: 'IMG_2233.jpg — vue du soupirail : toboggan et clocher', source: 'Provisoire, généré par le jeu', placeholder: true },
-  { path: '/media/cases/douze-pourcent/hopital.jpg', kind: 'image', usage: 'IMG_0412.jpg — épilogue, pouce levé à l’hôpital', source: 'Provisoire, généré par le jeu', placeholder: true },
-  { path: '/media/cases/douze-pourcent/lea-portrait.jpg', kind: 'image', usage: 'Avis de recherche de Léa (fin sombre)', source: 'Provisoire, généré par le jeu', placeholder: true },
+  // Enquête « 12 % »
+  { path: '/media/cases/douze-pourcent/piece.jpg', kind: 'image', usage: 'IMG_2231.jpg — le local carrelé au flash (soupirail, B-14)', source: 'Image fournie par l’auteur du jeu' },
+  { path: '/media/cases/douze-pourcent/porte.jpg', kind: 'image', usage: 'IMG_2232.jpg — la porte métallique, autocollant de la mairie', source: 'Image fournie par l’auteur du jeu' },
+  { path: '/media/cases/douze-pourcent/dehors.jpg', kind: 'image', usage: 'IMG_2233.jpg — vue du soupirail : toboggan et clocher', source: 'Image fournie par l’auteur du jeu' },
+  { path: '/media/cases/douze-pourcent/hopital.jpg', kind: 'image', usage: 'IMG_0412.jpg — épilogue, pouce levé à l’hôpital', source: 'Image fournie par l’auteur du jeu' },
+  { path: '/media/cases/douze-pourcent/lea-portrait.jpg', kind: 'image', usage: 'Avis de recherche de Léa (fin sombre)', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/douze-pourcent/lea-vocal.mp3', kind: 'audio', usage: 'Message vocal de Léa (cloches)', source: 'Généré avec ElevenLabs (compte de l’auteur)' },
 ];
 

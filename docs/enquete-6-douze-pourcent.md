@@ -1,6 +1,6 @@
 # Enquête 6 — « 12 % » (thriller en temps réel)
 
-Statut : histoire validée par l'auteur (22/11/2026), code écrit (`src/content/cases/douze-pourcent/`), images provisoires en attendant celles de l'auteur, message vocal généré avec ElevenLabs. Enquête réservée (code d'accès). Durée : ~15 min.
+Statut : histoire validée par l'auteur (22/11/2026), code écrit (`src/content/cases/douze-pourcent/`), images de l'auteur installées (zones recalées), message vocal généré avec ElevenLabs. Enquête réservée (code d'accès). Durée : ~15 min.
 
 ## Vérité
 Léa Garnier, 24 ans, a été abordée à la sortie d'un bar de Vernay-les-Eaux par un homme qui s'est présenté comme « Hugo ». Elle se réveille enfermée dans le local technique B-14, au sous-sol de la **piscine Jean-Bouin**, fermée depuis 2024, au pied du clocher Saint-Martin. Elle veut écrire à sa sœur Camille, « la seule famille qui me reste », mais se trompe d'un chiffre : le message arrive sur la ligne de permanence Paraline du joueur.
@@ -32,12 +32,11 @@ Léa Garnier, 24 ans, a été abordée à la sortie d'un bar de Vernay-les-Eaux 
 3. **Un dernier message** : message pour Camille à 1 %, lieu jamais donné : Camille part seule et n'écrit plus.
 4. **Il est arrivé avant** : le lieu donné à « Hugo » avant l'arrivée des secours.
 
-## Images à fournir (portrait 3:4, 1086 × 1448, photo réaliste de smartphone)
-Remplacer les fichiers provisoires de `public/media/cases/douze-pourcent/` (mêmes noms), puis retirer `placeholder: true` dans `src/content/assets.ts` et recaler les zones si besoin.
+## Images (fournies par l'auteur, 1086 × 1448) et zones à toucher
 
-1. `piece.jpg` : local technique au flash, dans le noir. Carrelage bleu, gros tuyaux et vannes. **« B-14 » au pochoir sur un tuyau, au centre-gauche** (zone x 0,30–0,52 ; y 0,42–0,52). **Soupirail grillagé en haut à droite**, au ras du plafond (x 0,68–0,94 ; y 0,06–0,20). Flaque au sol.
-2. `porte.jpg` : porte métallique grise au flash, sans poignée de ce côté. **Autocollant délavé à hauteur d'yeux** : « Ville de Vernay-les-Eaux · Service des sports · Local technique » (x 0,30–0,70 ; y 0,30–0,44).
-3. `dehors.jpg` : la nuit, vue au ras du sol à travers une grille. Parking désert et mouillé. **Grand toboggan à gauche**, sous un lampadaire (x 0,18–0,52 ; y 0,30–0,60). **Clocher d'église éclairé à droite**, au fond (x 0,62–0,82 ; y 0,08–0,44).
+1. `piece.jpg` : local technique au flash, dans le noir. Carrelage bleu, gros tuyaux et vannes. **« B-14 » au pochoir sur un tuyau, au centre-gauche** (zone x 0,30–0,48 ; y 0,34–0,42). **Soupirail grillagé en haut à droite**, au ras du plafond (x 0,68–0,94 ; y 0,05–0,14). Flaque au sol.
+2. `porte.jpg` : porte métallique grise au flash, sans poignée de ce côté. **Autocollant délavé à hauteur d'yeux** : « Ville de Vernay-les-Eaux · Service des sports · Local technique » (x 0,29–0,69 ; y 0,38–0,56).
+3. `dehors.jpg` : la nuit, vue au ras du sol à travers une grille. Parking désert et mouillé. **Grand toboggan à gauche**, sous un lampadaire (x 0–0,32 ; y 0,33–0,50). **Clocher d'église éclairé à droite**, au fond (x 0,79–0,90 ; y 0,34–0,46).
 4. `hopital.jpg` : chambre d'hôpital au petit matin. Une main avec un bracelet d'hôpital sort d'une couverture de survie dorée et fait un pouce levé. Pas de visage.
 5. `lea-portrait.jpg` : portrait de Léa, 24 ans, cheveux châtains, veste en jean, souriante, photo de soirée prise au téléphone (pour l'avis de recherche de la fin sombre).
 
