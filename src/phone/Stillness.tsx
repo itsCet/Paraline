@@ -56,7 +56,8 @@ function StillnessRun({
   const audio = useRef<Record<string, HTMLAudioElement>>({});
   const stepsPlayed = useRef(false);
   const done = useRef(false);
-  const vol = Math.max(0, Math.min(1, (volume ?? 80) / 100));
+  // Le réglage de volume va de 0 à 1.
+  const vol = Math.max(0, Math.min(1, volume ?? 0.6));
 
   const play = (key: string, src: string | undefined, opts: { loop?: boolean; v?: number } = {}) => {
     if (!sound || !src) return;
@@ -68,6 +69,24 @@ function StillnessRun({
     a.play().catch(() => {});
   };
   const stop = (key: string) => audio.current[key]?.pause();
+  /** iPhone : un son ne peut partir sans geste que s'il a déjà été lancé pendant un geste.
+   *  On « amorce » donc chaque son, en silence, au moment où le joueur pose le téléphone :
+   *  le cri pourra ensuite partir même si c'est un mouvement qui le déclenche. */
+  const prime = (key: string, src: string | undefined) => {
+    if (!sound || !src || audio.current[key]) return;
+    const a = new Audio(src);
+    audio.current[key] = a;
+    a.muted = true;
+    a.play()
+      .then(() => {
+        a.pause();
+        a.currentTime = 0;
+      })
+      .catch(() => {})
+      .finally(() => {
+        a.muted = false;
+      });
+  };
 
   const go = (p: Phase) => {
     phaseRef.current = p;
@@ -195,8 +214,12 @@ function StillnessRun({
           <button
             className="btn btn-primary btn-block"
             onClick={() => {
-              // Appel immédiat dans le geste : condition imposée par iOS.
+              // Appels immédiats dans le geste : conditions imposées par iOS (capteurs et sons).
               void askMotion();
+              prime('scare', cfg.scareSound);
+              prime('ambience', cfg.ambience);
+              prime('steps', cfg.steps);
+              play('whisper', cfg.whisper, { v: 1 });
               go('intro');
             }}
           >

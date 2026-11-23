@@ -195,6 +195,15 @@ await check('Elle explique pourquoi ; « Laisse-la partir », puis le compte', a
   await page.locator('.stillness-ready h2', { hasText: 'Laisse-la partir' }).waitFor();
   await page.getByText('mais seulement si personne ne la retient', { exact: false }).waitFor();
   await shot('04a-laisse-la-partir');
+  // Espion : on note chaque son lancé (fichier, volume, muet ou non).
+  await page.evaluate(() => {
+    window.__plays = [];
+    const orig = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function () {
+      window.__plays.push({ src: this.src, volume: this.volume, muted: this.muted });
+      return orig.call(this);
+    };
+  });
   await page.getByRole('button', { name: 'Je pose le téléphone' }).click();
   await page.locator('.stillness-text', { hasText: 'Ne bouge plus.' }).waitFor();
   await page.locator('.stillness-sub', { hasText: 'Si tu bouges, je reste.' }).waitFor();
@@ -223,6 +232,10 @@ await check('Bouger le téléphone (gyroscope) déclenche aussi le sursaut', asy
   await page.locator('.stillness-text.retry').waitFor({ timeout: 5000 });
   const s = await save();
   assert(s.cases['dossier-0'].flags.sursauts === 2, 'mouvement non compté');
+  // Le cri est parti, audible, à chaque sursaut (toucher puis mouvement).
+  const cris = (await page.evaluate(() => window.__plays)).filter((p) => p.src.includes('jumpscare.mp3') && !p.muted);
+  assert(cris.length >= 2, `cri lancé ${cris.length} fois`);
+  assert(cris.every((p) => p.volume >= 0.3), `volume du cri trop faible : ${cris.map((p) => p.volume).join(', ')}`);
 });
 
 await check('Tenir 30 secondes sans toucher : fin « Entendue »', async () => {
