@@ -227,6 +227,8 @@ await check('Bouger le téléphone (gyroscope) déclenche aussi le sursaut', asy
 
 await check('Tenir 30 secondes sans toucher : fin « Entendue »', async () => {
   await page.locator('.stillness-text', { hasText: 'Ne bouge plus.' }).waitFor({ timeout: 6000 });
+  await page.locator('.stillness-warning[aria-label="Touche l’écran, et tu le regretteras."]').waitFor({ timeout: 12000 });
+  await page.waitForTimeout(3500);
   await shot('05-immobile');
   await page.locator('.stillness').waitFor({ state: 'detached', timeout: 45000 });
   await thread('Inconnu');

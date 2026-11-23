@@ -185,7 +185,7 @@ function StillnessRun({
 
   const k = Math.min(1, elapsed / cfg.seconds);
   return (
-    <div className={`stillness phase-${phase}${calm ? ' calm' : ''}`} role="dialog" aria-modal="true" aria-label={cfg.text} style={{ ['--dark' as string]: String(phase === 'ready' ? 0.96 : 0.88 + 0.11 * k) }}>
+    <div className={`stillness phase-${phase}${calm ? ' calm' : ''}`} role="dialog" aria-modal="true" aria-label={cfg.text} style={{ ['--dark' as string]: String(phase === 'ready' ? 0.96 : 0.93 + 0.06 * k) }}>
       {phase === 'ready' && cfg.ready && (
         <div className="stillness-ready">
           <h2>{cfg.ready.title}</h2>
@@ -209,6 +209,15 @@ function StillnessRun({
           <div className="stillness-center">
             <p className="stillness-text">{cfg.text}</p>
             {cfg.subtitle && <p className="stillness-sub">{cfg.subtitle}</p>}
+            {cfg.warning && phase === 'count' && elapsed >= cfg.warning.afterSeconds && (
+              <p className="stillness-warning" aria-label={cfg.warning.text}>
+                {[...cfg.warning.text].map((ch, i) => (
+                  <span key={i} aria-hidden="true" style={{ animationDelay: `${i * 70}ms` }}>
+                    {ch === ' ' ? '\u00a0' : ch}
+                  </span>
+                ))}
+              </p>
+            )}
           </div>
           <div className="stillness-bar" aria-hidden="true">
             <i style={{ transform: `scaleX(${k})` }} />

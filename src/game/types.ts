@@ -255,6 +255,8 @@ export interface CaseDefinition {
     text: string;
     subtitle?: string;
     retryText?: string;
+    /** Menace qui s'écrit pendant le compte, après `afterSeconds`. */
+    warning?: { text: string; afterSeconds: number };
     ready?: { title: string; text: string[]; button: string };
   };
   obstacles?: ObstacleDef[];

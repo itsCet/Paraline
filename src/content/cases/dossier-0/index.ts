@@ -373,6 +373,7 @@ export const dossierZero: CaseDefinition = {
     text: 'Ne bouge plus.',
     subtitle: 'Si tu bouges, je reste.',
     retryText: 'Tu as bougé. Elle est encore là.',
+    warning: { text: 'Touche l’écran, et tu le regretteras.', afterSeconds: 6 },
     ready: {
       title: 'Laisse-la partir',
       text: [
