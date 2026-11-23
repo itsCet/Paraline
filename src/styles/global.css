@@ -1104,3 +1104,55 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .stillness.calm .stillness-warning { animation: none; }
 .stillness.calm .stillness-warning span { filter: none; transform: none; animation-duration: 0.8s; }
 @media (prefers-reduced-motion: reduce) { .stillness-warning { animation: none; } .stillness-warning span { filter: none; transform: none; } }
+
+/* Lampe torche */
+.flashlight-wrap, .panorama-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.flashlight { position: relative; flex: 1; overflow: hidden; background: #000; touch-action: none; cursor: crosshair; }
+.flashlight-stage { position: absolute; }
+.flashlight-stage img { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; pointer-events: none; }
+.flashlight-reveal { mix-blend-mode: screen; }
+.flashlight-dark { position: absolute; inset: 0; background: #000; pointer-events: none; }
+.flashlight-dark.off { opacity: 0.985; }
+.flashlight-dark.flicker { animation: torch-flicker 7s steps(1) infinite; }
+@keyframes torch-flicker { 0%, 96%, 100% { opacity: 1; } 97% { opacity: 0.96; } 98% { opacity: 1; } 98.6% { opacity: 0.93; } }
+.flashlight-found { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border: 2px solid var(--amber); border-radius: 50%; pointer-events: none; box-shadow: 0 0 10px rgba(239, 179, 92, 0.6); }
+.flashlight-bar { display: flex; gap: 8px; padding: 10px 12px; background: var(--bg); }
+.flashlight-bar .btn { flex: 1; min-width: 0; min-height: 44px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.flashlight-bar .btn[aria-label] { flex: 0 0 52px; }
+
+/* Photo à 360° */
+.panorama { position: relative; flex: 1; overflow: hidden; background: #000; touch-action: none; cursor: grab; }
+.panorama canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.panorama-exit { position: absolute; transform: translate(-50%, -50%); display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 22px; border: 1px solid rgba(239, 179, 92, 0.7); background: rgba(20, 21, 26, 0.72); color: var(--amber); font-weight: 600; backdrop-filter: blur(6px); }
+
+/* Boussole */
+.compass { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0 16px 24px; }
+.compass-rose { width: min(78vw, 300px); aspect-ratio: 1; touch-action: none; }
+.compass-rose svg { width: 100%; height: 100%; overflow: visible; }
+.compass-ring { fill: #1b1c21; stroke: #34353c; stroke-width: 2; }
+.compass-face { transition: transform 0.12s linear; }
+.compass-face line { stroke: #5a5b63; stroke-width: 1.2; }
+.compass-face line.major { stroke: #c9c6bd; stroke-width: 2; }
+.compass-face text { fill: #c9c6bd; font-size: 16px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
+.compass-face text.north { fill: var(--red); }
+.compass-index { fill: var(--amber); }
+.compass-pulse { fill: var(--amber); transition: r 0.2s, opacity 0.2s; }
+.compass-dot { fill: var(--amber); }
+.compass-read { font-variant-numeric: tabular-nums; }
+.compass-deg { font-size: 40px; font-weight: 700; }
+.compass-card { font-size: 20px; color: var(--text-2); margin-left: 6px; }
+.compass-signal { width: 100%; max-width: 300px; height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.compass-signal i { display: block; height: 100%; background: var(--text-3); transform-origin: left; transition: transform 0.15s; }
+.compass-signal i.on { background: var(--amber); }
+.compass-hint { margin: 0; color: var(--text-2); text-align: center; min-height: 22px; }
+.compass-hint.small { font-size: 13px; color: var(--text-3); }
+.compass .btn { max-width: 300px; }
+
+/* Labo (/?labo) */
+.labo { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--bg); color: var(--text); max-width: 480px; margin: 0 auto; }
+.labo-head { padding: max(12px, env(safe-area-inset-top)) 16px 8px; }
+.labo-head h1 { font-size: 22px; margin: 0 0 8px; }
+.labo-help { margin: 8px 0 0; font-size: 14px; color: var(--text-2); }
+.labo-msg { margin: 6px 0 0; min-height: 20px; color: var(--amber); font-weight: 600; font-size: 14px; }
+.labo-stage { position: relative; flex: 1; min-height: 0; }
+.labo-stage > .scroll { position: absolute; inset: 0; overflow-y: auto; padding-top: 10px; }

@@ -111,6 +111,14 @@ export function validateCase(c: CaseDefinition): string[] {
   };
   for (const o of c.obstacles ?? []) checkCond(o.solved);
   for (const e of c.endings ?? []) checkCond(e.when);
+  uniq('cible de boussole', (c.compass?.targets ?? []).map((t) => t.id));
+  for (const t of c.compass?.targets ?? []) {
+    if (t.bearing < 0 || t.bearing >= 360) err(`cible ${t.id} : cap hors de [0, 360[`);
+    if (t.when) checkCond(t.when);
+  }
+  for (const m of c.media)
+    for (const v of Object.values(m.variants))
+      for (const e of v.panorama?.exits ?? []) if (!media.has(e.to)) err(`passage vers un média inconnu : ${e.to}`);
   for (const st of c.radio?.stations ?? []) {
     if (!media.has(st.mediaId)) err(`station ${st.freq} : média inconnu ${st.mediaId}`);
     if (st.when) checkCond(st.when);

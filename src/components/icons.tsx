@@ -179,6 +179,14 @@ export function AppGlyph({ app }: { app: AppId }) {
           <circle cx="30" cy="30" r="5" fill="#fff" />
         </Tile>
       );
+    case 'compass':
+      return (
+        <Tile from="#3a3b42" to="#17181c">
+          <circle cx="30" cy="30" r="17" fill="none" stroke="#fff" strokeWidth="2.6" />
+          <path d="M30 15l5 15h-10z" fill="#ff453a" />
+          <path d="M30 45l-5-15h10z" fill="#fff" />
+        </Tile>
+      );
     case 'radio':
       return (
         <Tile from="#8a5a2b" to="#4a2e14">
@@ -221,4 +229,5 @@ export const APP_LABELS: Record<AppId, string> = {
   phone: 'Téléphone',
   locate: 'Localiser',
   radio: 'Radio',
+  compass: 'Boussole',
 };

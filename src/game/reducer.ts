@@ -52,6 +52,8 @@ export type Action =
   | { type: 'access/unlock'; code: string }
   /** Le joueur enregistre une émission de radio : le média rejoint ses enregistrements. */
   | { type: 'media/grant'; caseId: Id; mediaId: Id }
+  /** La boussole a tenu une cible assez longtemps. */
+  | { type: 'compass/found'; caseId: Id; targetId: Id }
   | { type: 'notification/dismiss'; id: Id }
   /** Active le réglage inconnu apparu dans Réglages (override `ghostSetting`). */
   | { type: 'ghost/activate' }
@@ -315,6 +317,14 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
       if (!def?.media.some((m) => m.id === action.mediaId)) return state;
       const next = patchCase(state, action.caseId, (p) => (p.grantedMedia.includes(action.mediaId) ? p : { ...p, grantedMedia: [...p.grantedMedia, action.mediaId] }));
       return next === state ? state : settle(next, cases, now);
+    }
+
+    case 'compass/found': {
+      const def = cases.byId.get(action.caseId);
+      const p = state.cases[action.caseId];
+      const key = `boussole:${action.targetId}`;
+      if (!def?.compass?.targets.some((t) => t.id === action.targetId) || !p || p.flags[key]) return state;
+      return settle(patchCase(state, action.caseId, (q) => ({ ...q, flags: { ...q.flags, [key]: true } })), cases, now);
     }
 
     case 'access/unlock':

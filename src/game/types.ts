@@ -72,6 +72,12 @@ export interface MediaVariant {
   info?: { label: string; value: string; observationId?: Id }[];
   /** Audio : spectre du son (image calculée depuis le fichier), avec zones à toucher. Axe horizontal = durée du fichier. */
   spectrogram?: { src: string; width: number; height: number; alt: string; hotspots?: Hotspot[] };
+  /** Image plongée dans le noir, qu'on éclaire à la lampe (doigt ou inclinaison). Les zones ne se touchent
+   *  qu'éclairées. `reveal` : calque visible seulement dans le faisceau (écriture « UV »). */
+  flashlight?: { radius?: number; reveal?: string };
+  /** Photo à 360° (équirectangulaire, 2:1) : on regarde autour de soi. Les zones utilisent les mêmes
+   *  coordonnées que l'image à plat. `exits` : passages vers une autre photo à 360° de l'enquête. */
+  panorama?: { exits?: { x: number; y: number; to: Id; label: string }[]; startYaw?: number };
 }
 
 export interface ImageOverlay {
@@ -241,6 +247,9 @@ export interface CaseDefinition {
    *  Une absence ne coûte qu'un cran (pas de rattrapage). */
   /** App Radio (override `extraApp: 'radio'`) : la première station dont la fréquence (MHz) correspond et dont `when` est vraie
    *  est diffusée ; sinon, du souffle. Le joueur peut enregistrer une émission (le média rejoint l'album « Radio »). */
+  /** App Boussole (override `extraApp: 'boussole'`) : viser une direction réelle (cap en degrés, 0 = nord)
+   *  pendant `hold` secondes pose le drapeau `boussole:<id>`. `when` : cible active seulement si vraie. */
+  compass?: { targets: { id: Id; bearing: number; tolerance?: number; hold?: number; label: string; when?: Condition }[] };
   radio?: { stations: { freq: number; mediaId: Id; name?: string; when?: Condition }[] };
   battery?: { flag: string; threadId: Id; everyMs: number; floor: number; while: Condition };
   /** `ready` : écran d'explication avant l'épreuve (son bouton demande aussi l'accès au mouvement sur iPhone).
@@ -313,7 +322,7 @@ export type FlagValue = boolean | number | string;
 /* ------------------------------------------------------------------ */
 
 /** `dim` : assombrissement de l'écran (`0` à `0.7`). `stillness` : épreuve « ne bouge plus » en cours (valeur : id de l'enquête).
- *  `extraApp` : application ajoutée à l'accueil (`dictaphone`, `telephone`, `localiser` ou `radio`).
+ *  `extraApp` : application ajoutée à l'accueil (`dictaphone`, `telephone`, `localiser`, `radio` ou `boussole`).
  *  `ghostSetting` : réglage inconnu dans Réglages, au format `Libellé::texte de la note écrite à l'activation`. */
 export type PhoneOverrideKey = 'wallpaper' | 'homeMessage' | 'extraApp' | 'ghostSetting' | 'dim' | 'stillness';
 
@@ -349,7 +358,7 @@ export type Effect =
 /* État sauvegardé                                                      */
 /* ------------------------------------------------------------------ */
 
-export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone' | 'locate' | 'radio';
+export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone' | 'locate' | 'radio' | 'compass';
 
 export type CaseStatus = 'new' | 'postponed' | 'active' | 'solved';
 

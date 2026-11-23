@@ -5,6 +5,8 @@ import { useNav, type ViewerSource } from './nav';
 import { character, resolveMedia } from '../game/selectors';
 import { TUTORIAL_MEDIA, TUTORIAL_OBSERVATION } from '../content/tutorial';
 import { ZoomableImage } from '../components/ZoomableImage';
+import { Flashlight } from '../components/Flashlight';
+import { Panorama } from '../components/Panorama';
 import { AudioPlayer, DocView, VideoPlayer } from '../components/Players';
 import { NavBar, Sheet } from '../components/ui';
 import { Icon } from '../components/icons';
@@ -153,7 +155,39 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
           ) : undefined
         }
       />
-      {r.media.kind === 'image' && (
+      {r.media.kind === 'image' && r.variant.panorama && (
+        <div className="viewer-stage">
+          <Panorama
+            src={r.src}
+            alt={r.variant.alt ?? r.media.name}
+            hotspots={hotspots}
+            found={foundIds}
+            onHotspot={onHotspot}
+            startYaw={r.variant.panorama.startYaw}
+            exits={(r.variant.panorama.exits ?? []).map((x) => ({
+              ...x,
+              onGo: () => caseId && nav.openViewer({ kind: 'case', caseId, mediaId: x.to }),
+            }))}
+          />
+        </div>
+      )}
+      {r.media.kind === 'image' && !r.variant.panorama && r.variant.flashlight && (
+        <div className="viewer-stage">
+          <Flashlight
+            src={r.src}
+            alt={r.variant.alt ?? r.media.name}
+            width={W}
+            height={H}
+            radius={r.variant.flashlight.radius}
+            reveal={r.variant.flashlight.reveal}
+            hotspots={hotspots}
+            found={foundIds}
+            onHotspot={onHotspot}
+            calm={state.settings.reduceFlashes}
+          />
+        </div>
+      )}
+      {r.media.kind === 'image' && !r.variant.panorama && !r.variant.flashlight && (
         <div className="viewer-stage">
           <ZoomableImage
             src={r.src}
