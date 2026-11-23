@@ -105,6 +105,7 @@ export const ASSETS: AssetEntry[] = [
   { path: '/media/cases/quatre-vingt-sept/nuit-spectre.jpg', kind: 'image', usage: 'Spectre de la dernière nuit (REVIENS)', source: 'Calculé depuis l’audio' },
   { path: '/media/cases/quatre-vingt-sept/adieu.mp3', kind: 'audio', usage: 'Fin des émissions : Henri et Théo', source: 'Voix ElevenLabs (compte de l’auteur)' },
   { path: '/media/cases/quatre-vingt-sept/horizon.mp3', kind: 'audio', usage: 'Radio Horizon 99.3 (station ordinaire)', source: 'Voix et musique ElevenLabs (compte de l’auteur)' },
+  { path: '/media/system/veille.mp4', kind: 'video', usage: 'Garde l’écran allumé pendant « Ne bouge plus » (sans Wake Lock)', source: 'Généré par le jeu' },
   { path: '/media/system/radio-souffle.mp3', kind: 'audio', usage: 'App Radio : souffle entre les stations', source: 'Généré par le jeu' },
 ];
 

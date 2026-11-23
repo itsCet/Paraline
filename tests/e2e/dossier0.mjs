@@ -203,10 +203,20 @@ await check('Elle explique pourquoi ; « Laisse-la partir », puis le compte', a
       window.__plays.push({ src: this.src, volume: this.volume, muted: this.muted });
       return orig.call(this);
     };
+    // Espion : demandes « garder l'écran allumé ».
+    window.__wake = 0;
+    window.__wakeReleased = 0;
+    if (navigator.wakeLock) {
+      navigator.wakeLock.request = () => {
+        window.__wake++;
+        return Promise.resolve({ release: () => { window.__wakeReleased++; return Promise.resolve(); } });
+      };
+    }
   });
   await page.getByRole('button', { name: 'Je pose le téléphone' }).click();
   await page.locator('.stillness-text', { hasText: 'Ne bouge plus.' }).waitFor();
   await page.locator('.stillness-sub', { hasText: 'Si tu bouges, je reste.' }).waitFor();
+  assert((await page.evaluate(() => window.__wake)) === 1, 'écran non maintenu allumé');
 });
 
 await check('« Ne bouge plus » : toucher l’écran déclenche le sursaut', async () => {
@@ -244,6 +254,7 @@ await check('Tenir 30 secondes sans toucher : fin « Entendue »', async () => {
   await page.waitForTimeout(3500);
   await shot('05-immobile');
   await page.locator('.stillness').waitFor({ state: 'detached', timeout: 45000 });
+  assert((await page.evaluate(() => window.__wakeReleased)) === 1, 'écran laissé allumé après l’épreuve');
   await thread('Inconnu');
   await bubble('Tu peux éteindre.').waitFor({ timeout: 20000 });
   await page.waitForTimeout(18000);

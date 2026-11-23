@@ -20,6 +20,55 @@ const MOTION_ACC = 0.8;
 const MOTION_TILT = 1.4;
 const MOTION_SETTLE_MS = 900;
 
+/**
+ * Garde l'écran allumé pendant l'épreuve : sinon le verrouillage automatique (30 s sur certains
+ * iPhone) éteindrait l'écran, et le jeu croirait que le joueur est parti.
+ * Wake Lock quand il existe (iOS 16.4+, Android) ; sinon une petite vidéo muette en boucle.
+ */
+function keepAwake(): () => void {
+  let lock: { release: () => Promise<void> } | null = null;
+  let video: HTMLVideoElement | null = null;
+  let stopped = false;
+  const nav = navigator as Navigator & { wakeLock?: { request: (t: 'screen') => Promise<{ release: () => Promise<void> }> } };
+  const acquire = () => {
+    if (stopped) return;
+    if (nav.wakeLock) {
+      nav.wakeLock
+        .request('screen')
+        .then((l) => {
+          if (stopped) void l.release().catch(() => {});
+          else lock = l;
+        })
+        .catch(() => {});
+    } else if (!video) {
+      video = document.createElement('video');
+      video.src = '/media/system/veille.mp4';
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      video.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none';
+      document.body.appendChild(video);
+      void video.play().catch(() => {});
+    }
+  };
+  // Le système relâche le verrou quand la page est masquée : on le reprend au retour.
+  const onVis = () => {
+    if (document.visibilityState === 'visible') acquire();
+  };
+  acquire();
+  document.addEventListener('visibilitychange', onVis);
+  return () => {
+    stopped = true;
+    document.removeEventListener('visibilitychange', onVis);
+    void lock?.release().catch(() => {});
+    if (video) {
+      video.pause();
+      video.remove();
+    }
+  };
+}
+
 /** Demande l'accès au mouvement (iPhone : doit être appelé pendant le geste du joueur). */
 function askMotion(): Promise<boolean> {
   const DM = (window as unknown as { DeviceMotionEvent?: { requestPermission?: () => Promise<string> } }).DeviceMotionEvent;
@@ -72,6 +121,13 @@ function StillnessRun({
   /** iPhone : un son ne peut partir sans geste que s'il a déjà été lancé pendant un geste.
    *  On « amorce » donc chaque son, en silence, au moment où le joueur pose le téléphone :
    *  le cri pourra ensuite partir même si c'est un mouvement qui le déclenche. */
+  // Écran allumé du début à la fin de l'épreuve (relâché quand elle se termine).
+  const awake = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    if (!cfg.ready) awake.current = keepAwake();
+    return () => awake.current?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const prime = (key: string, src: string | undefined) => {
     if (!sound || !src || audio.current[key]) return;
     const a = new Audio(src);
@@ -216,6 +272,7 @@ function StillnessRun({
             onClick={() => {
               // Appels immédiats dans le geste : conditions imposées par iOS (capteurs et sons).
               void askMotion();
+              if (!awake.current) awake.current = keepAwake();
               prime('scare', cfg.scareSound);
               prime('ambience', cfg.ambience);
               prime('steps', cfg.steps);
