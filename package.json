@@ -17,7 +17,8 @@
     "e2e:elle": "node tests/e2e/elle.mjs",
     "e2e:cinquieme": "node tests/e2e/cinquieme.mjs",
     "e2e:dossier0": "node tests/e2e/dossier0.mjs",
-    "e2e:douze": "node tests/e2e/douze.mjs"
+    "e2e:douze": "node tests/e2e/douze.mjs",
+    "e2e:fm": "node tests/e2e/fm.mjs"
   },
   "dependencies": {
     "react": "^19.1.0",

@@ -121,6 +121,7 @@ export function AudioPlayer({
         </div>
       </div>
       {!empty && <Controls m={m} label={name} />}
+      {variant.spectrogram && <Spectrogram spec={variant.spectrogram} t={m.t} dur={m.dur} found={found} onHotspot={(id) => onCue?.(id)} />}
       {(variant.cues?.length || variant.transcript) && (
         <section className="viewer-panel" aria-label="Transcription">
           <div className="panel-card transcript">
@@ -293,5 +294,48 @@ export function DocView({
         {hasPassages && onPassage && <p className="doc-hint">Touchez un passage souligné pour le relever dans le dossier.</p>}
       </article>
     </div>
+  );
+}
+
+/** Spectre d'un enregistrement : on « regarde » le son. La ligne ambre suit la lecture ; certaines zones se touchent. */
+function Spectrogram({
+  spec,
+  t,
+  dur,
+  found,
+  onHotspot,
+}: {
+  spec: NonNullable<MediaVariant['spectrogram']>;
+  t: number;
+  dur: number;
+  found: string[];
+  onHotspot: (observationId: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <section className="viewer-panel" aria-label="Spectre">
+      <button className="btn btn-secondary btn-sm btn-block" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <Icon.Audio size={18} /> {open ? 'Masquer le spectre' : 'Afficher le spectre'}
+      </button>
+      {open && (
+        <div className="spectro" style={{ aspectRatio: `${spec.width} / ${spec.height}` }}>
+          <img src={spec.src} alt={spec.alt} />
+          {dur > 0 && <i className="spectro-head" style={{ left: `${Math.min(100, (t / dur) * 100)}%` }} aria-hidden="true" />}
+          {(spec.hotspots ?? []).map((h) => (
+            <button
+              key={h.id}
+              className={`spectro-zone${found.includes(h.observationId) ? ' found' : ''}`}
+              style={{ left: `${h.x * 100}%`, top: `${h.y * 100}%`, width: `${h.w * 100}%`, height: `${h.h * 100}%` }}
+              aria-label="Examiner cette partie du spectre"
+              onClick={() => onHotspot(h.observationId)}
+            />
+          ))}
+          <span className="spectro-axis" aria-hidden="true">
+            <span>0 Hz</span>
+            <span>Temps →</span>
+          </span>
+        </div>
+      )}
+    </section>
   );
 }

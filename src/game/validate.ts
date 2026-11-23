@@ -44,6 +44,10 @@ export function validateCase(c: CaseDefinition): string[] {
     if (m.compareWith && !media.has(m.compareWith)) err(`comparaison inconnue : ${m.compareWith}`);
     for (const [vid, v] of Object.entries(m.variants)) {
       if (v.src.startsWith('data:')) err(`média encodé en base64 interdit : ${m.id}/${vid}`);
+      for (const h of v.spectrogram?.hotspots ?? []) {
+        if (!obs.has(h.observationId)) err(`zone ${h.id} : observation inconnue`);
+        if ([h.x, h.y, h.w, h.h].some((n) => n < 0 || n > 1) || h.x + h.w > 1.0001 || h.y + h.h > 1.0001) err(`zone ${h.id} hors du spectre`);
+      }
       for (const h of v.hotspots ?? []) {
         if (!obs.has(h.observationId)) err(`zone ${h.id} : observation inconnue`);
         if ([h.x, h.y, h.w, h.h].some((n) => n < 0 || n > 1) || h.x + h.w > 1.0001 || h.y + h.h > 1.0001)
@@ -107,6 +111,10 @@ export function validateCase(c: CaseDefinition): string[] {
   };
   for (const o of c.obstacles ?? []) checkCond(o.solved);
   for (const e of c.endings ?? []) checkCond(e.when);
+  for (const st of c.radio?.stations ?? []) {
+    if (!media.has(st.mediaId)) err(`station ${st.freq} : média inconnu ${st.mediaId}`);
+    if (st.when) checkCond(st.when);
+  }
   for (const m of c.media) {
     for (const v of Object.values(m.variants)) {
       for (const row of v.info ?? []) if (row.observationId && !obs.has(row.observationId)) err(`infos ${m.id} : observation inconnue ${row.observationId}`);

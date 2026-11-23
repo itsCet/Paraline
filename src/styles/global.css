@@ -1059,3 +1059,31 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 /* Batterie d'un contact (enquête en temps réel) */
 .battery-level { display: inline-flex; align-items: center; gap: 5px; font-variant-numeric: tabular-nums; color: var(--amber); }
 .battery-level.low { color: var(--red); font-weight: 600; }
+
+/* Radio FM */
+.radio-card { background: var(--surface); border-radius: 16px; padding: 18px 16px; margin: 0 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.radio-freq { text-align: center; font-variant-numeric: tabular-nums; }
+.radio-mhz { font-size: 54px; font-weight: 700; letter-spacing: -0.02em; color: var(--amber); }
+.radio-unit { font-size: 18px; color: var(--text-2); }
+.radio-station { text-align: center; color: var(--text-2); margin-top: -8px; }
+.radio-scale { position: relative; height: 40px; border-radius: 8px; background: linear-gradient(#1a1b20, #24252b); margin-top: 4px; }
+.radio-scale i { position: absolute; bottom: 14px; width: 1px; height: 8px; background: var(--text-3); }
+.radio-scale i.major { height: 14px; background: var(--text-2); }
+.radio-scale b { position: absolute; top: 2px; bottom: 2px; width: 2px; margin-left: -1px; background: var(--red); box-shadow: 0 0 6px rgba(255, 69, 58, 0.7); }
+.radio-scale span { position: absolute; bottom: 0; transform: translateX(-50%); font-size: 11px; color: var(--text-3); }
+.radio-scale span:first-of-type { transform: none; }
+.radio-range { width: 100%; accent-color: var(--amber); height: 44px; }
+.radio-controls { display: flex; gap: 8px; justify-content: space-between; }
+.radio-controls .btn { flex: 1; min-width: 0; min-height: 44px; padding-left: 8px; padding-right: 8px; white-space: nowrap; }
+.radio-live { min-height: 48px; margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); color: var(--text); font-style: italic; text-align: center; }
+.rec-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
+.rec-dot.done { background: var(--text-3); }
+.radio-empty { color: var(--text-3); padding: 0 16px; }
+
+/* Spectre d'un enregistrement */
+.spectro { position: relative; width: 100%; margin-top: 10px; border-radius: 10px; overflow: hidden; background: #0b0b0e; }
+.spectro img { display: block; width: 100%; height: 100%; object-fit: fill; }
+.spectro-head { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--amber); opacity: 0.8; pointer-events: none; }
+.spectro-zone { position: absolute; background: transparent; border: 0; padding: 0; min-width: 44px; min-height: 44px; cursor: pointer; }
+.spectro-zone.found { outline: 2px solid var(--amber); outline-offset: -2px; border-radius: 8px; }
+.spectro-axis { position: absolute; left: 6px; right: 6px; bottom: 4px; display: flex; justify-content: space-between; font-size: 11px; color: rgba(255, 255, 255, 0.55); pointer-events: none; }

@@ -50,6 +50,8 @@ export type Action =
   | { type: 'note/delete'; id: Id }
   | { type: 'settings/update'; patch: Partial<Settings> }
   | { type: 'access/unlock'; code: string }
+  /** Le joueur enregistre une émission de radio : le média rejoint ses enregistrements. */
+  | { type: 'media/grant'; caseId: Id; mediaId: Id }
   | { type: 'notification/dismiss'; id: Id }
   /** Active le réglage inconnu apparu dans Réglages (override `ghostSetting`). */
   | { type: 'ghost/activate' }
@@ -307,6 +309,13 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
     }
     case 'note/delete':
       return { ...state, notes: state.notes.filter((n) => n.id !== action.id) };
+
+    case 'media/grant': {
+      const def = cases.byId.get(action.caseId);
+      if (!def?.media.some((m) => m.id === action.mediaId)) return state;
+      const next = patchCase(state, action.caseId, (p) => (p.grantedMedia.includes(action.mediaId) ? p : { ...p, grantedMedia: [...p.grantedMedia, action.mediaId] }));
+      return next === state ? state : settle(next, cases, now);
+    }
 
     case 'access/unlock':
       return action.code.trim() === ACCESS_CODE && !state.unlocked ? { ...state, unlocked: true } : state;

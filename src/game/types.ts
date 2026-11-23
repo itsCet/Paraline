@@ -70,6 +70,8 @@ export interface MediaVariant {
   overlay?: ImageOverlay;
   /** Panneau « Infos » (métadonnées). Une ligne peut révéler une observation quand on la touche. */
   info?: { label: string; value: string; observationId?: Id }[];
+  /** Audio : spectre du son (image calculée depuis le fichier), avec zones à toucher. Axe horizontal = durée du fichier. */
+  spectrogram?: { src: string; width: number; height: number; alt: string; hotspots?: Hotspot[] };
 }
 
 export interface ImageOverlay {
@@ -237,6 +239,9 @@ export interface CaseDefinition {
   /** Batterie d'un contact, qui baisse en temps réel : le drapeau `flag` perd 1 toutes les `everyMs`
    *  tant que `while` est vraie, sans descendre sous `floor`. Affichée dans l'en-tête du fil `threadId`.
    *  Une absence ne coûte qu'un cran (pas de rattrapage). */
+  /** App Radio (override `extraApp: 'radio'`) : la première station dont la fréquence (MHz) correspond et dont `when` est vraie
+   *  est diffusée ; sinon, du souffle. Le joueur peut enregistrer une émission (le média rejoint l'album « Radio »). */
+  radio?: { stations: { freq: number; mediaId: Id; name?: string; when?: Condition }[] };
   battery?: { flag: string; threadId: Id; everyMs: number; floor: number; while: Condition };
   stillness?: { seconds: number; scareImage: string; scareSound: string; ambience?: string; steps?: string; whisper?: string; text: string };
   obstacles?: ObstacleDef[];
@@ -272,6 +277,8 @@ export type Condition =
   | { manualDate: string }
   /** Date manuelle comprise entre deux dates incluses (`YYYY-MM-DD`). */
   | { manualDateBetween: [string, string] }
+  /** Heure manuelle comprise dans l'heure `HH` (ex. 3 : de 03:00 à 03:59). */
+  | { manualHour: number }
   | { airplane: boolean }
   /** Réglage automatique de la date et de l'heure. */
   | { clockAuto: boolean }
@@ -291,7 +298,7 @@ export type FlagValue = boolean | number | string;
 /* ------------------------------------------------------------------ */
 
 /** `dim` : assombrissement de l'écran (`0` à `0.7`). `stillness` : épreuve « ne bouge plus » en cours (valeur : id de l'enquête).
- *  `extraApp` : application ajoutée à l'accueil (`dictaphone`, `telephone` ou `localiser`).
+ *  `extraApp` : application ajoutée à l'accueil (`dictaphone`, `telephone`, `localiser` ou `radio`).
  *  `ghostSetting` : réglage inconnu dans Réglages, au format `Libellé::texte de la note écrite à l'activation`. */
 export type PhoneOverrideKey = 'wallpaper' | 'homeMessage' | 'extraApp' | 'ghostSetting' | 'dim' | 'stillness';
 
@@ -327,7 +334,7 @@ export type Effect =
 /* État sauvegardé                                                      */
 /* ------------------------------------------------------------------ */
 
-export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone' | 'locate';
+export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone' | 'locate' | 'radio';
 
 export type CaseStatus = 'new' | 'postponed' | 'active' | 'solved';
 

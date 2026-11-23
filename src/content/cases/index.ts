@@ -16,6 +16,7 @@ import { elleEcrit } from './elle-ecrit';
 import { leCinquieme } from './le-cinquieme';
 import { dossierZero } from './dossier-0';
 import { douzePourcent } from './douze-pourcent';
+import { quatreVingtSept } from './quatre-vingt-sept';
 
 // La dernière du tableau arrive en haut de la boîte : on place en premier une enquête courte et guidée par son histoire.
-export const CASES: CaseDefinition[] = [douzePourcent, dossierZero, leCinquieme, elleEcrit, photoChangee, chambreCondamnee];
+export const CASES: CaseDefinition[] = [quatreVingtSept, douzePourcent, dossierZero, leCinquieme, elleEcrit, photoChangee, chambreCondamnee];

@@ -92,6 +92,20 @@ export const ASSETS: AssetEntry[] = [
   { path: '/media/cases/douze-pourcent/hopital.jpg', kind: 'image', usage: 'IMG_0412.jpg — épilogue, pouce levé à l’hôpital', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/douze-pourcent/lea-portrait.jpg', kind: 'image', usage: 'Avis de recherche de Léa (fin sombre)', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/douze-pourcent/lea-vocal.mp3', kind: 'audio', usage: 'Message vocal de Léa (cloches)', source: 'Généré avec ElevenLabs (compte de l’auteur)' },
+  // Enquête « 87.6 FM » (images provisoires tant que l'auteur n'a pas fourni les siennes)
+  { path: '/media/cases/quatre-vingt-sept/radio-reveil.jpg', kind: 'image', usage: 'IMG_3001.jpg — le radio-réveil à 3:00, aiguille sur 87.6', source: 'Provisoire, généré par le jeu', placeholder: true },
+  { path: '/media/cases/quatre-vingt-sept/emetteur-1987.jpg', kind: 'image', usage: 'Article de 1987 — l’émetteur incendié', source: 'Provisoire, généré par le jeu', placeholder: true },
+  { path: '/media/cases/quatre-vingt-sept/theo-1987.jpg', kind: 'image', usage: 'Article de 1987 — portrait de Théo', source: 'Provisoire, généré par le jeu', placeholder: true },
+  { path: '/media/cases/quatre-vingt-sept/fin.jpg', kind: 'image', usage: 'IMG_3044.jpg — fin : les mains d’Henri sur le radio-réveil éteint', source: 'Provisoire, généré par le jeu', placeholder: true },
+  { path: '/media/cases/quatre-vingt-sept/enregistrement.mp3', kind: 'audio', usage: 'Enregistrement de Noémie (nombres, sifflement caché)', source: 'Voix ElevenLabs (compte de l’auteur), mixage et image cachée générés par le jeu' },
+  { path: '/media/cases/quatre-vingt-sept/enregistrement-spectre.jpg', kind: 'image', usage: 'Spectre de l’enregistrement (RADIO VALLÉE)', source: 'Calculé depuis l’audio' },
+  { path: '/media/cases/quatre-vingt-sept/emission.mp3', kind: 'audio', usage: '87.6 à 3 h : Théo lit les nombres', source: 'Voix ElevenLabs (compte de l’auteur)' },
+  { path: '/media/cases/quatre-vingt-sept/emission-spectre.jpg', kind: 'image', usage: 'Spectre de l’émission', source: 'Calculé depuis l’audio' },
+  { path: '/media/cases/quatre-vingt-sept/nuit.mp3', kind: 'audio', usage: '87.6 le 14/03/1987 à 3 h : la dernière nuit', source: 'Voix ElevenLabs (compte de l’auteur), image cachée générée par le jeu' },
+  { path: '/media/cases/quatre-vingt-sept/nuit-spectre.jpg', kind: 'image', usage: 'Spectre de la dernière nuit (REVIENS)', source: 'Calculé depuis l’audio' },
+  { path: '/media/cases/quatre-vingt-sept/adieu.mp3', kind: 'audio', usage: 'Fin des émissions : Henri et Théo', source: 'Voix ElevenLabs (compte de l’auteur)' },
+  { path: '/media/cases/quatre-vingt-sept/horizon.mp3', kind: 'audio', usage: 'Radio Horizon 99.3 (station ordinaire)', source: 'Voix et musique ElevenLabs (compte de l’auteur)' },
+  { path: '/media/system/radio-souffle.mp3', kind: 'audio', usage: 'App Radio : souffle entre les stations', source: 'Généré par le jeu' },
 ];
 
 /** Fond d'écran par défaut (accueil et introduction). Remplacer par la photo définitive. */

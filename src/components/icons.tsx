@@ -179,6 +179,15 @@ export function AppGlyph({ app }: { app: AppId }) {
           <circle cx="30" cy="30" r="5" fill="#fff" />
         </Tile>
       );
+    case 'radio':
+      return (
+        <Tile from="#8a5a2b" to="#4a2e14">
+          <rect x="13" y="22" width="34" height="24" rx="4" fill="none" stroke="#fff" strokeWidth="3" />
+          <path d="M20 22l18-9" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+          <circle cx="23" cy="34" r="5" fill="#fff" />
+          <path d="M33 30h8M33 35h8M33 40h8" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" />
+        </Tile>
+      );
     case 'notes':
       return (
         <svg viewBox="0 0 60 60" aria-hidden="true">
@@ -211,4 +220,5 @@ export const APP_LABELS: Record<AppId, string> = {
   voice: 'Dictaphone',
   phone: 'Téléphone',
   locate: 'Localiser',
+  radio: 'Radio',
 };

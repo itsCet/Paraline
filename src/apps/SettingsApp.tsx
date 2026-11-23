@@ -262,7 +262,7 @@ function DateTimePage() {
             type="date"
             disabled={s.clockAuto}
             value={s.clockAuto ? iso(time.date) : s.manualDate}
-            min="1990-01-01"
+            min="1970-01-01"
             max="2099-12-31"
             onChange={(e) => e.target.value && set({ manualDate: e.target.value })}
           />

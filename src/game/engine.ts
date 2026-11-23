@@ -98,6 +98,7 @@ export function evaluate(cond: Condition, state: GameState, caseId: Id): boolean
   if ('manualTime' in cond) return !s.clockAuto && s.manualTime === cond.manualTime;
   if ('manualDate' in cond) return !s.clockAuto && s.manualDate === cond.manualDate;
   if ('manualDateBetween' in cond) return !s.clockAuto && s.manualDate >= cond.manualDateBetween[0] && s.manualDate <= cond.manualDateBetween[1];
+  if ('manualHour' in cond) return !s.clockAuto && Number(s.manualTime.slice(0, 2)) === cond.manualHour;
   if ('airplane' in cond) return s.airplane === cond.airplane;
   if ('clockAuto' in cond) return s.clockAuto === cond.clockAuto;
   if ('sound' in cond) return s.sound === cond.sound;

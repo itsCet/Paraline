@@ -15,6 +15,7 @@ import { NotesApp } from '../apps/NotesApp';
 import { SettingsApp } from '../apps/SettingsApp';
 import { PhoneApp, VoiceApp } from '../apps/VoiceApp';
 import { LocateApp } from '../apps/LocateApp';
+import { RadioApp } from '../apps/RadioApp';
 import { Stillness } from './Stillness';
 import { HintBulb } from '../components/Hints';
 import { unlockAudio } from '../game/sound';
@@ -31,6 +32,7 @@ const APPS: Record<AppId, () => ReactNode> = {
   voice: () => <VoiceApp />,
   phone: () => <PhoneApp />,
   locate: () => <LocateApp />,
+  radio: () => <RadioApp />,
 };
 
 export function Phone() {

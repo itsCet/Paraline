@@ -109,7 +109,7 @@ await check('États avant acceptation (Messages et Dossiers vides)', async () =>
 await check('Enquêtes réservées : seul Dossier 0 est ouvert, code 1234', async () => {
   await openApp('Mail');
   await page.locator('.mail-row:not(.locked)', { hasText: 'Dossier restauré' }).waitFor();
-  assert((await page.locator('.mail-row.locked').count()) === 5, 'il faut 5 enquêtes verrouillées');
+  assert((await page.locator('.mail-row.locked').count()) === 6, 'il faut 6 enquêtes verrouillées');
   await page.locator('.mail-row.locked', { hasText: 'Élise Morel' }).click();
   await page.getByLabel('Code d’accès').fill('0000');
   await page.getByRole('button', { name: 'Déverrouiller' }).click();
