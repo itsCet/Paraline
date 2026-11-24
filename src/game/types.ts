@@ -474,6 +474,8 @@ export interface Notification {
 
 export interface GameState {
   version: number;
+  /** Remise à zéro générale (`RESET_EPOCH`) : une sauvegarde plus ancienne est effacée au chargement. */
+  epoch?: number;
   introDone: boolean;
   tutorial: TutorialState;
   settings: Settings;

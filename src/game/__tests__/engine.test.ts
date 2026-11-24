@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { availableReplies, evaluate, indexCases } from '../engine';
 import { createReducer, type Action } from '../reducer';
-import { deserialize, initialState, serialize } from '../save';
+import { deserialize, initialState, serialize, RESET_EPOCH } from '../save';
 import { validateRegistry } from '../validate';
 import { CASES } from '../../content/cases';
 import type { GameState } from '../types';
@@ -181,7 +181,7 @@ describe('sauvegarde', () => {
     expect(deserialize('{', cases).warning).toBeTruthy();
   });
   it("migration v0 et ajout d'une enquête sans perdre l'introduction ni les préférences", () => {
-    const legacy = JSON.stringify({ introDone: true, settings: { sound: false, largeText: true }, notes: [{ id: 'n', title: 'a', body: '', createdAt: 0, updatedAt: 0 }] });
+    const legacy = JSON.stringify({ epoch: RESET_EPOCH, introDone: true, settings: { sound: false, largeText: true }, notes: [{ id: 'n', title: 'a', body: '', createdAt: 0, updatedAt: 0 }] });
     const r = deserialize(legacy, cases);
     expect(r.warning).toBeUndefined();
     expect(r.state.introDone).toBe(true);
@@ -195,6 +195,30 @@ describe('sauvegarde', () => {
     const after = deserialize(serialize({ ...before, introDone: true }), cases).state;
     expect(after.introDone).toBe(true);
     expect(Object.keys(after.cases)).toEqual(['test-case', 'other-case']);
+  });
+});
+
+describe('remise à zéro générale', () => {
+  it('une sauvegarde plus ancienne que RESET_EPOCH repart de zéro, en gardant son et accessibilité', () => {
+    const old = JSON.stringify({
+      epoch: RESET_EPOCH - 1,
+      introDone: true,
+      unlocked: true,
+      settings: { sound: false, volume: 0.3, largeText: true, clockAuto: false, manualTime: '03:00' },
+      notes: [{ id: 'n', title: 'a', body: '', createdAt: 0, updatedAt: 0 }],
+      cases: { 'test-case': { status: 'solved' } },
+    });
+    const r = deserialize(old, cases);
+    expect(r.reset).toBe(true);
+    expect(r.warning).toContain('repart de zéro');
+    expect(r.state.introDone).toBe(false);
+    expect(r.state.unlocked).toBeFalsy();
+    expect(r.state.notes).toHaveLength(0);
+    expect(r.state.cases['test-case'].status).toBe('new');
+    expect(r.state.settings).toMatchObject({ sound: false, volume: 0.3, largeText: true, clockAuto: true });
+    expect(r.state.epoch).toBe(RESET_EPOCH);
+    // Une fois remise à zéro, la partie est gardée normalement.
+    expect(deserialize(serialize(r.state), cases).reset).toBeUndefined();
   });
 });
 

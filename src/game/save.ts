@@ -13,6 +13,12 @@ import type { GameState, Settings } from './types';
 
 export const SAVE_KEY = import.meta.env?.VITE_FIXTURE === '1' ? 'paraline.fixture.save' : 'paraline.save';
 export const SAVE_VERSION = 1;
+/**
+ * Remise à zéro générale : augmenter ce nombre efface la partie de TOUS les joueurs au prochain
+ * chargement (seules les préférences de son et d'accessibilité sont gardées).
+ * 1 : 24/11/2026, « Dossier 0 » enrichi (visite à 360°) : tout le monde recommence.
+ */
+export const RESET_EPOCH = 1;
 
 export function defaultSettings(): Settings {
   return {
@@ -38,6 +44,7 @@ export function initialState(cases: CaseIndex): GameState {
   return reconcile(
     {
       version: SAVE_VERSION,
+      epoch: RESET_EPOCH,
       introDone: false,
       tutorial: { status: 'pending', step: 'openMail', found: false, filed: false },
       settings: defaultSettings(),
@@ -114,6 +121,7 @@ export function normalize(raw: Raw, cases: CaseIndex): GameState {
   const arr = <T>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
   const state: GameState = {
     version: SAVE_VERSION,
+    epoch: typeof raw.epoch === 'number' ? raw.epoch : 0,
     introDone: raw.introDone === true,
     tutorial,
     settings,
@@ -135,12 +143,29 @@ export interface LoadResult {
   state: GameState;
   /** Message à afficher si la sauvegarde a dû être écartée. */
   warning?: string;
+  /** La partie a été effacée par une remise à zéro générale (rien à mettre de côté). */
+  reset?: boolean;
+}
+
+/** Partie neuve après une remise à zéro générale : on garde le son et l'accessibilité. */
+function resetGame(old: GameState, cases: CaseIndex): GameState {
+  const fresh = initialState(cases);
+  const { sound, volume, reduceMotion, reduceFlashes, largeText } = old.settings;
+  return { ...fresh, settings: { ...fresh.settings, sound, volume, reduceMotion, reduceFlashes, largeText } };
 }
 
 export function deserialize(json: string | null, cases: CaseIndex): LoadResult {
   if (!json) return { state: initialState(cases) };
   try {
-    return { state: normalize(migrate(JSON.parse(json) as Raw), cases) };
+    const state = normalize(migrate(JSON.parse(json) as Raw), cases);
+    if ((state.epoch ?? 0) < RESET_EPOCH) {
+      return {
+        state: resetGame(state, cases),
+        reset: true,
+        warning: 'Paraline a été mis à jour : votre partie repart de zéro. Les enquêtes vous attendent dans Mail.',
+      };
+    }
+    return { state };
   } catch (e) {
     return {
       state: initialState(cases),
@@ -167,7 +192,7 @@ export function loadFromStorage(cases: CaseIndex): LoadResult {
     return { state: initialState(cases), warning: "Le stockage local est indisponible : la progression ne sera pas conservée." };
   }
   const result = deserialize(json, cases);
-  if (result.warning && json) {
+  if (result.warning && json && !result.reset) {
     try {
       localStorage.setItem(`${SAVE_KEY}.corrupt`, json);
     } catch {
