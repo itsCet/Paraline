@@ -76,14 +76,14 @@ export const dossierZero: CaseDefinition = {
         },
         // La chambre change : dans l'embrasure de la porte, quelqu'un se tient dans le noir.
         elle: {
-          src: `${DIR}/visite-chambre-elle-provisoire.jpg`,
+          src: `${DIR}/visite-chambre-elle.jpg`,
           alt: 'La même chambre à 360°. Dans l’embrasure de la porte ouverte, dans le couloir sombre, une jeune fille pâle en chemise de nuit blanche se tient immobile.',
           panorama: { exits: [{ x: 0.955, y: 0.68, to: 'visite-couloir', label: 'Couloir' }] },
           hotspots: [
             { id: 'v-dicta', x: 0.752, y: 0.64, w: 0.048, h: 0.04, observationId: 'dictaphone' },
             { id: 'v-poste', x: 0.405, y: 0.55, w: 0.04, h: 0.04, observationId: 'poste' },
             { id: 'v-ours', x: 0.09, y: 0.29, w: 0.04, h: 0.06, observationId: 'ours' },
-            { id: 'v-coin', x: 0.94, y: 0.39, w: 0.034, h: 0.34, observationId: 'coin' },
+            { id: 'v-coin', x: 0.952, y: 0.42, w: 0.034, h: 0.25, observationId: 'coin' },
           ],
         },
       },

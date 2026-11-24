@@ -70,7 +70,7 @@ export const ASSETS: AssetEntry[] = [
   { path: '/media/cases/le-cinquieme/lena.mp3', kind: 'audio', usage: 'Message vocal de Léna (fin complète)', source: 'Audio fourni par l’auteur du jeu (ElevenLabs)' },
   // Enquête « Dossier 0 »
   { path: '/media/cases/dossier-0/visite-chambre.jpg', kind: 'image', usage: 'Visite à 360° : la chambre de Clara', source: 'Image fournie par l’auteur du jeu (Skybox AI)' },
-  { path: '/media/cases/dossier-0/visite-chambre-elle-provisoire.jpg', kind: 'image', usage: 'Visite à 360° : la chambre, Clara dans l’embrasure (provisoire)', source: 'Montage provisoire', placeholder: true },
+  { path: '/media/cases/dossier-0/visite-chambre-elle.jpg', kind: 'image', usage: 'Visite à 360° : la chambre, Clara dans l’embrasure de la porte', source: 'Image fournie par l’auteur du jeu (porte reportée sur la version HD)' },
   { path: '/media/cases/dossier-0/visite-couloir.jpg', kind: 'image', usage: 'Visite à 360° : le couloir, la porte brûlée', source: 'Image fournie par l’auteur du jeu (Skybox AI)' },
   { path: '/media/cases/dossier-0/bureau-derriere.jpg', kind: 'image', usage: 'IMG_0001.jpg — votre bureau photographié depuis la porte', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/dossier-0/bureau-porte.jpg', kind: 'image', usage: 'IMG_0002.jpg — fin sombre', source: 'Image fournie par l’auteur du jeu' },
