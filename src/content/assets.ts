@@ -71,6 +71,8 @@ export const ASSETS: AssetEntry[] = [
   // Enquête « Dossier 0 »
   { path: '/media/cases/dossier-0/maison.jpg', kind: 'image', usage: 'IMG_7731.jpg — la maison du 12 rue des Tilleuls', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/dossier-0/chambre.jpg', kind: 'image', usage: 'IMG_7744.jpg — la chambre de Clara', source: 'Image fournie par l’auteur du jeu' },
+  { path: '/media/cases/dossier-0/visite-chambre.jpg', kind: 'image', usage: 'Visite à 360° : la chambre de Clara', source: 'Image fournie par l’auteur du jeu (Skybox AI)' },
+  { path: '/media/cases/dossier-0/visite-couloir.jpg', kind: 'image', usage: 'Visite à 360° : le couloir, la porte brûlée', source: 'Image fournie par l’auteur du jeu (Skybox AI)' },
   { path: '/media/cases/dossier-0/chambre-elle.jpg', kind: 'image', usage: 'IMG_7744.jpg — Clara dans le coin', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/dossier-0/bureau-derriere.jpg', kind: 'image', usage: 'IMG_0001.jpg — votre bureau photographié depuis la porte', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/dossier-0/bureau-porte.jpg', kind: 'image', usage: 'IMG_0002.jpg — fin sombre', source: 'Image fournie par l’auteur du jeu' },

@@ -33,7 +33,7 @@ const assert = (c, m) => {
   if (!c) throw new Error(m);
 };
 
-const browser = await chromium.launch();
+const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const { defaultBrowserType: _d, ...iphone } = devices['iPhone 13'];
 const ctx = await browser.newContext({ ...iphone, locale: 'fr-FR' });
 const page = await ctx.newPage();
@@ -128,6 +128,29 @@ await check('Agnès écrit encore à Victor ; ses anciens messages s’affichent
   await page.getByRole('button', { name: 'Ouvrir gazette_05-03-1998' }).click();
   await viewer().getByText('Touchez un passage souligné').waitFor();
   await shot('01b-gazette');
+  await closeViewer();
+});
+
+await check('Visite à 360° de Victor : de la chambre au couloir, la clé côté couloir', async () => {
+  await openMedia('VISITE_360_chambre.jpg');
+  await viewer().locator('.panorama canvas').waitFor();
+  await page.waitForFunction(() => !document.querySelector('.panorama .img-state'), null, { timeout: 15000 });
+  // La porte du couloir est derrière (164°) : quatre quarts de tour.
+  for (let i = 0; i < 4; i++) await viewer().getByRole('button', { name: 'Tourner à droite' }).click();
+  await viewer().getByRole('button', { name: 'Couloir' }).click();
+  await page.waitForFunction(() => !document.querySelector('.panorama .img-state'), null, { timeout: 15000 });
+  for (let i = 0; i < 2; i++) await viewer().getByRole('button', { name: 'Tourner à droite' }).click();
+  const b = await viewer().locator('.panorama').boundingBox();
+  const t = Math.tan((37.5 * Math.PI) / 180);
+  const r = Math.PI / 180;
+  const [dl, lat] = [116 - 90, -20.7];
+  const X = Math.cos(lat * r) * Math.sin(dl * r);
+  const Y = Math.sin(lat * r);
+  const Z = -Math.cos(lat * r) * Math.cos(dl * r);
+  await page.mouse.click(b.x + ((X / -Z / (t * (b.width / b.height)) + 1) / 2) * b.width, b.y + ((1 - Y / -Z / t) / 2) * b.height);
+  await page.locator('.sheet h2', { hasText: 'côté couloir' }).waitFor();
+  await shot('01c-cle');
+  await page.keyboard.press('Escape');
   await closeViewer();
 });
 
