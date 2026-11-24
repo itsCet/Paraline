@@ -14,7 +14,7 @@ const LAMPE_ZONES: Hotspot[] = [{ id: 'uv', x: 0.1, y: 0.58, w: 0.42, h: 0.16, o
 const PANOS: Record<string, { src: string; zones: Hotspot[]; found: Record<string, string>; exit: { x: number; y: number; to: string; label: string } }> = {
   chambre: {
     // Image de l'auteur : la chambre de Clara (Skybox AI).
-    src: '/media/labo/chambre-clara.jpg',
+    src: '/media/labo/chambre-clara-hd.jpg',
     zones: [
       { id: 'dicta', x: 0.752, y: 0.64, w: 0.048, h: 0.04, observationId: 'dictaphone' },
       { id: 'poste', x: 0.405, y: 0.55, w: 0.04, h: 0.04, observationId: 'poste' },
@@ -29,7 +29,7 @@ const PANOS: Record<string, { src: string; zones: Hotspot[]; found: Record<strin
   },
   couloir: {
     // Image de l'auteur : le couloir de l'étage, la porte de la mère brûlée par l'incendie.
-    src: '/media/labo/couloir.jpg',
+    src: '/media/labo/couloir-etage.jpg',
     zones: [
       { id: 'cle', x: 0.81, y: 0.58, w: 0.025, h: 0.07, observationId: 'cle' },
       { id: 'porte', x: 0.69, y: 0.22, w: 0.14, h: 0.6, observationId: 'porte-brulee' },

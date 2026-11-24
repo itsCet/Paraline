@@ -28,6 +28,9 @@ compass: { targets: [{ id: 'signal', bearing: 45, tolerance: 15, hold: 3, label:
 rules: [{ id: 'trouve', when: { flag: 'boussole:signal' }, effects: [...] }]
 ```
 
+## Remplacer une image
+Toujours lui donner **un nouveau nom de fichier** (ex. `couloir-etage.jpg`, `chambre-v2.jpg`) : le jeu garde les médias en cache sur le téléphone (jeu hors ligne), et une image remplacée sous le même nom peut rester affichée dans son ancienne version.
+
 ## Garde-fous
 - iPhone : l'accès aux capteurs se demande au toucher d'un bouton (jamais d'office).
 - Toujours une alternative tactile : la lampe suit le doigt, le 360° se glisse, la rose se tourne.
