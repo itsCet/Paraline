@@ -25,7 +25,7 @@ const PANOS: Record<string, { src: string; zones: Hotspot[]; found: Record<strin
       poste: 'Trouvé : un poste-cassette, sur le bureau.',
       ours: 'Trouvé : un ours en peluche, en haut de l’armoire.',
     },
-    exit: { x: 0.95, y: 0.55, to: 'couloir', label: 'Couloir' },
+    exit: { x: 0.955, y: 0.55, to: 'couloir', label: 'Couloir' },
   },
   couloir: {
     src: '/media/labo/couloir.jpg',
