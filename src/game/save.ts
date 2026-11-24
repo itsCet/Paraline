@@ -17,8 +17,9 @@ export const SAVE_VERSION = 1;
  * Remise à zéro générale : augmenter ce nombre efface la partie de TOUS les joueurs au prochain
  * chargement (seules les préférences de son et d'accessibilité sont gardées).
  * 1 : 24/11/2026, « Dossier 0 » enrichi (visite à 360°) : tout le monde recommence.
+ * 2 : 24/11/2026, « Dossier 0 » : la visite à 360° remplace les photos à plat de la maison et de la chambre.
  */
-export const RESET_EPOCH = 1;
+export const RESET_EPOCH = 2;
 
 export function defaultSettings(): Settings {
   return {

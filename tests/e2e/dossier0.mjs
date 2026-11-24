@@ -154,17 +154,27 @@ await check('Visite à 360° de Victor : de la chambre au couloir, la clé côt�
   await closeViewer();
 });
 
-await check('Le dictaphone, puis la chambre change : elle est là', async () => {
-  await openMedia('IMG_7744.jpg');
-  await viewer().getByText('1 détail à relever').waitFor();
-  await tapRel(0.17, 0.835);
+await check('Le dictaphone dans la visite, puis la chambre change : elle est là', async () => {
+  const dicta = async () => {
+    await openMedia('VISITE_360_chambre.jpg');
+    await page.waitForFunction(() => !document.querySelector('.panorama .img-state'), null, { timeout: 15000 });
+    for (let i = 0; i < 2; i++) await viewer().getByRole('button', { name: 'Tourner à droite' }).click();
+    const b = await viewer().locator('.panorama').boundingBox();
+    const t = Math.tan((37.5 * Math.PI) / 180), r = Math.PI / 180, [dl, lat] = [99.4 - 90, -28.8];
+    const X = Math.cos(lat * r) * Math.sin(dl * r), Y = Math.sin(lat * r), Z = -Math.cos(lat * r) * Math.cos(dl * r);
+    return { x: b.x + ((X / -Z / (t * (b.width / b.height)) + 1) / 2) * b.width, y: b.y + ((1 - Y / -Z / t) / 2) * b.height };
+  };
+  const d = await dicta();
+  await page.mouse.click(d.x, d.y);
   await page.locator('.sheet h2', { hasText: 'dictaphone' }).waitFor();
   await page.getByRole('button', { name: 'Demander à Agnès' }).click();
   await reply('Il y avait un dictaphone dans la chambre. Victor a trouvé la cassette ?').click();
   await bubble('Sur votre téléphone, donc.').waitFor({ timeout: 30000 });
-  await openMedia('IMG_7744.jpg');
-  const src = await viewer().locator('.zoom-content img').getAttribute('src');
-  assert(src.includes('chambre-elle'), src);
+  await bubble('Derrière la porte.').waitFor({ timeout: 20000 });
+  await openMedia('VISITE_360_chambre.jpg');
+  await page.waitForFunction(() => !document.querySelector('.panorama .img-state'), null, { timeout: 15000 });
+  const s = await save();
+  assert(s.cases['dossier-0'].viewedMedia.includes('visite-chambre@elle'), 'la chambre n’a pas changé');
   await closeViewer();
   await thread('Inconnu');
   await bubble('Tu as son téléphone.').waitFor({ timeout: 20000 });

@@ -56,54 +56,6 @@ export const dossierZero: CaseDefinition = {
 
   media: [
     {
-      id: 'maison',
-      kind: 'image',
-      name: 'IMG_7731.jpg',
-      sizeLabel: '2,1 Mo',
-      album: 'Victor',
-      defaultVariant: 'v',
-      variants: {
-        v: {
-          src: `${DIR}/maison.jpg`,
-          ...IMG,
-          alt: 'Une maison à étage sous un ciel gris, portail rouillé, jardin à l’abandon. À l’étage, à gauche, une fenêtre aux volets noircis, la façade marquée de suie.',
-          info: [
-            { label: 'Date', value: '9 nov. 2024 · 17:12' },
-            { label: 'Appareil', value: 'Ce téléphone (V. Hessel)' },
-            { label: 'Lieu', value: '12 rue des Tilleuls, Saint-Aubin' },
-          ],
-          hotspots: [{ id: 'm-fenetre', x: 0.23, y: 0.23, w: 0.17, h: 0.21, observationId: 'fenetre-brulee' }],
-        },
-      },
-    },
-    {
-      id: 'chambre',
-      kind: 'image',
-      name: 'IMG_7744.jpg',
-      sizeLabel: '2,4 Mo',
-      album: 'Victor',
-      defaultVariant: 'v',
-      variants: {
-        v: {
-          src: `${DIR}/chambre.jpg`,
-          ...IMG,
-          maxZoom: 8,
-          alt: 'Une chambre d’adolescente restée en 1998, vue par la porte entrouverte : lit au couvre-lit fleuri, posters, volets clos, poussière. Sur la table de nuit, en bas à gauche, un mini-dictaphone argenté.',
-          hotspots: [{ id: 'c-dicta', x: 0.1, y: 0.79, w: 0.14, h: 0.1, observationId: 'dictaphone' }],
-        },
-        elle: {
-          src: `${DIR}/chambre-elle.jpg`,
-          ...IMG,
-          maxZoom: 8,
-          alt: 'La même chambre. À droite, derrière le montant de la porte, à peine visible dans l’ombre, une jeune fille pâle aux longs cheveux noirs, en chemise de nuit blanche, se tient immobile.',
-          hotspots: [
-            { id: 'c-dicta2', x: 0.1, y: 0.79, w: 0.14, h: 0.1, observationId: 'dictaphone' },
-            { id: 'c-coin', x: 0.89, y: 0.37, w: 0.11, h: 0.36, observationId: 'coin' },
-          ],
-        },
-      },
-    },
-    {
       // Visite à 360° de l'étage, faite par Victor avec ce téléphone.
       id: 'visite-chambre',
       kind: 'image',
@@ -115,11 +67,23 @@ export const dossierZero: CaseDefinition = {
         v: {
           src: `${DIR}/visite-chambre.jpg`,
           alt: 'Visite à 360° de la chambre de Clara : armoire à glace, fenêtre aux volets clos, bureau avec un poste-cassette, posters des années 90, lit au couvre-lit fleuri, table de nuit, porte ouverte sur le couloir.',
-          panorama: { exits: [{ x: 0.955, y: 0.55, to: 'visite-couloir', label: 'Couloir' }] },
+          panorama: { exits: [{ x: 0.955, y: 0.68, to: 'visite-couloir', label: 'Couloir' }] },
           hotspots: [
             { id: 'v-dicta', x: 0.752, y: 0.64, w: 0.048, h: 0.04, observationId: 'dictaphone' },
             { id: 'v-poste', x: 0.405, y: 0.55, w: 0.04, h: 0.04, observationId: 'poste' },
             { id: 'v-ours', x: 0.09, y: 0.29, w: 0.04, h: 0.06, observationId: 'ours' },
+          ],
+        },
+        // La chambre change : dans l'embrasure de la porte, quelqu'un se tient dans le noir.
+        elle: {
+          src: `${DIR}/visite-chambre-elle-provisoire.jpg`,
+          alt: 'La même chambre à 360°. Dans l’embrasure de la porte ouverte, dans le couloir sombre, une jeune fille pâle en chemise de nuit blanche se tient immobile.',
+          panorama: { exits: [{ x: 0.955, y: 0.68, to: 'visite-couloir', label: 'Couloir' }] },
+          hotspots: [
+            { id: 'v-dicta', x: 0.752, y: 0.64, w: 0.048, h: 0.04, observationId: 'dictaphone' },
+            { id: 'v-poste', x: 0.405, y: 0.55, w: 0.04, h: 0.04, observationId: 'poste' },
+            { id: 'v-ours', x: 0.09, y: 0.29, w: 0.04, h: 0.06, observationId: 'ours' },
+            { id: 'v-coin', x: 0.94, y: 0.39, w: 0.034, h: 0.34, observationId: 'coin' },
           ],
         },
       },
@@ -267,8 +231,7 @@ export const dossierZero: CaseDefinition = {
     { id: 'a-qui1', threadId: 't-agnes', from: 'agnes', text: 'Alors il n’est jamais revenu…' },
     { id: 'a-qui2', threadId: 't-agnes', from: 'agnes', text: 'Je l’avais appelé pour la maison d’à côté. Le 12. Celle des Morand. Personne n’y vit depuis 1998.' },
     { id: 'a-qui3', threadId: 't-agnes', from: 'agnes', text: 'Je vous envoie ce qu’il m’avait montré. Dans la chambre, il est resté longtemps penché sur la table de nuit.' },
-    { id: 'a-qui4', threadId: 't-agnes', from: 'agnes', attachments: ['maison', 'chambre'], notify: false },
-    { id: 'a-qui4b', threadId: 't-agnes', from: 'agnes', text: 'Il avait aussi fait une visite à 360° de l’étage. Vous pouvez tourner autour de vous, passer d’une pièce à l’autre.' },
+    { id: 'a-qui4b', threadId: 't-agnes', from: 'agnes', text: 'Il avait fait une visite à 360° de la maison. Vous pouvez tourner autour de vous, passer d’une pièce à l’autre.' },
     { id: 'a-qui4c', threadId: 't-agnes', from: 'agnes', attachments: ['visite-chambre'], notify: false },
     { id: 'a-qui5', threadId: 't-agnes', from: 'agnes', attachments: ['article'], notify: false },
 
@@ -282,7 +245,7 @@ export const dossierZero: CaseDefinition = {
 
     { id: 'a-dicta1', threadId: 't-agnes', from: 'agnes', text: 'Il l’avait copiée sur son téléphone. Il disait qu’on entendait Clara.' },
     { id: 'a-dicta2', threadId: 't-agnes', from: 'agnes', text: 'Sur votre téléphone, donc.' },
-    { id: 'a-dicta3', threadId: 't-agnes', from: 'agnes', text: 'Attendez. La photo de la chambre que je vous ai envoyée… regardez-la encore. Derrière la porte.' },
+    { id: 'a-dicta3', threadId: 't-agnes', from: 'agnes', text: 'Attendez. La visite de la chambre… regardez-la encore. Derrière la porte.' },
 
     { id: 'a-envoi1', threadId: 't-agnes', from: 'agnes', text: '…' },
     { id: 'a-envoi2', threadId: 't-agnes', from: 'agnes', text: 'Je l’apporte à la gendarmerie demain matin. Cette fois, ils ne pourront pas l’ignorer.' },
@@ -319,7 +282,7 @@ export const dossierZero: CaseDefinition = {
       threadId: 't-agnes',
       label: 'Je ne suis pas Victor. J’ai récupéré son téléphone.',
       available: recu('a-now1'),
-      effects: say(['a-qui1', 3000], ['a-qui2', 3500], ['a-qui3', 2000], ['a-qui4', 1500], ['a-qui4b', 2500], ['a-qui4c', 1200], ['a-qui5', 1500]),
+      effects: say(['a-qui1', 3000], ['a-qui2', 3500], ['a-qui3', 2000], ['a-qui4b', 2500], ['a-qui4c', 1200], ['a-qui5', 1500]),
     },
     {
       id: 'r-clara',
@@ -352,9 +315,8 @@ export const dossierZero: CaseDefinition = {
   ],
 
   observations: [
-    { id: 'fenetre-brulee', title: 'À l’étage, une fenêtre aux volets noircis par le feu.', mediaId: 'maison', actions: [{ type: 'addToFile' }] },
-    { id: 'dictaphone', title: 'Un mini-dictaphone sur la table de nuit. Sans cassette.', mediaId: 'chambre', autoFile: true, actions: [{ type: 'ask', replyId: 'r-dicta', label: 'Demander à Agnès' }] },
-    { id: 'coin', title: 'Derrière la porte, dans le coin, quelqu’un vous regarde.', mediaId: 'chambre', autoFile: true, actions: [] },
+    { id: 'dictaphone', title: 'Un mini-dictaphone sur la table de nuit. Sans cassette.', mediaId: 'visite-chambre', autoFile: true, actions: [{ type: 'ask', replyId: 'r-dicta', label: 'Demander à Agnès' }] },
+    { id: 'coin', title: 'Dans l’embrasure de la porte, quelqu’un vous regarde.', mediaId: 'visite-chambre', autoFile: true, actions: [] },
     { id: 'poste', title: 'Un poste-cassette sur le bureau. Clara enregistrait déjà ses cassettes.', mediaId: 'visite-chambre', actions: [] },
     { id: 'ours', title: 'Un ours en peluche, en haut de l’armoire, couvert de poussière.', mediaId: 'visite-chambre', actions: [] },
     {
@@ -393,8 +355,8 @@ export const dossierZero: CaseDefinition = {
       solved: hante,
       hints: [
         'La chambre de Clara cache un objet.',
-        'Regardez près du lit, parlez-en à Agnès, puis retournez voir la chambre.',
-        'Touchez le dictaphone sur la photo de la chambre, posez la question à Agnès, puis rouvrez la photo de la chambre.',
+        'Dans la visite à 360°, regardez près du lit, parlez-en à Agnès, puis retournez dans la chambre.',
+        'Dans la visite à 360°, touchez le dictaphone sur la table de nuit, posez la question à Agnès, puis rouvrez la visite.',
       ],
     },
     {
@@ -478,10 +440,10 @@ export const dossierZero: CaseDefinition = {
     { id: 'ramene-moi', when: { all: [hante, { noteWritten: 'v4' }, { not: { mediaViewed: 'temoignage' } }] }, effects: [elle('i-16', 20000)] },
 
     /* Bascule : la chambre change ; quand on la voit, elle est là. */
-    { id: 'chambre-change', when: { all: [{ observationFound: 'dictaphone' }, recu('a-dicta2')] }, effects: [{ type: 'setMediaVariant', mediaId: 'chambre', variantId: 'elle' }, { type: 'notify', title: 'Photos', body: 'IMG_7744.jpg · modifiée à l’instant', app: 'photos' }] },
+    { id: 'chambre-change', when: { all: [{ observationFound: 'dictaphone' }, recu('a-dicta2')] }, effects: [{ type: 'setMediaVariant', mediaId: 'visite-chambre', variantId: 'elle' }, { type: 'notify', title: 'Photos', body: 'VISITE_360_chambre.jpg · modifiée à l’instant', app: 'photos' }] },
     {
       id: 'bascule',
-      when: { any: [{ mediaViewed: 'chambre@elle' }, { observationFound: 'coin' }] },
+      when: { any: [{ mediaViewed: 'visite-chambre@elle' }, { observationFound: 'coin' }] },
       effects: [
         { type: 'setFlag', name: 'hante', value: true },
         { type: 'writeNote', noteId: 'v5', delayMs: 3000 },

@@ -38,8 +38,8 @@ beforeEach(() => {
 
 function jusquALaBascule(s: GameState) {
   s = send(s, 'r-pas-victor');
-  s = send(find(s, 'chambre', 'dictaphone'), 'r-dicta');
-  return view(s, 'chambre');
+  s = send(find(s, 'visite-chambre', 'dictaphone'), 'r-dicta');
+  return view(s, 'visite-chambre');
 }
 
 describe('dossier 0', () => {
@@ -56,7 +56,7 @@ describe('dossier 0', () => {
 
   it('bascule : la chambre change, elle écrit, la lumière baisse', () => {
     const s = jusquALaBascule(s0);
-    expect(p(s).mediaVariants.chambre).toBe('elle');
+    expect(p(s).mediaVariants['visite-chambre']).toBe('elle');
     expect(p(s).flags.hante).toBe(true);
     expect(got(s, 'i-1')).toBe(true);
     expect(s.overrides.dim?.value).toBe('0.12');
