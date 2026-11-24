@@ -86,6 +86,18 @@ await check('360° : la chambre de Clara s’affiche, on trouve le dictaphone, o
   await page.getByRole('button', { name: 'Couloir' }).click();
   await page.waitForFunction(() => document.querySelector('.labo-msg')?.textContent?.includes('Couloir'));
   await page.waitForFunction(() => !document.querySelector('.panorama .img-state'), null, { timeout: 15000 });
+  await page.waitForTimeout(300);
+  await shot('05-couloir');
+  // Dans le couloir : la clé dans la serrure de la porte brûlée (116°, 21° sous l'horizon).
+  for (let i = 0; i < 2; i++) await page.getByRole('button', { name: 'Tourner à droite' }).click();
+  await shot('06-porte-brulee');
+  const k = proj(116 - 90, -20.7);
+  await page.mouse.click(k.x, k.y);
+  await page.waitForFunction(() => document.querySelector('.labo-msg')?.textContent?.includes('clé'));
+  // Retour vers la chambre (porte ouverte à −65°).
+  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Tourner à gauche' }).click();
+  await page.getByRole('button', { name: 'Chambre de Clara' }).click();
+  await page.waitForFunction(() => document.querySelector('.labo-msg')?.textContent?.includes('Chambre de Clara'));
 });
 
 await check('Boussole : viser le nord-est 3 secondes trouve le signal', async () => {

@@ -28,10 +28,19 @@ const PANOS: Record<string, { src: string; zones: Hotspot[]; found: Record<strin
     exit: { x: 0.955, y: 0.55, to: 'couloir', label: 'Couloir' },
   },
   couloir: {
+    // Image de l'auteur : le couloir de l'étage, la porte de la mère brûlée par l'incendie.
     src: '/media/labo/couloir.jpg',
-    zones: [{ id: 'main2', x: 0.066, y: 0.45, w: 0.034, h: 0.105, observationId: 'main-couloir' }],
-    found: { 'main-couloir': 'Trouvé : une empreinte de main, sur le mur.' },
-    exit: { x: 0.25, y: 0.53, to: 'chambre', label: 'Chambre' },
+    zones: [
+      { id: 'cle', x: 0.81, y: 0.58, w: 0.025, h: 0.07, observationId: 'cle' },
+      { id: 'porte', x: 0.69, y: 0.22, w: 0.14, h: 0.6, observationId: 'porte-brulee' },
+      { id: 'photos', x: 0.13, y: 0.29, w: 0.075, h: 0.21, observationId: 'photos' },
+    ],
+    found: {
+      cle: 'Trouvé : la clé est restée dans la serrure… côté couloir. On l’a enfermée de l’extérieur.',
+      'porte-brulee': 'Trouvé : la porte de la chambre de la mère, noircie par l’incendie.',
+      photos: 'Trouvé : des photos de famille. Clara, sa mère… et un homme.',
+    },
+    exit: { x: 0.32, y: 0.55, to: 'chambre', label: 'Chambre de Clara' },
   },
 };
 
@@ -65,7 +74,7 @@ export function Labo() {
         </div>
         <p className="labo-help">
           {tab === 'lampe' && 'Glissez le doigt (ou inclinez le téléphone) pour éclairer. Une écriture n’apparaît que dans le faisceau : touchez-la.'}
-          {tab === '360' && 'Glissez pour regarder autour de vous, pincez pour zoomer, ou « Regarder avec le téléphone ». Dans la chambre de Clara, trouvez le dictaphone, le poste-cassette et l’ours, puis passez la porte.'}
+          {tab === '360' && 'Glissez, pincez, ou « Regarder avec le téléphone ». Chambre : dictaphone, poste-cassette, ours. Couloir : la porte brûlée.'}
           {tab === 'boussole' && 'Activez la boussole et tournez-vous lentement : un signal vient du nord-est (45°). Tenez la direction 3 secondes.'}
         </p>
         <p className="labo-msg" role="status">{msg}</p>
