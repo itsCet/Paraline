@@ -242,7 +242,7 @@ img { display: block; max-width: 100%; }
 .grid {
   padding-top: 18px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 14px 8px;
 }
 .app-icon {
@@ -250,7 +250,7 @@ img { display: block; max-width: 100%; }
   flex-direction: column;
   align-items: center;
   gap: 7px;
-  font-size: 14px;
+  font-size: 13px;
   color: #fff;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
   position: relative;
@@ -1156,3 +1156,29 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .labo-msg { margin: 6px 0 0; min-height: 20px; color: var(--amber); font-weight: 600; font-size: 14px; }
 .labo-stage { position: relative; flex: 1; min-height: 0; }
 .labo-stage > .scroll { position: absolute; inset: 0; overflow-y: auto; padding-top: 10px; }
+
+/* Le Fil (actualités) */
+.news-brand { font-family: Georgia, 'Times New Roman', serif; font-weight: 700; letter-spacing: -0.02em; }
+.news-kicker { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); }
+.news-kicker .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); flex: none; }
+.news-meta { font-size: 13px; color: var(--text-3); }
+.news-hero { display: block; width: 100%; text-align: left; background: var(--surface); border-radius: var(--radius); overflow: hidden; padding: 0; }
+.news-hero img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; filter: grayscale(0.25) contrast(1.05); }
+.news-hero-body { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px 16px; }
+.news-title { font-family: Georgia, 'Times New Roman', serif; font-size: 22px; font-weight: 700; line-height: 1.2; color: var(--text); }
+.news-list { margin-top: 10px; }
+.news-list li + li { border-top: 1px solid var(--sep); }
+.news-row { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 14px 0; }
+.news-row-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.news-row-title { font-family: Georgia, 'Times New Roman', serif; font-size: 17px; font-weight: 700; line-height: 1.25; color: var(--text); }
+.news-row img { width: 76px; height: 76px; border-radius: 10px; object-fit: cover; flex: none; filter: grayscale(0.25); }
+.news-article { padding-bottom: 12px; }
+.news-article .news-source { font-family: Georgia, 'Times New Roman', serif; font-size: 15px; font-style: italic; color: var(--text-2); margin: 4px 0 10px; }
+.news-article h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 27px; line-height: 1.18; margin: 8px 0 8px; letter-spacing: -0.01em; }
+.news-article figure { margin: 16px -16px 6px; }
+.news-article figure img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; filter: grayscale(0.25) contrast(1.05); }
+.news-article figcaption { font-size: 13px; color: var(--text-3); padding: 6px 16px 0; }
+.news-article p { font-family: Georgia, 'Times New Roman', serif; font-size: 17px; line-height: 1.55; margin: 0 0 14px; color: var(--text); }
+.large-text .news-article p { font-size: 20px; }
+.news-article .news-lead { font-weight: 700; margin-top: 14px; }
+.news-open { width: 100%; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }

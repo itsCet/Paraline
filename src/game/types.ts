@@ -358,7 +358,7 @@ export type Effect =
 /* État sauvegardé                                                      */
 /* ------------------------------------------------------------------ */
 
-export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone' | 'locate' | 'radio' | 'compass';
+export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone' | 'locate' | 'radio' | 'compass' | 'news';
 
 export type CaseStatus = 'new' | 'postponed' | 'active' | 'solved';
 
@@ -490,6 +490,8 @@ export interface GameState {
   away?: { at: number; ms: number; count: number };
   /** Code d'accès saisi : les enquêtes réservées sont ouvertes. */
   unlocked?: boolean;
+  /** Articles du Fil déjà ouverts. */
+  readNews?: Id[];
   /** Transitoire : non sauvegardé. */
   notifications: Notification[];
 }

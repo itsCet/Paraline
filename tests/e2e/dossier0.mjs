@@ -107,6 +107,20 @@ await page.goto(BASE);
 await page.getByRole('button', { name: 'Passer l’introduction' }).click();
 await page.getByRole('button', { name: 'Plus tard' }).click();
 
+await check('Le Fil : un seul article (Victor), le bouton ouvre le dossier', async () => {
+  await page.getByRole('button', { name: 'Le Fil, 1 non lu' }).click();
+  const titles = page.locator('section.app-layer:not([hidden]) .news-title, section.app-layer:not([hidden]) .news-row-title');
+  assert((await titles.count()) === 1, `${await titles.count()} articles`);
+  await titles.first().click();
+  await page.locator('.news-article h1', { hasText: 'Victor Hessel reste introuvable' }).waitFor();
+  await shot('00-fil');
+  await page.getByRole('button', { name: /Ouvrir le dossier/ }).click();
+  await page.locator('section.app-layer:not([hidden])', { hasText: 'Dossier restauré : Victor Hessel' }).first().waitFor();
+  await page.locator('section.app-layer:not([hidden]) .navbar-back').click();
+  await home();
+  assert(!(await page.getByRole('button', { name: /^Le Fil, / }).count()), 'article encore non lu');
+});
+
 await check('Le dossier restauré : avertissement, notes de Victor datées de 2024', async () => {
   await openApp('Mail');
   await page.locator('.mail-row', { hasText: 'Dossier restauré' }).click();
@@ -294,6 +308,17 @@ await check('Tenir 30 secondes sans toucher : fin « Entendue »', async () => {
   const s = await save();
   assert(s.cases['dossier-0'].status === 'solved', 'non résolue');
   assert(Object.keys(s.cases['dossier-0'].hintsRevealed).length === 0, 'indice utilisé');
+});
+
+await check('Le Fil : l’affaire Morand est rouverte après la réussite', async () => {
+  await home();
+  await page.getByRole('button', { name: 'Le Fil, 1 non lu' }).click();
+  await page.locator('.news-hero .news-title', { hasText: 'l’affaire Morand est rouverte' }).click();
+  await page.locator('.news-article h1', { hasText: 'l’affaire Morand est rouverte' }).waitFor();
+  await page.locator('.news-article .news-meta', { hasText: 'Publié aujourd’hui à' }).waitFor();
+  await shot('06-fil-rouverte');
+  const s = await save();
+  assert(s.readNews.includes('d0-affaire-rouverte'), 'article non marqué lu');
 });
 
 await check('Aucune erreur JavaScript', async () => assert(errors.length === 0, errors.join(' | ')));

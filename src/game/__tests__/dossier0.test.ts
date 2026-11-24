@@ -5,6 +5,7 @@ import { createReducer, type Action } from '../reducer';
 import { initialState } from '../save';
 import type { GameState, Settings } from '../types';
 import { dossierZero as def } from '../../content/cases/dossier-0';
+import { availableNews } from '../../content/news';
 
 const ID = def.id;
 const cases = indexCases([def]);
@@ -117,6 +118,16 @@ describe('dossier 0', () => {
     expect(p(s).grantedMedia).toContain('bureau-matin');
     expect(p(s).status).toBe('solved');
     expect(s.overrides).toEqual({});
+    // Le Fil : l'article de réouverture paraît, daté de la résolution, et une notification l'annonce.
+    const news = availableNews(s, cases);
+    expect(news.map((n) => n.id)).toEqual(['d0-affaire-rouverte', 'd0-hessel-un-an']);
+    expect(news[0].at).toBe(p(s).solvedAt);
+    expect(news[0].read).toBe(false);
+    expect(run(s, { type: 'news/read', articleId: 'd0-affaire-rouverte' }).readNews).toEqual(['d0-affaire-rouverte']);
+  });
+
+  it('Le Fil : seul l’article sur Victor au début', () => {
+    expect(availableNews(s0, cases).map((n) => n.id)).toEqual(['d0-hessel-un-an']);
   });
 
   it('quitter pendant l’épreuve : fin sombre', () => {
@@ -124,5 +135,7 @@ describe('dossier 0', () => {
     expect(p(s).grantedMedia).toContain('bureau-porte');
     expect(got(s, 'i-parti')).toBe(true);
     expect(p(s).status).toBe('solved');
+    // Pas de réouverture dans la presse : l'affaire n'a pas été réussie.
+    expect(availableNews(s, cases).map((n) => n.id)).toEqual(['d0-hessel-un-an']);
   });
 });

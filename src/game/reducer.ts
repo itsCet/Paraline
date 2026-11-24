@@ -30,6 +30,7 @@ export type Action =
   | { type: 'tutorial/file' }
   | { type: 'tutorial/complete' }
   | { type: 'mail/read'; mailId: Id }
+  | { type: 'news/read'; articleId: Id }
   | { type: 'case/accept'; caseId: Id }
   | { type: 'case/postpone'; caseId: Id }
   | { type: 'media/view'; caseId: Id; mediaId: Id }
@@ -137,6 +138,9 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
 
     case 'mail/read':
       return state.readMails.includes(action.mailId) ? state : { ...state, readMails: [...state.readMails, action.mailId] };
+
+    case 'news/read':
+      return state.readNews?.includes(action.articleId) ? state : { ...state, readNews: [...(state.readNews ?? []), action.articleId] };
 
     case 'app/return': {
       const away = { at: action.leftAt, ms: action.awayMs, count: (state.away?.count ?? 0) + 1 };

@@ -404,7 +404,7 @@ export const dossierZero: CaseDefinition = {
       ],
       button: 'Je pose le téléphone',
     },
-    scareImage: `${DIR}/jumpscare.jpg`,
+    scareImage: `${DIR}/jumpscare-v2.jpg`,
     scareSound: `${DIR}/jumpscare.mp3`,
     ambience: `${DIR}/coeur.mp3`,
     steps: `${DIR}/pas.mp3`,
@@ -513,7 +513,16 @@ export const dossierZero: CaseDefinition = {
         ...say(['a-fin', 16000]),
       ],
     },
-    { id: 'fin-tenu', when: recu('a-fin'), effects: [{ type: 'log', text: 'Le témoignage de Clara a été entendu.' }, { type: 'solveCase' }] },
+    {
+      id: 'fin-tenu',
+      when: recu('a-fin'),
+      effects: [
+        { type: 'log', text: 'Le témoignage de Clara a été entendu.' },
+        { type: 'solveCase' },
+        // L'article « Affaire Morand : l'enquête rouverte » paraît dans Le Fil (src/content/news.ts).
+        { type: 'notify', title: 'Le Fil · La Gazette de Saint-Aubin', body: 'Incendie de 1998 : l’enquête est rouverte', app: 'news' },
+      ],
+    },
 
     /* Fin sombre : le joueur est parti pendant l'épreuve. */
     {

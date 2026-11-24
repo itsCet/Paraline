@@ -187,6 +187,15 @@ export function AppGlyph({ app }: { app: AppId }) {
           <path d="M30 45l-5-15h10z" fill="#fff" />
         </Tile>
       );
+    case 'news':
+      return (
+        <Tile from="#f4f1ea" to="#d9d4c7">
+          <rect x="13" y="15" width="34" height="30" rx="3" fill="none" stroke="#1d1e24" strokeWidth="2.6" />
+          <path d="M18 22h24" stroke="#b3261e" strokeWidth="3.4" strokeLinecap="round" />
+          <rect x="18" y="28" width="10" height="11" rx="1" fill="#1d1e24" />
+          <path d="M32 29h10M32 34h10M32 39h7" stroke="#1d1e24" strokeWidth="2.2" strokeLinecap="round" />
+        </Tile>
+      );
     case 'radio':
       return (
         <Tile from="#8a5a2b" to="#4a2e14">
@@ -230,4 +239,5 @@ export const APP_LABELS: Record<AppId, string> = {
   locate: 'Localiser',
   radio: 'Radio',
   compass: 'Boussole',
+  news: 'Le Fil',
 };

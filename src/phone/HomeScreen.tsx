@@ -1,6 +1,7 @@
 import { useGame } from '../game/store';
 import { useNav } from './nav';
 import { inbox, pendingReplyThreads, unreadMessages } from '../game/selectors';
+import { unreadNews } from '../content/news';
 import { albumItems } from '../apps/VoiceApp';
 import { APP_LABELS, AppGlyph, Icon, LogoMark } from '../components/icons';
 import type { PhoneTime } from '../game/clock';
@@ -16,6 +17,7 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
   const badges: Partial<Record<AppId, number>> = {
     mail: unreadMail.length,
     messages: unreadMessages(state) + pendingReplyThreads(state, cases),
+    news: unreadNews(state, cases),
     phone: albumItems(state, cases, 'Messagerie').filter((i) => !i.viewed).length,
   };
   const t = state.tutorial;
@@ -74,7 +76,7 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
       </button>
 
       <nav className="grid" aria-label="Applications">
-        {(['mail', 'messages', 'photos', 'files', 'notes', 'settings'] as AppId[]).map((id) => icon(id))}
+        {(['mail', 'messages', 'news', 'photos', 'files', 'notes', 'settings'] as AppId[]).map((id) => icon(id))}
         {state.overrides.extraApp?.value === 'dictaphone' && icon('voice')}
         {state.overrides.extraApp?.value === 'telephone' && icon('phone')}
         {state.overrides.extraApp?.value === 'localiser' && icon('locate')}

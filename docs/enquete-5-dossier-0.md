@@ -36,7 +36,7 @@ Dossier sans mail client (mail de la coordination) · notes « anciennes » dat�
 6. `bureau-matin.jpg` — fin complète : même cadrage que le n° 4, au matin, lampe éteinte, chaise vide.
 7. `victor.jpg` — portrait de Victor (avis de disparition).
 8. `clara-1998.jpg` — photo de classe de Clara, 1998.
-9. `jumpscare.jpg` — le visage.
+9. `jumpscare-v2.jpg` — le visage.
 
 ## Audios (générés par Claude via ElevenLabs)
 Témoignage de Clara (voix de jeune fille, chuchoté par moments) · chuchotement spatialisé · cri du jumpscare · pas qui approchent · nappe de silence (souffle de pièce) · message vocal de Victor (dernier enregistrement).

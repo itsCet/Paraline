@@ -20,14 +20,19 @@ Fiche de reprise : tout ce qu'il faut savoir pour continuer le travail.
 | `photo-changee` | La photo a changé | code | — |
 | `chambre-condamnee` | La chambre condamnée | code | — |
 
-« Dossier 0 » : Agnès envoie **la visite à 360° de la maison** (plus de photo à plat). Dictaphone sur la table de nuit, clé côté couloir, tableaux décrits ; quand la chambre change, Clara apparaît dans l'embrasure (`visite-chambre-elle.jpg`). « Ne bouge plus » : 30 s, écran « Laisse-la partir », toucher OU bouger le téléphone = sursaut, « Touche l'écran, et tu le regretteras. », écran maintenu allumé (Wake Lock).
+« Dossier 0 » : Agnès envoie **la visite à 360° de la maison** (plus de photo à plat). Dictaphone sur la table de nuit, clé côté couloir, tableaux décrits ; quand la chambre change, Clara apparaît dans l'embrasure (`visite-chambre-elle.jpg`). « Ne bouge plus » : 30 s, écran « Laisse-la partir », toucher OU bouger le téléphone = sursaut, « Touche l'écran, et tu le regretteras. » (visage : `jumpscare-v2.jpg`), écran maintenu allumé (Wake Lock).
+
+## Le Fil (app d'actualités, toujours sur l'accueil)
+Articles dans `src/content/news.ts` : date fixe (`date`) ou parution quand une enquête est résolue avec une condition (`caseId` + `when`, daté de la résolution). `open: true` ajoute « Ouvrir le dossier » (premier mail de l'enquête). Pastille = articles non lus (`readNews` dans la sauvegarde). Quitter l'app ramène à la une.
+Pour l'instant : « Un an après, l'enquêteur Victor Hessel reste introuvable » (teaser de Dossier 0, visible dès le début) et « Incendie de 1998 : l'affaire Morand est rouverte » (seulement après la fin « Entendue », annoncé par une notification). Fin sombre : pas d'article.
+Règle : villes et personnes fictives uniquement.
 
 ## Mécaniques du moteur (voir `docs/mecaniques-capteurs.md`)
 Batterie en temps réel (`battery`), radio FM (`radio.stations`, app Radio), spectre audio (`spectrogram`), lampe torche (`flashlight`), photo à 360° avec passages (`panorama.exits`), boussole (`compass`, app Boussole), condition `manualHour`, `flagAtMost`, effet `addFlag`, verrou par code (`locked`).
 
 ## Règles de travail
 - **Remplacer une image = nouveau nom de fichier** (cache hors ligne du téléphone).
-- Toujours : `npx vitest run` (91 tests) + parcours e2e `tests/e2e/*.mjs` (smoke, dossier0, douze, fm, cinquieme, photo, chambre, elle, labo ; fixture sur build `build:fixture` port 4174) avant de pousser.
+- Toujours : `npx vitest run` (92 tests) + parcours e2e `tests/e2e/*.mjs` (smoke, dossier0, douze, fm, cinquieme, photo, chambre, elle, labo ; fixture sur build `build:fixture` port 4174) avant de pousser.
 - Bible de l'univers : `docs/univers.md` (règles du surnaturel, Coordination, ton, Saison 1, check-list d'écriture).
 - Design : `docs/DESIGN.md`.
 
