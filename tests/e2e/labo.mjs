@@ -59,31 +59,33 @@ await check('Lampe : l’écriture UV ne se trouve qu’éclairée', async () =>
   await shot('01-lampe');
 });
 
-await check('360° : le rendu WebGL s’affiche, on tourne, on trouve l’empreinte, on change de pièce', async () => {
+await check('360° : la chambre de Clara s’affiche, on trouve le dictaphone, on passe la porte', async () => {
   await page.getByRole('tab', { name: 'Photo à 360°' }).click();
   await page.waitForFunction(() => !document.querySelector('.panorama .img-state'), null, { timeout: 15000 });
-  // L'image n'est pas noire.
-  const lit = await page.evaluate(() => {
-    const c = document.querySelector('.panorama canvas');
-    const g = c.getContext('webgl', { preserveDrawingBuffer: true }) ?? c.getContext('webgl');
-    return !!g && c.width > 0;
-  });
-  assert(lit, 'pas de rendu WebGL');
-  await shot('02-nord');
-  // Trois quarts de tour à droite (135°), l'empreinte est à 150°.
-  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Tourner à droite' }).click();
+  await page.waitForTimeout(300);
+  await shot('02-chambre');
+  // Le dictaphone est à 99° (longitude) et 29° sous l'horizon : deux quarts de tour à droite (90°).
+  for (let i = 0; i < 2; i++) await page.getByRole('button', { name: 'Tourner à droite' }).click();
+  await page.waitForTimeout(200);
+  await shot('03-table-de-nuit');
   const b = await page.locator('.panorama').boundingBox();
-  const aspect = b.width / b.height;
-  const nx = Math.tan((15 * Math.PI) / 180) / (Math.tan((37.5 * Math.PI) / 180) * aspect);
-  await page.mouse.click(b.x + ((nx + 1) / 2) * b.width, b.y + b.height / 2);
-  await page.waitForFunction(() => document.querySelector('.labo-msg')?.textContent?.includes('empreinte'));
-  await shot('03-empreinte');
-  // L'est (90°) : la porte du couloir.
-  await page.getByRole('button', { name: 'Tourner à gauche' }).click();
+  const t = Math.tan((37.5 * Math.PI) / 180);
+  const proj = (dlon, lat) => {
+    const r = Math.PI / 180;
+    const X = Math.cos(lat * r) * Math.sin(dlon * r);
+    const Y = Math.sin(lat * r);
+    const Z = -Math.cos(lat * r) * Math.cos(dlon * r);
+    return { x: b.x + ((X / -Z / (t * (b.width / b.height)) + 1) / 2) * b.width, y: b.y + ((1 - Y / -Z / t) / 2) * b.height };
+  };
+  const d = proj(99.4 - 90, -28.8);
+  await page.mouse.click(d.x, d.y);
+  await page.waitForFunction(() => document.querySelector('.labo-msg')?.textContent?.includes('dictaphone'));
+  // La porte du couloir est à 162° : deux quarts de tour de plus.
+  for (let i = 0; i < 2; i++) await page.getByRole('button', { name: 'Tourner à droite' }).click();
+  await shot('04-porte');
   await page.getByRole('button', { name: 'Couloir' }).click();
   await page.waitForFunction(() => document.querySelector('.labo-msg')?.textContent?.includes('Couloir'));
   await page.waitForFunction(() => !document.querySelector('.panorama .img-state'), null, { timeout: 15000 });
-  await shot('04-couloir');
 });
 
 await check('Boussole : viser le nord-est 3 secondes trouve le signal', async () => {

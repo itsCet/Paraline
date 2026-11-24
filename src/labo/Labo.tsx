@@ -11,15 +11,26 @@ import type { Hotspot } from '../game/types';
 type Tab = 'lampe' | '360' | 'boussole';
 
 const LAMPE_ZONES: Hotspot[] = [{ id: 'uv', x: 0.1, y: 0.58, w: 0.42, h: 0.16, observationId: 'uv' }];
-const PANOS: Record<string, { src: string; zones: Hotspot[]; exit: { x: number; y: number; to: string; label: string } }> = {
+const PANOS: Record<string, { src: string; zones: Hotspot[]; found: Record<string, string>; exit: { x: number; y: number; to: string; label: string } }> = {
   chambre: {
-    src: '/media/labo/chambre.jpg',
-    zones: [{ id: 'main1', x: 0.9, y: 0.45, w: 0.034, h: 0.105, observationId: 'main-chambre' }],
-    exit: { x: 0.75, y: 0.53, to: 'couloir', label: 'Couloir' },
+    // Image de l'auteur : la chambre de Clara (Skybox AI).
+    src: '/media/labo/chambre-clara.jpg',
+    zones: [
+      { id: 'dicta', x: 0.752, y: 0.64, w: 0.048, h: 0.04, observationId: 'dictaphone' },
+      { id: 'poste', x: 0.405, y: 0.55, w: 0.04, h: 0.04, observationId: 'poste' },
+      { id: 'ours', x: 0.09, y: 0.29, w: 0.04, h: 0.06, observationId: 'ours' },
+    ],
+    found: {
+      dictaphone: 'Trouvé : un mini-dictaphone, sur la table de nuit.',
+      poste: 'Trouvé : un poste-cassette, sur le bureau.',
+      ours: 'Trouvé : un ours en peluche, en haut de l’armoire.',
+    },
+    exit: { x: 0.95, y: 0.55, to: 'couloir', label: 'Couloir' },
   },
   couloir: {
     src: '/media/labo/couloir.jpg',
     zones: [{ id: 'main2', x: 0.066, y: 0.45, w: 0.034, h: 0.105, observationId: 'main-couloir' }],
+    found: { 'main-couloir': 'Trouvé : une empreinte de main, sur le mur.' },
     exit: { x: 0.25, y: 0.53, to: 'chambre', label: 'Chambre' },
   },
 };
@@ -54,7 +65,7 @@ export function Labo() {
         </div>
         <p className="labo-help">
           {tab === 'lampe' && 'Glissez le doigt (ou inclinez le téléphone) pour éclairer. Une écriture n’apparaît que dans le faisceau : touchez-la.'}
-          {tab === '360' && 'Glissez pour regarder autour de vous, pincez pour zoomer, ou « Regarder avec le téléphone ». Trouvez l’empreinte de main, puis passez dans l’autre pièce.'}
+          {tab === '360' && 'Glissez pour regarder autour de vous, pincez pour zoomer, ou « Regarder avec le téléphone ». Dans la chambre de Clara, trouvez le dictaphone, le poste-cassette et l’ours, puis passez la porte.'}
           {tab === 'boussole' && 'Activez la boussole et tournez-vous lentement : un signal vient du nord-est (45°). Tenez la direction 3 secondes.'}
         </p>
         <p className="labo-msg" role="status">{msg}</p>
@@ -79,7 +90,7 @@ export function Labo() {
             alt={`Pièce de test : ${room}.`}
             hotspots={p.zones}
             found={found}
-            onHotspot={(h) => add(h.observationId, 'Trouvé : une empreinte de main, sur le mur.')}
+            onHotspot={(h) => add(h.observationId, p.found[h.observationId] ?? 'Trouvé.')}
             exits={[{ ...p.exit, onGo: () => (setRoom(p.exit.to), setMsg(`Vous êtes dans : ${p.exit.label}`)) }]}
           />
         )}
