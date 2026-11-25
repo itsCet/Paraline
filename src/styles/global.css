@@ -1229,26 +1229,6 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .bubble-file-meta { font-size: 12px; }
 .bubble.media .bubble-time { float: none; margin: 0 0 0 6px; align-self: flex-end; }
 
-/* Accueil : widget résumé (date encadrée, météo, phrase du jour) */
-.summary { margin-top: 18px; text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45); }
-.summary-frame { position: relative; padding: 10px 14px 12px 18px; border-left: 2px solid var(--amber); }
-.summary-frame::before, .summary-frame::after { content: ''; position: absolute; left: -2px; width: 34px; height: 2px; background: var(--amber); }
-.summary-frame::before { top: 0; }
-.summary-frame::after { bottom: 0; }
-.summary-top { display: flex; justify-content: space-between; align-items: center; }
-.summary-day { font-size: 16px; font-weight: 700; }
-.summary-weather { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 600; }
-.summary-date { line-height: 1; margin-top: 4px; }
-.summary-num { font-size: 44px; font-weight: 800; color: var(--amber); letter-spacing: -0.03em; }
-.summary-month { font-size: 44px; font-weight: 800; letter-spacing: -0.035em; }
-.summary-text { margin: 8px 0 0; max-width: 290px; font-size: 13.5px; line-height: 1.45; color: rgba(255, 255, 255, 0.86); }
-.summary-time { position: absolute; right: 2px; bottom: 0; font-size: 13px; font-weight: 700; color: var(--amber); font-variant-numeric: tabular-nums; }
-@media (max-height: 700px) {
-  .summary { margin-top: 6px; }
-  .summary-num, .summary-month { font-size: 32px; }
-  .summary-text { display: none; }
-}
-
 /* Écran verrouillé */
 .lock-layer { position: absolute; inset: 0; z-index: 105; background-size: cover; background-position: center; }
 .lock {
