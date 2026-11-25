@@ -6,8 +6,8 @@
  * qui a tué sa mère), puis l'avait supprimé contre de l'argent. Clara est restée dans le téléphone.
  *
  * Mécaniques : anciennes notes datées · le jeu remarque quand le joueur le quitte (photo « prise
- * par ce téléphone » à l'heure réelle de son absence, note « Tu es parti 3 min 12 s ») · Localiser
- * (un point qui se rapproche) · la lumière baisse · « Récemment supprimés » si la date est réglée
+ * par ce téléphone » à l'heure réelle de son absence, note « Tu es parti 3 min 12 s ») · « Je viens » :
+ * son reflet apparaît dans cette photo · la lumière baisse · « Récemment supprimés » si la date est réglée
  * dans les 30 jours suivant le 16/11/2024 · épreuve « Ne bouge plus » avec sursaut · deux fins.
  */
 import type { CaseDefinition, Condition, Effect } from '../../../game/types';
@@ -16,7 +16,6 @@ const DIR = '/media/cases/dossier-0';
 const IMG = { width: 1086, height: 1448 };
 const recu = (id: string): Condition => ({ messageDelivered: id });
 const hante: Condition = { flag: 'hante' };
-const localise: Condition = { flag: 'localiser' };
 const say = (...items: [string, number][]): Effect[] => items.map(([messageId, delayMs]) => ({ type: 'deliverMessage', messageId, delayMs }));
 /** Messages de « l'inconnu » : ni le mode avion ni rien ne les arrête. */
 const elle = (messageId: string, delayMs: number, background = false): Effect => ({ type: 'deliverMessage', messageId, delayMs, ignoreAirplane: true, background });
@@ -147,6 +146,17 @@ export const dossierZero: CaseDefinition = {
           src: `${DIR}/bureau-derriere.jpg`,
           ...IMG,
           alt: 'La nuit, votre bureau photographié depuis l’embrasure de la porte : lampe allumée, chaise tirée, comme si quelqu’un venait de se lever.',
+          info: [
+            { label: 'Date', value: 'Aujourd’hui · {flag:photo:heure}', observationId: 'photo-absence' },
+            { label: 'Appareil', value: 'Ce téléphone' },
+            { label: 'Lieu', value: 'Chez vous' },
+          ],
+        },
+        // Après « Je viens » : son reflet dans la vitre noire, derrière l'objectif.
+        elle: {
+          src: `${DIR}/bureau-derriere-elle.jpg`,
+          ...IMG,
+          alt: 'La nuit, votre bureau photographié depuis l’embrasure de la porte. Dans la vitre noire, à gauche, le reflet pâle d’une jeune fille aux longs cheveux, juste derrière l’objectif.',
           info: [
             { label: 'Date', value: 'Aujourd’hui · {flag:photo:heure}', observationId: 'photo-absence' },
             { label: 'Appareil', value: 'Ce téléphone' },
@@ -465,20 +475,16 @@ export const dossierZero: CaseDefinition = {
       ],
     },
 
-    /* Elle se rapproche. */
+    /* Elle vient : « Je viens », puis la photo prise chez vous change, son reflet est dans la vitre. */
+    { id: 'je-viens', when: { mediaViewed: 'bureau-derriere' }, effects: [elle('i-viens', 6000), dim(0.2)] },
     {
-      id: 'localiser',
-      when: { mediaViewed: 'bureau-derriere' },
+      id: 'reflet',
+      when: recu('i-viens'),
       effects: [
-        { type: 'setFlag', name: 'localiser', value: true },
-        { type: 'setFlag', name: 'distance', value: 4 },
-        { type: 'phoneOverride', key: 'extraApp', value: 'localiser' },
-        { type: 'notify', title: 'Localiser', body: 'Un contact partage sa position avec vous', app: 'locate' },
-        elle('i-viens', 6000),
-        dim(0.2),
+        { type: 'setMediaVariant', mediaId: 'bureau-derriere', variantId: 'elle' },
+        { type: 'notify', title: 'Photos', body: 'IMG_0001.jpg · modifiée à l’instant', app: 'photos' },
       ],
     },
-    { id: 'distance-3', when: { all: [localise, { any: [{ noteWritten: 'v4' }, { mediaViewed: 'victor-vocal' }] }] }, effects: [{ type: 'setFlag', name: 'distance', value: 3 }] },
 
     /* « Récemment supprimés » : l'élément existe encore dans les trente jours qui suivent la suppression. */
     {
@@ -487,12 +493,11 @@ export const dossierZero: CaseDefinition = {
       effects: [
         { type: 'grantMedia', mediaId: 'temoignage' },
         elle('i-trouvee', 4000),
-        { type: 'setFlag', name: 'distance', value: 2 },
         dim(0.3),
         { type: 'log', text: 'temoignage_clara.m4a est réapparu dans « Récemment supprimés ».' },
       ],
     },
-    { id: 'ecoutee', when: { observationFound: 'entendue' }, effects: [{ type: 'setFlag', name: 'distance', value: 1 }, dim(0.4)] },
+    { id: 'ecoutee', when: { observationFound: 'entendue' }, effects: [dim(0.4)] },
 
     /* Ne bouge plus. */
     // Elle explique pourquoi : elle peut partir, mais seulement si personne ne la retient.
@@ -504,7 +509,6 @@ export const dossierZero: CaseDefinition = {
       id: 'tenu',
       when: { flag: 'immobile', equals: 'held' },
       effects: [
-        { type: 'setFlag', name: 'distance', value: 0 },
         { type: 'clearPhoneOverride', key: 'dim' },
         { type: 'removeNote', noteId: 'absent' },
         { type: 'writeNote', noteId: 'fin', delayMs: 2500 },

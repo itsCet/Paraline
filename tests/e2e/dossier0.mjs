@@ -215,11 +215,19 @@ await check('Quitter le jeu : elle le remarque (note + photo prise par ce télé
   await closeViewer();
 });
 
-await check('Localiser : un contact inconnu se rapproche', async () => {
+await check('« Je viens » : son reflet apparaît dans la photo prise chez vous', async () => {
+  await thread('Inconnu');
+  await bubble('Je viens.').waitFor({ timeout: 20000 });
+  await page.waitForTimeout(1500);
+  const s = await save();
+  assert(s.cases['dossier-0'].mediaVariants['bureau-derriere'] === 'elle', 'photo non modifiée');
+  assert(!(await page.getByRole('button', { name: /^Localiser(,|$)/ }).count()), 'Localiser encore présent');
   await home();
-  await page.getByRole('button', { name: /^Localiser(,|$)/ }).click({ timeout: 15000 });
-  await page.getByText('Contact inconnu').waitFor();
-  await shot('03-localiser');
+  await openApp('Photos');
+  await openMedia('IMG_0001.jpg');
+  await viewer().locator('img[src*="bureau-derriere-elle"]').first().waitFor();
+  await shot('03-reflet');
+  await closeViewer();
 });
 
 await check('Récemment supprimés : la date dans les 30 jours fait réapparaître le témoignage', async () => {

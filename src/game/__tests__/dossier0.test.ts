@@ -83,11 +83,12 @@ describe('dossier 0', () => {
     expect(p(s).grantedMedia).toContain('bureau-derriere');
   });
 
-  it('Localiser apparaît avec la photo ; Récemment supprimés seulement dans les 30 jours', () => {
+  it('« Je viens » puis son reflet dans la photo ; Récemment supprimés seulement dans les 30 jours', () => {
     let s = flush(jusquALaBascule(s0), 30);
     s = view(s, 'bureau-derriere');
-    expect(s.overrides.extraApp?.value).toBe('localiser');
-    expect(p(s).flags.distance).toBe(4);
+    expect(got(s, 'i-viens')).toBe(true);
+    expect(p(s).mediaVariants['bureau-derriere']).toBe('elle');
+    expect(s.overrides.extraApp).toBeUndefined();
     s = set(s, { clockAuto: false, manualDate: '2024-12-16' });
     expect(p(s).grantedMedia).not.toContain('temoignage');
     s = set(s, { manualDate: '2024-11-20' });
