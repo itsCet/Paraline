@@ -1,6 +1,6 @@
 /** « Dossier 0 » : notes de Victor, absence du joueur, Récemment supprimés, épreuve « ne bouge plus ». */
 import { beforeEach, describe, expect, it } from 'vitest';
-import { availableReplies, currentObstacle, evaluate, indexCases } from '../engine';
+import { availableReplies, currentObstacle, evaluate, indexCases, resolution } from '../engine';
 import { createReducer, type Action } from '../reducer';
 import { withRapport } from './rapport-auto';
 import { initialState } from '../save';
@@ -128,6 +128,10 @@ describe('dossier 0', () => {
     expect(s.overrides).toEqual({});
     expect(availableNews(s, cases).map((n) => n.id)).toEqual(['d0-hessel-un-an']);
     expect(currentObstacle(def, s)?.id).toBe('rapport');
+    // Jauge : 0 % au début, toutes les étapes franchies sauf le rapport (7 sur 8).
+    expect(resolution(def, s0)).toBe(0);
+    expect(resolution(def, send(s0, 'r-pas-victor'))).toBeCloseTo(1 / 8);
+    expect(resolution(def, s)).toBeCloseTo(7 / 8);
     // Un choix n'apparaît que s'il a été découvert : le cadre d'enfance n'a pas été touché.
     const support = def.report!.blanks.support.options.filter((o) => !o.requires || evaluate(o.requires, s, ID)).map((o) => o.text);
     expect(support).toContain('un mini-dictaphone');
@@ -142,6 +146,7 @@ describe('dossier 0', () => {
     s = brut(s, { type: 'report/submit', caseId: ID, answers: juste });
     expect(p(s).status).toBe('solved');
     expect(p(s).flags.rapport).toBe('ok');
+    expect(resolution(def, s)).toBe(1);
     expect(availableNews(s, cases).map((n) => n.id)).toContain('d0-affaire-rouverte');
     expect(s.activeCaseId).toBeNull();
   });

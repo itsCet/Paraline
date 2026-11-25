@@ -487,6 +487,22 @@ export function reportScore(def: CaseDefinition, state: GameState, answers: Reco
   return { total: ids.length, right: ids.filter((id) => answers[id] === def.report!.blanks[id].answer).length };
 }
 
+/** Avancement de l'affaire (0 → 1) : étapes franchies (les obstacles, ceux qui servent aux indices),
+ *  le rapport comptant comme la dernière. Une affaire résolue est à 100 %. */
+export function resolution(def: CaseDefinition, state: GameState): number {
+  const p = state.cases[def.id];
+  if (!p || p.status === 'new' || p.status === 'postponed') return 0;
+  if (p.status === 'solved') return 1;
+  const obstacles = def.obstacles ?? [];
+  const total = obstacles.length + (def.report ? 1 : 0);
+  if (!total) return 0;
+  // L'histoire est finie et seul le rapport manque : les étapes facultatives sautées comptent comme franchies.
+  if (p.flags.rapport === 'pret') return (total - 1) / total;
+  const done = obstacles.filter((o) => evaluate(o.solved, state, def.id)).length;
+  // Une affaire en cours n'affiche jamais 100 %.
+  return Math.min(done, total - 1) / total;
+}
+
 export function currentObstacle(def: CaseDefinition, state: GameState) {
   const p = state.cases[def.id];
   if (!p || p.status !== 'active') return undefined;

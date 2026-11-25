@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { HintList } from '../components/Hints';
 import { useGame } from '../game/store';
 import { useIntent, useNav } from '../phone/nav';
-import { currentObstacle, evaluate } from '../game/engine';
+import { currentObstacle, evaluate, resolution } from '../game/engine';
 import { caseStatusLabel, character, resolveMedia, thumbOf } from '../game/selectors';
 import { TUTORIAL_END, TUTORIAL_FOLDER_TITLE, TUTORIAL_MEDIA, TUTORIAL_OBSERVATION } from '../content/tutorial';
 import { Empty, KindIcon, NavBar, formatDate } from '../components/ui';
@@ -47,6 +47,7 @@ export function FilesApp() {
               </span>
               <div className="row-sub">{character(d, d.client).name}</div>
               {p.status === 'active' && step && <div style={{ fontSize: 15 }}>{step.objective}</div>}
+              <Gauge value={resolution(d, state)} compact />
             </button>
           );
         })}
@@ -146,6 +147,7 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
             <div className="row-sub">Client</div>
             <div style={{ fontWeight: 600, fontSize: 18 }}>{client.name}</div>
             {def.about && <div className="row-sub" style={{ marginTop: 6 }}>{def.about.duration} · {def.about.tone}</div>}
+            <Gauge value={resolution(def, state)} />
           </div>
         </div>
 
@@ -289,5 +291,19 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
         </div>
       </div>
     </>
+  );
+}
+
+/** Jauge d'avancement de l'affaire. */
+export function Gauge({ value, compact }: { value: number; compact?: boolean }) {
+  const pct = Math.round(value * 100);
+  return (
+    <div className={`gauge${compact ? ' compact' : ''}${pct === 100 ? ' done' : ''}`} role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label={`Résolution : ${pct} %`}>
+      {!compact && <span className="gauge-label">Résolution</span>}
+      <span className="gauge-track">
+        <span className="gauge-fill" style={{ width: `${pct}%` }} />
+      </span>
+      <span className="gauge-pct">{pct} %</span>
+    </div>
   );
 }
