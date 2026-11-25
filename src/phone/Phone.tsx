@@ -19,6 +19,7 @@ import { RadioApp } from '../apps/RadioApp';
 import { CompassApp } from '../apps/CompassApp';
 import { NewsApp } from '../apps/NewsApp';
 import { Stillness } from './Stillness';
+import { LockScreen } from './LockScreen';
 import { HintBulb } from '../components/Hints';
 import { unlockAudio } from '../game/sound';
 import { WALLPAPER } from '../content/assets';
@@ -45,6 +46,9 @@ export function Phone() {
   const s = state.settings;
   const time = usePhoneTime(s);
   const onHome = nav.app === null && !nav.viewer;
+  // Écran verrouillé : à l'ouverture et au retour après 30 s d'absence. Les tests automatisés le passent (sauf `?verrou`).
+  const lockable = () => !navigator.webdriver || new URLSearchParams(location.search).has('verrou');
+  const [locked, setLocked] = useState(() => state.introDone && lockable());
 
   // Le jeu remarque quand le joueur le quitte (onglet caché, écran verrouillé) et combien de temps.
   const { dispatch } = useGame();
@@ -56,11 +60,12 @@ export function Phone() {
         const at = leftAt.current;
         leftAt.current = null;
         if (state.introDone) dispatch({ type: 'app/return', leftAt: at, awayMs: Date.now() - at });
+        if (state.introDone && Date.now() - at >= 30_000 && !state.overrides.stillness && lockable()) setLocked(true);
       }
     };
     document.addEventListener('visibilitychange', onVis);
     return () => document.removeEventListener('visibilitychange', onVis);
-  }, [dispatch, state.introDone]);
+  }, [dispatch, state.introDone, state.overrides.stillness]);
 
   // Échap : ferme la visionneuse.
   useEffect(() => {
@@ -104,6 +109,11 @@ export function Phone() {
         <MediaViewer />
       </main>
       <HomeBar onHome={onHome} />
+      {locked && state.introDone && (
+        <div className="lock-layer" style={{ backgroundImage: `url(${state.overrides.wallpaper?.value ?? WALLPAPER})` }}>
+          <LockScreen time={time} onUnlock={() => setLocked(false)} />
+        </div>
+      )}
       {/* Assombrissement voulu par une enquête (la lumière baisse). */}
       {state.overrides.dim && <div className="phone-dim" aria-hidden="true" style={{ opacity: Math.min(0.7, Number(state.overrides.dim.value) || 0) }} />}
       <Stillness />

@@ -55,6 +55,7 @@ export const douzePourcent: CaseDefinition = {
   title: '12 %',
   client: 'coord',
   locked: true,
+  weather: { city: 'Vernay-les-Eaux', temp: 4, sky: 'pluie' },
   about: { duration: '~15 min', tone: 'Thriller · en temps réel' },
   characters: [
     { id: 'coord', name: 'Coordination Paraline', initials: 'P', color: '#6b4f22', role: 'Réseau Paraline' },
@@ -253,9 +254,9 @@ export const douzePourcent: CaseDefinition = {
     { id: 'c-3', threadId: 't-camille', from: 'camille', text: 'J’y vais.' },
     { id: 'c-4', threadId: 't-camille', from: 'camille', text: 'Camille n’a plus écrit.', system: true },
     { id: 'c-e0', threadId: 't-camille', from: 'camille', text: 'Le lendemain, 08:12', system: true },
-    { id: 'c-e1', threadId: 't-camille', from: 'camille', text: 'Bonjour. C’est Camille, la sœur de Léa. Elle m’a donné votre numéro.' },
-    { id: 'c-e2', threadId: 't-camille', from: 'camille', text: 'Elle va bien. Elle voulait que vous sachiez.' },
-    { id: 'c-e3', threadId: 't-camille', from: 'camille', attachments: ['hopital'], notify: false },
+    { id: 'c-e1', threadId: 't-camille', from: 'camille', text: 'Bonjour. C’est Camille, la sœur de Léa. Elle m’a donné votre numéro.', time: '08:12' },
+    { id: 'c-e2', threadId: 't-camille', from: 'camille', text: 'Elle va bien. Elle voulait que vous sachiez.', time: '08:13' },
+    { id: 'c-e3', threadId: 't-camille', from: 'camille', attachments: ['hopital'], notify: false, time: '08:13' },
   ],
 
   replies: [

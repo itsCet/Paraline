@@ -37,6 +37,7 @@ export const quatreVingtSept: CaseDefinition = {
   title: '87.6 FM',
   client: 'noemie',
   locked: true,
+  weather: { city: 'Saint-Clair', temp: 3, sky: 'clair' },
   about: { duration: '~20 min', tone: 'Étrange · casque conseillé' },
   characters: [{ id: 'noemie', name: 'Noémie Vasseur', initials: 'NV', color: '#5a6b4a', role: 'Petite-fille d’Henri Vasseur' }],
 
@@ -237,11 +238,11 @@ export const quatreVingtSept: CaseDefinition = {
     { id: 'n-theo1', threadId: 't-noemie', from: 'noemie', text: 'Grand-père ne parle presque plus. Mais je crois que ça, il le dira.' },
     { id: 'n-theo2', threadId: 't-noemie', from: 'noemie', text: 'J’y vais à la première heure. Je lui apporte le radio-réveil.' },
     { id: 'n-lendemain', threadId: 't-noemie', from: 'noemie', text: 'Le lendemain', system: true },
-    { id: 'n-henri1', threadId: 't-noemie', from: 'noemie', text: 'Je lui ai tout raconté. Il a pleuré. Il a serré le poste contre lui.' },
-    { id: 'n-henri2', threadId: 't-noemie', from: 'noemie', text: 'Il dit qu’il sera prêt. À 3 h, sur 87.6. Comme avant.' },
-    { id: 'n-fin1', threadId: 't-noemie', from: 'noemie', text: 'Le radio-réveil s’est éteint. À 3 h 01. Il ne s’est pas rallumé.' },
-    { id: 'n-fin2', threadId: 't-noemie', from: 'noemie', text: 'Grand-père s’est endormi juste après. Il souriait.' },
-    { id: 'n-fin3', threadId: 't-noemie', from: 'noemie', attachments: ['fin'], notify: false },
+    { id: 'n-henri1', threadId: 't-noemie', from: 'noemie', text: 'Je lui ai tout raconté. Il a pleuré. Il a serré le poste contre lui.', time: '19:40' },
+    { id: 'n-henri2', threadId: 't-noemie', from: 'noemie', text: 'Il dit qu’il sera prêt. À 3 h, sur 87.6. Comme avant.', time: '19:41' },
+    { id: 'n-fin1', threadId: 't-noemie', from: 'noemie', text: 'Le radio-réveil s’est éteint. À 3 h 01. Il ne s’est pas rallumé.', time: '03:04' },
+    { id: 'n-fin2', threadId: 't-noemie', from: 'noemie', text: 'Grand-père s’est endormi juste après. Il souriait.', time: '03:06' },
+    { id: 'n-fin3', threadId: 't-noemie', from: 'noemie', attachments: ['fin'], notify: false, time: '03:06' },
   ],
 
   replies: [

@@ -448,6 +448,7 @@ export const photoChangee: CaseDefinition = {
     },
   ],
 
+  weather: { city: 'Saint-Malo', temp: 11, sky: 'nuageux' },
   about: { duration: '~10 min', tone: 'Enquête rationnelle' },
   conclusion: {
     title: 'Affaire résolue',

@@ -264,6 +264,8 @@ export const chambreCondamnee: CaseDefinition = {
       id: 't-gabriel',
       contact: 'gabriel',
       stamp: '18/11/2014, 03:17',
+      frozenTime: '03:17',
+      callText: 'Le numéro n’est plus attribué depuis 2014.',
       presence: {
         online: gabrielOnline,
         offlineLabel: 'Contact indisponible',

@@ -364,10 +364,10 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
 export function resolveEntry(def: Parameters<typeof findMessage>[0], messageId: Id) {
   if (messageId.startsWith('reply:')) {
     const r = def.replies.find((x) => `reply:${x.id}` === messageId);
-    return r ? { id: messageId, from: 'player' as const, text: r.text ?? r.label, attachments: [] as Id[], system: false } : undefined;
+    return r ? { id: messageId, from: 'player' as const, text: r.text ?? r.label, attachments: [] as Id[], system: false, time: undefined as string | undefined } : undefined;
   }
   const m = findMessage(def, messageId);
-  return m ? { id: m.id, from: m.from, text: m.text, attachments: m.attachments ?? [], system: !!m.system } : undefined;
+  return m ? { id: m.id, from: m.from, text: m.text, attachments: m.attachments ?? [], system: !!m.system, time: m.time } : undefined;
 }
 
 export { emptyProgress, clearOverridesOf };

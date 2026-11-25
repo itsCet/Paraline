@@ -1182,3 +1182,113 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .large-text .news-article p { font-size: 20px; }
 .news-article .news-lead { font-weight: 700; margin-top: 14px; }
 .news-open { width: 100%; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* Messages : barre des contacts, onglets, heures, accusés de lecture */
+.msg-split { display: flex; height: 100%; min-height: 0; }
+.msg-rail {
+  flex: none;
+  width: 66px;
+  overflow-y: auto;
+  padding: 8px 0 16px calc(4px + var(--safe-left));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border-right: 1px solid var(--sep);
+  background: rgba(0, 0, 0, 0.18);
+}
+.msg-rail-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; width: 58px; padding: 6px 0; border-radius: 14px; }
+.msg-rail-item .avatar { width: 40px; height: 40px; font-size: 16px; transition: box-shadow 150ms; }
+.msg-rail-item.current { background: var(--surface); }
+.msg-rail-item.current .avatar { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--amber); }
+.msg-rail-dot { position: absolute; top: 5px; right: 8px; width: 11px; height: 11px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 2px var(--bg); }
+.msg-rail-name { font-size: 11px; color: var(--text-2); max-width: 56px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msg-rail-item.current .msg-rail-name { color: var(--text); font-weight: 600; }
+.msg-pane { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.msg-pane .navbar-back span { display: none; }
+
+.seg { display: flex; gap: 4px; padding: 3px; border-radius: 12px; background: var(--surface); margin: -6px 0 10px; }
+.seg button { flex: 1; height: 34px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--text-2); }
+.seg button[aria-pressed='true'] { background: var(--surface-3); color: var(--text); }
+
+.navbar-actions { display: inline-flex; gap: 2px; }
+.navbar-actions .icon-btn { min-width: 38px; }
+.presence.on { color: var(--green); display: inline-flex; align-items: center; gap: 5px; }
+.presence.on::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+.bubble-time { float: right; margin: 6px 0 -4px 10px; font-size: 11px; line-height: 1; color: var(--text-3); display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; }
+.bubble.me .bubble-time { color: rgba(29, 20, 7, 0.62); }
+.ticks.read { color: #1d5fd1; }
+.receipt { align-self: flex-end; font-size: 12px; color: var(--text-3); margin: -2px 4px 2px 0; }
+.bubble.media { display: flex; flex-direction: column; gap: 4px; text-align: left; }
+.bubble.media .bubble-file { padding: 4px 6px 4px 6px; color: var(--text-2); }
+.bubble.media.me .bubble-file { color: rgba(29, 20, 7, 0.75); }
+.bubble-file-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.bubble-file-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+.bubble.me .bubble-file-name { color: var(--amber-ink); }
+.bubble-file-meta { font-size: 12px; }
+.bubble.media .bubble-time { float: none; margin: 0 0 0 6px; align-self: flex-end; }
+
+/* Accueil : widget résumé (date encadrée, météo, phrase du jour) */
+.summary { margin-top: 18px; text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45); }
+.summary-frame { position: relative; padding: 10px 14px 12px 18px; border-left: 2px solid var(--amber); }
+.summary-frame::before, .summary-frame::after { content: ''; position: absolute; left: -2px; width: 34px; height: 2px; background: var(--amber); }
+.summary-frame::before { top: 0; }
+.summary-frame::after { bottom: 0; }
+.summary-top { display: flex; justify-content: space-between; align-items: center; }
+.summary-day { font-size: 16px; font-weight: 700; }
+.summary-weather { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 600; }
+.summary-date { line-height: 1; margin-top: 4px; }
+.summary-num { font-size: 44px; font-weight: 800; color: var(--amber); letter-spacing: -0.03em; }
+.summary-month { font-size: 44px; font-weight: 800; letter-spacing: -0.035em; }
+.summary-text { margin: 8px 0 0; max-width: 290px; font-size: 13.5px; line-height: 1.45; color: rgba(255, 255, 255, 0.86); }
+.summary-time { position: absolute; right: 2px; bottom: 0; font-size: 13px; font-weight: 700; color: var(--amber); font-variant-numeric: tabular-nums; }
+@media (max-height: 700px) {
+  .summary { margin-top: 6px; }
+  .summary-num, .summary-month { font-size: 32px; }
+  .summary-text { display: none; }
+}
+
+/* Écran verrouillé */
+.lock-layer { position: absolute; inset: 0; z-index: 105; background-size: cover; background-position: center; }
+.lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: calc(52px + var(--safe-top)) calc(16px + var(--safe-right)) calc(14px + var(--safe-bottom)) calc(16px + var(--safe-left));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.05) 40%, rgba(0, 0, 0, 0.45));
+  animation: lock-in 260ms var(--ease);
+  touch-action: none;
+}
+.lock.leaving { transform: translateY(-100%); opacity: 0; transition: transform 260ms var(--ease), opacity 260ms; }
+@keyframes lock-in { from { opacity: 0; } }
+.lock-clock { text-align: center; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45); }
+.lock-date { font-size: 18px; font-weight: 600; }
+.lock-time { font-size: 86px; font-weight: 700; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.lock-weather { margin-top: 16px; padding: 12px 16px; border-radius: 22px; }
+.lock-weather-head { display: flex; justify-content: space-between; align-items: center; }
+.lock-weather-city { font-weight: 700; font-size: 15px; }
+.lock-weather-sky { font-size: 12.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; }
+.lock-weather-temp { font-size: 34px; font-weight: 300; }
+.lock-hours { display: flex; justify-content: space-between; margin-top: 8px; }
+.lock-hour { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12.5px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.lock-hour svg { color: var(--text); }
+.lock-notices { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; overflow-y: auto; }
+.lock-notice { display: flex; gap: 12px; align-items: center; text-align: left; padding: 11px 14px; border-radius: 20px; width: 100%; flex: none; }
+.lock-notice-icon { width: 36px; height: 36px; border-radius: 9px; overflow: hidden; flex: none; }
+.lock-notice-icon svg { width: 100%; height: 100%; display: block; }
+.lock-notice-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.lock-notice-head { display: flex; justify-content: space-between; gap: 8px; font-size: 14.5px; }
+.lock-notice-head small { color: var(--text-2); font-size: 12.5px; flex: none; }
+.lock-notice-text { font-size: 14px; color: rgba(255, 255, 255, 0.86); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.lock-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 12px; }
+.lock-round { width: 52px; height: 52px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; background: rgba(20, 22, 28, 0.55); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); color: #fff; }
+.lock-round.on { background: #fff; color: #111; }
+.lock-unlock { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 13px; color: rgba(255, 255, 255, 0.8); min-height: 52px; justify-content: center; }
+.torch-light { position: absolute; inset: 0; z-index: 2; background: radial-gradient(circle at 50% 45%, #fffdf6 0%, #fff6dc 60%, #f3e3b8 100%); color: rgba(60, 50, 30, 0.55); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 60px; font-size: 14px; animation: lock-in 120ms; }
+@media (max-height: 700px) {
+  .lock { padding-top: calc(48px + var(--safe-top)); }
+  .lock-time { font-size: 64px; }
+  .lock-weather { margin-top: 10px; padding: 10px 14px; }
+}

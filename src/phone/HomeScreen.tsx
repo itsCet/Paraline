@@ -6,6 +6,8 @@ import { albumItems } from '../apps/VoiceApp';
 import { APP_LABELS, AppGlyph, Icon, LogoMark } from '../components/icons';
 import type { PhoneTime } from '../game/clock';
 import type { AppId } from '../game/types';
+import { currentWeather, isNight, SKY_LABEL } from '../game/weather';
+import { WeatherIcon } from '../components/WeatherIcon';
 
 export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime }) {
   const { state, dispatch, cases } = useGame();
@@ -44,11 +46,7 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
 
   return (
     <div className={`home${state.introDone && t.status === 'pending' ? ' has-offer' : ''}`} hidden={hidden}>
-      <div className="home-clock">
-        <div className="home-time">{time.hhmm}</div>
-        <div className="home-date">{time.dayLabel}</div>
-        {state.overrides.homeMessage && <div className="home-note">{state.overrides.homeMessage.value}</div>}
-      </div>
+      <Summary time={time} unreadMessages={badges.messages ?? 0} news={badges.news ?? 0} note={state.overrides.homeMessage?.value} />
 
       <button
         className="widget glass"
@@ -107,5 +105,39 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
         {icon('files', true)}
       </nav>
     </div>
+  );
+}
+
+/** Widget résumé : date encadrée, météo de la ville de l'enquête, une phrase sur la journée. */
+function Summary({ time, unreadMessages, news, note }: { time: PhoneTime; unreadMessages: number; news: number; note?: string }) {
+  const { state, cases } = useGame();
+  const w = currentWeather(state, cases);
+  const active = state.activeCaseId && state.cases[state.activeCaseId]?.status === 'active' ? cases.byId.get(state.activeCaseId) : undefined;
+  const night = isNight(time.date.getHours());
+  const [day, num, month] = time.dayLabel.split(' ');
+  const parts = [
+    `${SKY_LABEL[w.sky]} sur ${w.city}, ${w.temp}°.`,
+    active ? `Enquête en cours : ${active.title}.` : 'Aucune enquête en cours.',
+    unreadMessages ? `${unreadMessages} message${unreadMessages > 1 ? 's' : ''} en attente.` : '',
+    news ? `${news} article${news > 1 ? 's' : ''} non lu${news > 1 ? 's' : ''} dans Le Fil.` : '',
+  ].filter(Boolean);
+  return (
+    <section className="summary" aria-label="Aujourd’hui">
+      <span className="sr-only">{time.dayLabel}</span>
+      <div className="summary-frame">
+        <div className="summary-top">
+          <span className="summary-day" aria-hidden="true">{day}</span>
+          <span className="summary-weather" aria-label={`${SKY_LABEL[w.sky]}, ${w.temp} degrés à ${w.city}`}>
+            <WeatherIcon sky={w.sky} night={night} size={20} /> {w.temp}°
+          </span>
+        </div>
+        <div className="summary-date" aria-hidden="true">
+          <span className="summary-num">{num}</span> <span className="summary-month">{month}</span>
+        </div>
+        <p className="summary-text">{parts.join(' ')}</p>
+        <div className="summary-time" aria-hidden="true">{time.hhmm}</div>
+      </div>
+      {note && <div className="home-note">{note}</div>}
+    </section>
   );
 }

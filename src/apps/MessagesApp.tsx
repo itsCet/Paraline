@@ -6,7 +6,8 @@ import { resolveEntry } from '../game/reducer';
 import { character, resolveMedia } from '../game/selectors';
 import { Avatar, Empty, KindIcon, NavBar } from '../components/ui';
 import { Icon } from '../components/icons';
-import type { CaseDefinition, Id } from '../game/types';
+import type { CaseDefinition, Id, ThreadEntry } from '../game/types';
+import { manualDate } from '../game/clock';
 
 /** Durée avant livraison pendant laquelle l'indicateur de saisie s'affiche. */
 const TYPING_WINDOW = 3500;
@@ -37,21 +38,65 @@ export function MessagesApp() {
   );
 
   const def = open && cases.byId.get(open.caseId);
+  const [tab, setTab] = useState<'conv' | 'arch'>('conv');
   useEffect(() => {
     nav.setScreen('messages', open ? 'thread' : 'list');
   }, [open, nav]);
-  if (open && def) return <Thread def={def} threadId={open.threadId} onBack={() => setOpen(null)} />;
+  if (open && def) {
+    // Barre des contacts sur le côté : on passe d'une conversation à l'autre sans revenir en arrière.
+    const rail = threads.filter((x) => !archived(x.def, x.t) || (x.def.id === open.caseId && x.t.id === open.threadId));
+    const thread = <Thread key={`${open.caseId}:${open.threadId}`} def={def} threadId={open.threadId} onBack={() => setOpen(null)} />;
+    if (rail.length < 2) return thread;
+    return (
+      <div className="msg-split">
+        <nav className="msg-rail" aria-label="Conversations">
+          {rail.map(({ def: d, t, unread }) => {
+            const who = character(d, t.contact);
+            const current = d.id === open.caseId && t.id === open.threadId;
+            return (
+              <button
+                key={`${d.id}:${t.id}`}
+                className={`msg-rail-item${current ? ' current' : ''}`}
+                aria-current={current ? 'true' : undefined}
+                aria-label={`${who.name}${unread > 0 && !current ? `, ${unread} non lu` : ''}`}
+                onClick={() => setOpen({ caseId: d.id, threadId: t.id })}
+              >
+                <Avatar initials={who.initials} color={who.color} />
+                {unread > 0 && !current && <span className="msg-rail-dot" aria-hidden="true" />}
+                <span className="msg-rail-name" aria-hidden="true">{who.name.split(' ')[0]}</span>
+              </button>
+            );
+          })}
+        </nav>
+        <div className="msg-pane">{thread}</div>
+      </div>
+    );
+  }
+  const nArch = threads.filter((x) => archived(x.def, x.t)).length;
+  const shown = threads.filter((x) => archived(x.def, x.t) === (tab === 'arch'));
 
   return (
     <>
       <NavBar />
       <div className="scroll">
         <h1 className="large-title">Messages</h1>
-        {threads.length === 0 ? (
+        {threads.length > 0 && (
+          <div className="seg" role="group" aria-label="Afficher">
+            <button aria-pressed={tab === 'conv'} onClick={() => setTab('conv')}>
+              Conversations
+            </button>
+            <button aria-pressed={tab === 'arch'} onClick={() => setTab('arch')}>
+              Archivées{nArch ? ` (${nArch})` : ''}
+            </button>
+          </div>
+        )}
+        {threads.length > 0 && shown.length === 0 ? (
+          <Empty>{tab === 'arch' ? 'Aucune conversation archivée.' : 'Toutes vos conversations sont archivées.'}</Empty>
+        ) : threads.length === 0 ? (
           <Empty>Aucune conversation. Acceptez une enquête : vos témoins vous écriront ici.</Empty>
         ) : (
           <ul className="list">
-            {threads.map(({ def: d, t, entries, unread, fresh }) => {
+            {shown.map(({ def: d, t, entries, unread, fresh }) => {
               const who = character(d, t.contact);
               const last = entries[entries.length - 1];
               const msg = last && resolveEntry(d, last.messageId);
@@ -69,6 +114,7 @@ export function MessagesApp() {
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span className="mail-head">
                         <span className="mail-from">{who.name}</span>
+                        {last && <span className="mail-time">{entryTime(d, t, last, msg?.from === 'player', msg?.time, state.settings)}</span>}
                       </span>
                       <div className="mail-preview">
                         {msg
@@ -145,6 +191,25 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
   };
 
   const status = p?.status === 'solved' ? 'Affaire résolue' : 'Enquête en cours';
+  const time = (e: ThreadEntry, mine: boolean, fixed?: string) => entryTime(def, thread, e, mine, fixed, state.settings);
+  // Dernier message du contact : « En ligne » s'il date de moins de 3 minutes.
+  const lastTheirs = [...entries].reverse().find((e) => {
+    const m = resolveEntry(def, e.messageId);
+    return m && !m.system && m.from !== 'player';
+  });
+  const recent = !!lastTheirs && !thread?.frozenTime && Date.now() - lastTheirs.at < 3 * 60_000 && !resolveEntry(def, lastTheirs.messageId)?.time;
+  const online = isOnline && !presenceLabel && (typing || recent);
+  // Accusé de lecture : un message du joueur est « lu » quand le contact a écrit après.
+  const lastTheirsIndex = lastTheirs ? entries.indexOf(lastTheirs) : -1;
+  const lastMineIndex = entries.map((e) => resolveEntry(def, e.messageId)).reduce((acc, m, i) => (m && m.from === 'player' && !m.system ? i : acc), -1);
+  const call = () => {
+    if (!isOnline || isEnded) {
+      nav.showToast(thread?.callText ?? `${who.name} : numéro injoignable.`);
+      return;
+    }
+    nav.showToast(`Appel de ${who.name}…`);
+    window.setTimeout(() => nav.showToast(thread?.callText ?? `${who.name} ne répond pas.`), 1800);
+  };
   // Batterie du contact (enquête en temps réel).
   const bat = def.battery?.threadId === threadId ? p?.flags[def.battery.flag] : undefined;
   const battery = typeof bat === 'number' ? bat : undefined;
@@ -159,14 +224,29 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
             <Avatar initials={who.initials} color={who.color} small />
             <span className="who" style={{ textAlign: 'left' }}>
               <div className="name">{who.name}</div>
-              <div className="sub">{battery !== undefined && !isEnded ? <BatteryLevel level={battery} /> : (presenceLabel ?? who.role ?? status)}</div>
+              <div className="sub">
+                {battery !== undefined && !isEnded ? (
+                  <BatteryLevel level={battery} />
+                ) : typing ? (
+                  <span className="presence on">écrit…</span>
+                ) : online ? (
+                  <span className="presence on">En ligne</span>
+                ) : (
+                  (presenceLabel ?? who.role ?? status)
+                )}
+              </div>
             </span>
           </span>
         }
         right={
-          <button className="icon-btn" aria-label="Ouvrir le dossier de l’affaire" onClick={() => nav.open('files', { caseId: def.id })}>
-            <Icon.Info size={22} />
-          </button>
+          <span className="navbar-actions">
+            <button className="icon-btn" aria-label={`Appeler ${who.name}`} onClick={call}>
+              <Icon.Call size={21} />
+            </button>
+            <button className="icon-btn" aria-label="Ouvrir le dossier de l’affaire" onClick={() => nav.open('files', { caseId: def.id })}>
+              <Icon.Info size={22} />
+            </button>
+          </span>
         }
       />
       <div className="scroll" aria-live="polite">
@@ -198,19 +278,30 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
                       onClick={() => nav.openViewer({ kind: 'case', caseId: def.id, mediaId: a })}
                       aria-label={`Ouvrir ${r.def.name}`}
                     >
-                      {thumb ? (
-                        <img src={thumb} alt="" />
-                      ) : (
-                        <span className="bubble-file">
-                          <KindIcon kind={r.def.kind} /> {r.def.name}
+                      {thumb && <img src={thumb} alt="" />}
+                      <span className="bubble-file">
+                        <KindIcon kind={r.def.kind} />
+                        <span className="bubble-file-info">
+                          <span className="bubble-file-name">{r.def.name}</span>
+                          <span className="bubble-file-meta">{[r.def.durationLabel, r.def.sizeLabel].filter(Boolean).join(' · ') || KIND[r.def.kind]}</span>
                         </span>
-                      )}
+                        <span className="bubble-time">{time(e, mine, m.time)}</span>
+                      </span>
                     </button>
                   );
                 })}
                 {m.text && (
                   <div className={`bubble${mine ? ' me' : ''}`} aria-label={thread?.members && !mine ? `${character(def, m.from).name} : ${m.text}` : undefined}>
                     {m.text}
+                    <span className="bubble-time" aria-hidden="true">
+                      {time(e, mine, m.time)}
+                      {mine && <Ticks read={i < lastTheirsIndex} />}
+                    </span>
+                  </div>
+                )}
+                {mine && i === lastMineIndex && (
+                  <div className="receipt" role="status">
+                    {i < lastTheirsIndex || typing ? 'Lu' : isOnline && !isEnded ? 'Distribué' : 'Non distribué'}
                   </div>
                 )}
               </div>
@@ -283,5 +374,32 @@ function BatteryLevel({ level }: { level: number }) {
       </svg>
       {level} %
     </span>
+  );
+}
+
+const KIND: Record<string, string> = { image: 'Image', video: 'Vidéo', audio: 'Audio', document: 'Document' };
+
+/** Heure affichée d'un message : heure écrite dans l'histoire, heure figée du fil (fantôme), sinon heure de réception. */
+function entryTime(
+  _def: CaseDefinition,
+  thread: CaseDefinition['threads'][number] | undefined,
+  e: ThreadEntry,
+  mine: boolean,
+  fixed: string | undefined,
+  settings: Parameters<typeof manualDate>[0] & { clockAuto: boolean },
+): string {
+  if (fixed) return fixed;
+  if (thread?.frozenTime && !mine) return thread.frozenTime;
+  const d = settings.clockAuto ? new Date(e.at) : manualDate(settings);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+/** Coches d'envoi : une (envoyé), deux (lu). */
+function Ticks({ read }: { read: boolean }) {
+  return (
+    <svg className={`ticks${read ? ' read' : ''}`} width="16" height="10" viewBox="0 0 16 10" aria-hidden="true">
+      <path d="M1 5.5l3 3L10 1.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      {read && <path d="M6.5 8.2l.3.3L13.5 1.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />}
+    </svg>
   );
 }

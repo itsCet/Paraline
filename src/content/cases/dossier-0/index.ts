@@ -47,6 +47,7 @@ export const dossierZero: CaseDefinition = {
   id: 'dossier-0',
   title: 'Dossier 0',
   client: 'coord',
+  weather: { city: 'Saint-Aubin', temp: 6, sky: 'brouillard' },
   about: { duration: '~25 min', tone: 'Horreur · déconseillé aux âmes sensibles' },
   characters: [
     { id: 'coord', name: 'Coordination Paraline', initials: 'P', color: '#6b4f22', role: 'Réseau Paraline' },
@@ -213,18 +214,18 @@ export const dossierZero: CaseDefinition = {
 
   threads: [
     { id: 't-agnes', contact: 'agnes', stamp: 'Novembre 2024' },
-    { id: 't-inconnu', contact: 'inconnu' },
+    { id: 't-inconnu', contact: 'inconnu', callText: 'Numéro masqué. Mais quand vous raccrochez, vous entendez encore respirer.' },
   ],
 
   openingMessages: ['a-old1', 'v-old1', 'a-old2', 'v-old2', 'a-old3'],
 
   messages: [
     /* Les derniers échanges de Victor (novembre 2024) : ses messages s'affichent comme les vôtres. */
-    { id: 'a-old1', threadId: 't-agnes', from: 'agnes', text: 'Monsieur Hessel, je l’ai encore entendue cette nuit. Elle pleure derrière le mur.', notify: false },
-    { id: 'v-old1', threadId: 't-agnes', from: 'player', text: 'J’ai trouvé quelque chose dans la chambre. Je vous en parle demain.' },
-    { id: 'a-old2', threadId: 't-agnes', from: 'agnes', text: 'Bernard Morand est passé chez moi. Il savait que vous étiez venu.', notify: false },
-    { id: 'v-old2', threadId: 't-agnes', from: 'player', text: 'Je ne peux plus continuer cette affaire. Pardon.' },
-    { id: 'a-old3', threadId: 't-agnes', from: 'agnes', text: 'Monsieur Hessel ? Répondez-moi, s’il vous plaît.', notify: false },
+    { id: 'a-old1', threadId: 't-agnes', from: 'agnes', text: 'Monsieur Hessel, je l’ai encore entendue cette nuit. Elle pleure derrière le mur.', notify: false, time: '23:52' },
+    { id: 'v-old1', threadId: 't-agnes', from: 'player', text: 'J’ai trouvé quelque chose dans la chambre. Je vous en parle demain.', time: '23:58' },
+    { id: 'a-old2', threadId: 't-agnes', from: 'agnes', text: 'Bernard Morand est passé chez moi. Il savait que vous étiez venu.', notify: false, time: '18:20' },
+    { id: 'v-old2', threadId: 't-agnes', from: 'player', text: 'Je ne peux plus continuer cette affaire. Pardon.', time: '22:41' },
+    { id: 'a-old3', threadId: 't-agnes', from: 'agnes', text: 'Monsieur Hessel ? Répondez-moi, s’il vous plaît.', notify: false, time: '09:07' },
     { id: 'sys-auj', threadId: 't-agnes', from: 'agnes', text: 'Aujourd’hui', system: true },
     { id: 'a-now1', threadId: 't-agnes', from: 'agnes', text: 'Monsieur Hessel ?? Votre téléphone vient de se reconnecter. C’est vous ?' },
 

@@ -144,6 +144,8 @@ export interface MessageDef {
   notify?: string | false;
   /** Message système (« Malik a quitté la conversation »), centré, sans bulle. */
   system?: boolean;
+  /** Heure affichée sous la bulle (message ancien, ou daté dans l'histoire). Par défaut : heure de réception. */
+  time?: string;
 }
 
 export interface ReplyDef {
@@ -205,6 +207,10 @@ export interface ThreadDef {
     endedLabel?: string;
   };
   archivedWhen?: Condition;
+  /** Heure figée de tous les messages du contact (fantôme : « 03:17 »). */
+  frozenTime?: string;
+  /** Réponse quand le joueur appelle ce contact (par défaut : « ne répond pas »). */
+  callText?: string;
   /** Conversation de groupe : participants (le nom de l'auteur s'affiche au-dessus de ses bulles). */
   members?: Id[];
 }
@@ -272,6 +278,8 @@ export interface CaseDefinition {
   conclusion: { title: string; text: string[] };
   /** Conclusions alternatives : la première dont la condition est vraie remplace `conclusion`. */
   endings?: { when: Condition; title: string; text: string[] }[];
+  /** Météo de la ville de l'enquête (écran verrouillé, widget de l'accueil). */
+  weather?: Weather;
   /** Durée et ton annoncés au joueur dans Mail (ex. « ~20 min », « Enquête longue »). */
   about?: { duration: string; tone: string };
 }
@@ -279,6 +287,13 @@ export interface CaseDefinition {
 /* ------------------------------------------------------------------ */
 /* Conditions                                                           */
 /* ------------------------------------------------------------------ */
+
+export type Sky = 'clair' | 'nuageux' | 'pluie' | 'brouillard' | 'neige' | 'orage';
+export interface Weather {
+  city: string;
+  temp: number;
+  sky: Sky;
+}
 
 export type Condition =
   | { all: Condition[] }
