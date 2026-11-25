@@ -1281,3 +1281,12 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .home.tight .grid { padding-top: 10px; gap: 8px 6px; }
 .home.tight .offer { margin-top: 10px; padding: 12px 14px; }
 .home.tight .offer p { margin-bottom: 8px; }
+
+/* iOS 26, app installée sur l'écran d'accueil : WebKit ne dessine plus le bas de l'écran (bande noire de la
+   hauteur de la barre d'état). Contournement connu : un document plus haut que l'écran de cette hauteur-là. */
+@media (display-mode: standalone) {
+  html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
+}
+@media not ((min-width: 720px) and (min-height: 640px)) {
+  html, body { background: var(--bg); }
+}
