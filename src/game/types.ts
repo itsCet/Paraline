@@ -72,6 +72,10 @@ export interface MediaVariant {
   info?: { label: string; value: string; observationId?: Id }[];
   /** Audio : spectre du son (image calculée depuis le fichier), avec zones à toucher. Axe horizontal = durée du fichier. */
   spectrogram?: { src: string; width: number; height: number; alt: string; hotspots?: Hotspot[] };
+  /** Vidéo : images par seconde (lecture image par image ; 30 par défaut) et frise de vignettes
+   *  (une image horizontale de `count` vignettes, générée depuis la vidéo). */
+  fps?: number;
+  filmstrip?: { src: string; count: number };
   /** Image plongée dans le noir, qu'on éclaire à la lampe (doigt ou inclinaison). Les zones ne se touchent
    *  qu'éclairées. `reveal` : calque visible seulement dans le faisceau (écriture « UV »). */
   flashlight?: { radius?: number; reveal?: string };
@@ -114,6 +118,8 @@ export interface MediaDef {
   compareWith?: Id;
   /** Album partagé dans lequel le média apparaît (Photos). */
   album?: string;
+  /** Fichier protégé par un code (à déduire des indices). Ouvert, il pose le drapeau `verrou:<id>`. */
+  lock?: { code: string; title: string; prompt: string };
 }
 
 export interface MailDef {
@@ -278,6 +284,10 @@ export interface CaseDefinition {
   conclusion: { title: string; text: string[] };
   /** Conclusions alternatives : la première dont la condition est vraie remplace `conclusion`. */
   endings?: { when: Condition; title: string; text: string[] }[];
+  /** Rapport d'enquête : quand l'affaire se termine, le joueur doit l'expliquer (phrases à trous) avant
+   *  qu'elle soit déclarée résolue. Les réglages et manipulations ouvrent l'accès aux indices ; le rapport
+   *  vérifie qu'il a compris (qui, quand, pourquoi). */
+  report?: ReportDef;
   /** Météo de la ville de l'enquête (écran verrouillé, widget de l'accueil). */
   weather?: Weather;
   /** Durée et ton annoncés au joueur dans Mail (ex. « ~20 min », « Enquête longue »). */
@@ -287,6 +297,23 @@ export interface CaseDefinition {
 /* ------------------------------------------------------------------ */
 /* Conditions                                                           */
 /* ------------------------------------------------------------------ */
+
+export interface ReportDef {
+  /** Paragraphes ; `{id}` marque un trou à remplir. Un paragraphe `{ when, text }` n'est demandé que si
+   *  le joueur a vécu ce dont il parle (ex. « Hugo » n'est jamais apparu dans sa partie). */
+  text: (string | { when: Condition; text: string })[];
+  blanks: Record<
+    Id,
+    {
+      /** Choix proposés. Un choix n'apparaît que lorsque sa condition est remplie (le joueur l'a découvert). */
+      options: { text: string; requires?: Condition }[];
+      /** Texte du bon choix. */
+      answer: string;
+    }
+  >;
+  /** Indices propres au rapport (sinon des indices génériques). */
+  hints?: string[];
+}
 
 export type Sky = 'clair' | 'nuageux' | 'pluie' | 'brouillard' | 'neige' | 'orage';
 export interface Weather {

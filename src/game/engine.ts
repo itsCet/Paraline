@@ -299,8 +299,18 @@ export function applyEffect(state: GameState, def: CaseDefinition, effect: Effec
         ),
       };
     case 'solveCase': {
+      // Avec un rapport : l'affaire n'est résolue qu'une fois le rapport juste remis.
+      const flags = state.cases[cid]?.flags ?? {};
+      if (def.report && flags.rapport !== 'ok') {
+        if (flags.rapport === 'pret') return state;
+        let pending = updateCase(state, cid, (p) => ({ ...p, flags: { ...p.flags, rapport: 'pret' }, log: [...p.log, { at: now, text: 'Il reste à remettre votre rapport.' }] }));
+        // Comme à la résolution : le téléphone redevient normal tout de suite (les effets suivants de la règle restent).
+        pending = clearOverridesOf(pending, cid);
+        pending = pushNotification(pending, { app: 'files', title: 'Dossiers', body: `Rapport à remettre : ${def.title}`, target: { caseId: cid } });
+        return pending;
+      }
       let next = updateCase(state, cid, (p) => ({ ...p, status: 'solved', solvedAt: now }));
-      next = clearOverridesOf(next, cid);
+      if (!def.report) next = clearOverridesOf(next, cid);
       // Une énigme a pu laisser le téléphone à une autre date : on le rappelle, une fois.
       if (!next.settings.clockAuto) {
         next = pushNotification(next, { app: 'settings', title: 'Réglages', body: 'Le téléphone n’est plus à l’heure : réactivez « Réglage automatique ».' });
@@ -331,13 +341,14 @@ export function settle(state: GameState, cases: CaseIndex, now: number): GameSta
   let next = expireOverrides(state);
   const cid = next.activeCaseId;
   const def = cid ? cases.byId.get(cid) : undefined;
-  if (!cid || !def || next.cases[cid]?.status !== 'active') return next;
+  // Une affaire terminée qui attend son rapport ne bouge plus (seuls les messages déjà prévus arrivent).
+  if (!cid || !def || next.cases[cid]?.status !== 'active' || next.cases[cid]?.flags.rapport === 'pret') return next;
 
   for (let pass = 0; pass < MAX_PASSES; pass++) {
     let changed = false;
     for (const rule of def.rules) {
       const p = next.cases[cid];
-      if (!p || p.status !== 'active') return next;
+      if (!p || p.status !== 'active' || p.flags.rapport === 'pret') return next;
       const once = rule.once !== false;
       if (once && p.firedRules.includes(rule.id)) continue;
       const ok = evaluate(rule.when, next, cid);
@@ -456,9 +467,30 @@ export function newReplies(def: CaseDefinition, state: GameState, threadId: Id) 
 }
 
 /** Premier obstacle non résolu (indices sur demande). */
+export const REPORT_HINTS = [
+  'L’affaire est terminée sur le terrain. Il reste à l’expliquer.',
+  'Relisez vos observations dans Dossiers : chaque trou du rapport correspond à quelque chose que vous avez relevé.',
+  'Dans Dossiers, ouvrez l’affaire et complétez le rapport. Un choix qui manque ? Il reste un détail à relever dans les pièces.',
+];
+
+/** Rapport : paragraphes demandés dans cette partie, et les trous qu'ils contiennent. */
+export function reportParagraphs(def: CaseDefinition, state: GameState): string[] {
+  return (def.report?.text ?? []).flatMap((t) => (typeof t === 'string' ? [t] : evaluate(t.when, state, def.id) ? [t.text] : []));
+}
+export function reportBlanks(def: CaseDefinition, state: GameState): Id[] {
+  return reportParagraphs(def, state).flatMap((t) => [...t.matchAll(/\{([\w-]+)\}/g)].map((m) => m[1]));
+}
+
+/** Rapport : nombre de réponses justes (trous des paragraphes demandés). */
+export function reportScore(def: CaseDefinition, state: GameState, answers: Record<Id, string | undefined>) {
+  const ids = reportBlanks(def, state);
+  return { total: ids.length, right: ids.filter((id) => answers[id] === def.report!.blanks[id].answer).length };
+}
+
 export function currentObstacle(def: CaseDefinition, state: GameState) {
   const p = state.cases[def.id];
   if (!p || p.status !== 'active') return undefined;
+  if (def.report && p.flags.rapport === 'pret') return { id: 'rapport', hints: def.report.hints ?? REPORT_HINTS, solved: { flag: 'rapport', equals: 'ok' } as Condition };
   return def.obstacles?.find((o) => !evaluate(o.solved, state, def.id));
 }
 
@@ -479,7 +511,7 @@ export function drainBattery(state: GameState, cases: CaseIndex, now: number): G
   const def = cid ? cases.byId.get(cid) : undefined;
   const b = def?.battery;
   const p = cid ? state.cases[cid] : undefined;
-  if (!cid || !def || !b || !p || p.status !== 'active') return state;
+  if (!cid || !def || !b || !p || p.status !== 'active' || p.flags.rapport === 'pret') return state;
   const level = p.flags[b.flag];
   const key = `${b.flag}:t`;
   if (typeof level !== 'number' || level <= b.floor || !evaluate(b.while, state, cid)) {

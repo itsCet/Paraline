@@ -5,6 +5,7 @@
  *   npm run e2e:photo        # BASE_URL=http://localhost:4173 par défaut
  */
 import { createRequire } from 'node:module';
+import { remplirRapport } from './rapport.mjs';
 import { mkdirSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
@@ -204,6 +205,7 @@ await check('Fin douce : Léa écrit, affaire résolue', async () => {
   await bubble('C’est la seule où il sourit vraiment.').waitFor();
   await shot('04-lea');
   await page.waitForTimeout(7000);
+  await remplirRapport(page, 'Cette photo a changé', ['Léa', 'Retouche+, sur l’iPad de Paul', 'Paul n’a ni ombre ni reflet']);
   const s = await save();
   assert(s.cases['photo-changee'].status === 'solved', 'non résolue');
   assert(Object.keys(s.cases['photo-changee'].hintsRevealed).length === 0, 'indice utilisé');

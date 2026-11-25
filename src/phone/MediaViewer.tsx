@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../game/store';
 import { fillTemplate } from '../game/engine';
 import { useNav, type ViewerSource } from './nav';
@@ -20,6 +20,54 @@ interface Resolved {
   src: string;
   caseDef?: CaseDefinition;
   isCopy: boolean;
+}
+
+/** Clavier de code (fichier protégé). Une erreur vide la saisie et fait trembler les points. */
+function CodeLock({ title, prompt, length, tries, onSubmit }: { title: string; prompt: string; length: number; tries: number; onSubmit: (code: string) => void }) {
+  const [code, setCode] = useState('');
+  const [shake, setShake] = useState(0);
+  const lastTries = useRef(tries);
+  useEffect(() => {
+    if (tries > lastTries.current) {
+      setShake((x) => x + 1);
+      setCode('');
+      try {
+        navigator.vibrate?.(180);
+      } catch {
+        /* sans vibreur */
+      }
+    }
+    lastTries.current = tries;
+  }, [tries]);
+  const press = (d: string) => {
+    const next = (code + d).slice(0, length);
+    setCode(next);
+    if (next.length === length) window.setTimeout(() => onSubmit(next), 120);
+  };
+  return (
+    <div className="codelock">
+      <Icon.Lock size={30} />
+      <h2>{title}</h2>
+      <p>{prompt}</p>
+      <div key={shake} className={`codelock-dots${shake ? ' shake' : ''}`} aria-label={`${code.length} chiffre${code.length > 1 ? 's' : ''} sur ${length}`}>
+        {Array.from({ length }, (_, i) => (
+          <i key={i} className={i < code.length ? 'on' : undefined} />
+        ))}
+      </div>
+      {tries > 0 && <div className="codelock-error" role="status">Code incorrect</div>}
+      <div className="codelock-pad">
+        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'].map((k, i) =>
+          k === '' ? (
+            <span key={i} />
+          ) : (
+            <button key={i} aria-label={k === '⌫' ? 'Effacer' : k} onClick={() => (k === '⌫' ? setCode((c) => c.slice(0, -1)) : press(k))}>
+              {k}
+            </button>
+          ),
+        )}
+      </div>
+    </div>
+  );
 }
 
 export function MediaViewer() {
@@ -70,10 +118,28 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
   const accepted = progress?.status === 'active' || progress?.status === 'solved';
   const mediaId = r?.media.id;
 
+  // Fichier protégé par un code : rien n'est « vu » tant qu'il n'est pas ouvert.
+  const locked = !!(r?.media.lock && caseId && !r.isCopy && progress?.flags[`verrou:${r.media.id}`] !== true);
+
   useEffect(() => {
     if (source.kind === 'tutorial') dispatch({ type: 'tutorial/step', step: 'findDetail' });
-    else if (caseId && mediaId && !r?.isCopy) dispatch({ type: 'media/view', caseId, mediaId });
-  }, [source.kind, caseId, mediaId, dispatch, r?.isCopy]);
+    else if (caseId && mediaId && !r?.isCopy && !locked) dispatch({ type: 'media/view', caseId, mediaId });
+  }, [source.kind, caseId, mediaId, dispatch, r?.isCopy, locked]);
+
+  if (r && locked && caseId) {
+    return (
+      <div className="viewer" role="dialog" aria-label={`${r.media.name}, protégé`}>
+        <NavBar back="Retour" onBack={nav.closeViewer} title={r.media.name} />
+        <CodeLock
+          title={r.media.lock!.title}
+          prompt={r.media.lock!.prompt}
+          length={r.media.lock!.code.length}
+          tries={Number(progress?.flags[`verrou:${r.media.id}:essais`] ?? 0)}
+          onSubmit={(code) => dispatch({ type: 'media/unlock', caseId, mediaId: r!.media.id, code })}
+        />
+      </div>
+    );
+  }
 
   if (!r) {
     return (

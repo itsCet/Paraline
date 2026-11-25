@@ -35,3 +35,21 @@ Toujours lui donner **un nouveau nom de fichier** (ex. `couloir-etage.jpg`, `cha
 - iPhone : l'accès aux capteurs se demande au toucher d'un bouton (jamais d'office).
 - Toujours une alternative tactile : la lampe suit le doigt, le 360° se glisse, la rose se tourne.
 - « Réduire les effets brusques » coupe le vacillement de la lampe.
+
+## Rapport d'enquête (`report`) — ajouté le 25/11/2026
+Quand l'histoire se termine (effet `solveCase`), une affaire qui a un `report` n'est pas encore résolue : elle attend le rapport (drapeau `rapport = 'pret'`, notification « Rapport à remettre »). Pendant ce temps, les règles de l'enquête ne tournent plus (seuls les messages déjà prévus arrivent) et le téléphone redevient normal. Dans Dossiers, le joueur complète des phrases à trous ; une erreur dit seulement « 3 réponses sur 5 sont justes ». Le bon rapport résout l'affaire (conclusion, Le Fil, épilogue).
+```ts
+report: {
+  text: ['Les images viennent de {qui}…', { when: { messageDelivered: 'h-1' }, text: 'Celui qui se faisait appeler « Hugo » {hugo}.' }],
+  blanks: { qui: { answer: 'Gabriel Vannier', options: [{ text: 'Gabriel Vannier', requires: { mediaViewed: 'article' } }, { text: 'Hugo Mercier' }, …] } },
+}
+```
+- Un choix n'apparaît qu'une fois découvert (`requires`). Préférer « a ouvert le document / reçu le message » à « a touché la phrase exacte », et vérifier que chaque bonne réponse est atteignable **dans toutes les fins** (les tests de parcours le vérifient : `src/game/__tests__/rapport-auto.ts`).
+- Un paragraphe `{ when, text }` n'est demandé que si le joueur a vécu ce dont il parle.
+- Au moins 3 choix par trou, des fausses pistes crédibles (dates du document, autres personnages).
+
+## Fichier protégé par un code (`media.lock`)
+`lock: { code: '1403', title: 'Enregistrement protégé', prompt: 'Saisissez le code à quatre chiffres.' }` : la visionneuse affiche un clavier ; le bon code pose le drapeau `verrou:<mediaId>`. Le code ne doit jamais être écrit tel quel : il se déduit en recoupant deux indices (« Elle écrit » : « le jour où je ne suis pas rentrée » + l'avis de décès → 1403 ; l'heure 23:48 des notes est une fausse piste).
+
+## Vidéo image par image (`fps`, `filmstrip`)
+Toutes les vidéos se regardent image par image (flèches, frise à glisser, comme dans Photos sur iPhone). Un indice peut n'exister que sur quelques images : zone avec `from`/`to` en secondes. Frise : `ffmpeg -i v.mp4 -vf "select='not(mod(n\,14))',scale=72:96,tile=10x1" -frames:v 1 frise.jpg`. À essayer dans le labo (onglet « Vidéo image par image »).

@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { availableReplies, currentObstacle, evaluate, indexCases } from '../engine';
 import { createReducer, type Action } from '../reducer';
+import { withRapport } from './rapport-auto';
 import { deserialize, initialState, serialize } from '../save';
 import type { GameState, Settings } from '../types';
 import { photoChangee as def } from '../../content/cases/photo-changee';
@@ -10,7 +11,7 @@ import { chambreCondamnee } from '../../content/cases/chambre-condamnee';
 const ID = def.id;
 const cases = indexCases([chambreCondamnee, def]);
 let now = 1_000_000;
-const reducer = createReducer(cases, () => now);
+const reducer = withRapport(createReducer(cases, () => now), cases);
 const run = (s: GameState, ...a: Action[]) => a.reduce(reducer, s);
 const flush = (s: GameState, rounds = 12) => {
   for (let i = 0; i < rounds; i++) {

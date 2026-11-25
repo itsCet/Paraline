@@ -5,6 +5,7 @@
  *   npm run e2e:fm   # ~2 min
  */
 import { createRequire } from 'node:module';
+import { remplirRapport } from './rapport.mjs';
 import { mkdirSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
@@ -189,6 +190,7 @@ await check('La phrase pour Henri, puis l’adieu à 3 h : l’antenne s’étei
   await thread('Noémie');
   await bubble('Il souriait.').waitFor({ timeout: 30000 });
   await page.waitForTimeout(4000);
+  await remplirRapport(page, '87.6 FM', ['Théo Vasseur', '14 mars 1987', 'Henri', '« Fin des émissions. »']);
   const s = await save();
   assert(s.cases['quatre-vingt-sept'].status === 'solved', 'non résolue');
   assert(Object.keys(s.cases['quatre-vingt-sept'].hintsRevealed).length === 0, 'indice utilisé');

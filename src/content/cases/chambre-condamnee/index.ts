@@ -653,6 +653,60 @@ export const chambreCondamnee: CaseDefinition = {
     },
   ],
 
+  report: {
+    text: [
+      'Les images reçues par Élise viennent de {qui}, mort dans l’incendie du 8, rue des Ormes, le {date}.',
+      'Cette nuit-là, il {acte} pour que {sauves} puissent sortir.',
+      'Sa dernière communication, à 03:17, demandait {question} Personne ne lui avait répondu.',
+    ],
+    blanks: {
+      qui: {
+        answer: 'Gabriel Vannier',
+        options: [
+          { text: 'Gabriel Vannier', requires: { any: [{ observationFound: 'feuille-lisible' }, { mediaViewed: 'article' }, { messageDelivered: 'g-qui' }] } },
+          { text: 'Hugo Mercier', requires: { mediaViewed: 'article' } },
+          { text: 'l’ancienne propriétaire' },
+          { text: 'l’ancien locataire du couloir' },
+        ],
+      },
+      date: {
+        answer: '18 novembre 2014',
+        options: [
+          { text: '18 novembre 2014', requires: { any: [{ observationFound: 'feuille-lisible' }, { mediaViewed: 'article' }] } },
+          { text: '19 novembre 2014', requires: { mediaViewed: 'article' } },
+          { text: '17 octobre 2014' },
+          { text: '3 novembre 2014' },
+        ],
+      },
+      acte: {
+        answer: 'a tenu le passage ouvert',
+        options: [
+          { text: 'a tenu le passage ouvert', requires: { any: [{ mediaViewed: 'article' }, { messageDelivered: 'g-2' }] } },
+          { text: 'a condamné la chambre', requires: { mediaViewed: 'article' } },
+          { text: 'a débranché la caméra' },
+          { text: 'a appelé les pompiers' },
+        ],
+      },
+      sauves: {
+        answer: 'Aline et Hugo Mercier',
+        options: [
+          { text: 'Aline et Hugo Mercier', requires: { mediaViewed: 'article' } },
+          { text: 'Élise et sa sœur', requires: { messageDelivered: 'e-d1' } },
+          { text: 'les voisins du dessus' },
+          { text: 'les pompiers' },
+        ],
+      },
+      question: {
+        answer: '« Les deux sont sortis ? »',
+        options: [
+          { text: '« Les deux sont sortis ? »', requires: { any: [{ observationFound: 'feuille-lisible' }, { messageDelivered: 'g-3' }] } },
+          { text: '« Ça passe encore ? »', requires: { messageDelivered: 'g-1' } },
+          { text: '« Je tiens la porte. »', requires: { messageDelivered: 'g-2' } },
+          { text: '« Qui êtes-vous ? »' },
+        ],
+      },
+    },
+  },
   about: { duration: '~15 min', tone: 'Surnaturel' },
   conclusion: {
     title: 'Affaire résolue',

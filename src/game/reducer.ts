@@ -14,6 +14,7 @@ import {
   drainBattery,
   rescheduleQueue,
   settle,
+  reportScore,
   type CaseIndex,
 } from './engine';
 import { initialState } from './save';
@@ -31,6 +32,8 @@ export type Action =
   | { type: 'tutorial/complete' }
   | { type: 'mail/read'; mailId: Id }
   | { type: 'news/read'; articleId: Id }
+  | { type: 'report/submit'; caseId: Id; answers: Record<Id, string> }
+  | { type: 'media/unlock'; caseId: Id; mediaId: Id; code: string }
   | { type: 'case/accept'; caseId: Id }
   | { type: 'case/postpone'; caseId: Id }
   | { type: 'media/view'; caseId: Id; mediaId: Id }
@@ -329,6 +332,32 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
       const key = `boussole:${action.targetId}`;
       if (!def?.compass?.targets.some((t) => t.id === action.targetId) || !p || p.flags[key]) return state;
       return settle(patchCase(state, action.caseId, (q) => ({ ...q, flags: { ...q.flags, [key]: true } })), cases, now);
+    }
+
+    case 'media/unlock': {
+      const def = cases.byId.get(action.caseId);
+      const m = def?.media.find((x) => x.id === action.mediaId);
+      const p = state.cases[action.caseId];
+      const key = `verrou:${action.mediaId}`;
+      if (!def || !m?.lock || !p || p.flags[key] === true) return state;
+      if (action.code.replace(/\s/g, '') !== m.lock.code) {
+        return patchCase(state, def.id, (q) => ({ ...q, flags: { ...q.flags, [`${key}:essais`]: Number(q.flags[`${key}:essais`] ?? 0) + 1 } }));
+      }
+      const next = patchCase(state, def.id, (q) => ({ ...q, flags: { ...q.flags, [key]: true }, log: [...q.log, { at: now, text: `${m.name} déverrouillé.` }] }));
+      return processQueue(settle(next, cases, now), cases, now);
+    }
+
+    case 'report/submit': {
+      const def = cases.byId.get(action.caseId);
+      const p = state.cases[action.caseId];
+      if (!def?.report || !p || p.flags.rapport !== 'pret') return state;
+      const { total, right } = reportScore(def, state, action.answers);
+      const saved: Record<string, string | number> = { 'rapport:justes': right, 'rapport:essais': Number(p.flags['rapport:essais'] ?? 0) + 1 };
+      for (const id of Object.keys(def.report.blanks)) if (action.answers[id]) saved[`rapport:${id}`] = action.answers[id];
+      let next = patchCase(state, def.id, (q) => ({ ...q, flags: { ...q.flags, ...saved } }));
+      if (right < total) return next;
+      next = patchCase(next, def.id, (q) => ({ ...q, flags: { ...q.flags, rapport: 'ok' }, log: [...q.log, { at: now, text: 'Rapport remis.' }] }));
+      return processQueue(settle(applyEffect(next, def, { type: 'solveCase' }, now), cases, now), cases, now);
     }
 
     case 'access/unlock':

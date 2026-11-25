@@ -5,6 +5,7 @@
  *   npm run e2e:elle        # BASE_URL=http://localhost:4173 par défaut
  */
 import { createRequire } from 'node:module';
+import { remplirRapport } from './rapport.mjs';
 import { mkdirSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
@@ -166,13 +167,15 @@ await check('Effacer la note : elle revient avec une phrase de plus', async () =
   await shot('03-note-revenue');
 });
 
-await check('Dictaphone apparaît sur l’accueil ; fichier vide', async () => {
+await check('Dictaphone apparaît sur l’accueil ; fichier protégé, Nora donne l’énigme', async () => {
   await home();
   await page.getByRole('button', { name: /^Dictaphone(,|$)/ }).waitFor({ timeout: 40000 });
   await openApp('Dictaphone');
   await page.getByRole('button', { name: 'Ouvrir ne_pas_effacer.m4a' }).click();
-  await viewer().getByText('Enregistrement vide', { exact: false }).waitFor();
+  await viewer().getByText('Enregistrement protégé').waitFor();
   await closeViewer();
+  await thread('Moi');
+  await bubble('Le jour où je ne suis pas rentrée.').waitFor({ timeout: 30000 });
 });
 
 await check('Mode avion : « Moi » écrit quand même', async () => {
@@ -211,21 +214,19 @@ await check('Numéro de série, vendeur, avis de décès', async () => {
   await closeViewer();
 });
 
-await check('14 mars 2025, 23:48 : le message de Nora revient', async () => {
-  await dateTime();
-  await page.getByRole('switch', { name: 'Réglage automatique' }).click();
-  await page.locator('input[type=date]').fill('2025-03-14');
-  await setTime(23, 48);
+await check('Le code : 2348 (l’heure) est faux, 1403 (le 14 mars) ouvre le message de Nora', async () => {
   await openApp('Dictaphone');
   await page.getByRole('button', { name: 'Ouvrir ne_pas_effacer.m4a' }).click();
+  for (const d of '2348') await viewer().getByRole('button', { name: d, exact: true }).click();
+  await viewer().getByText('Code incorrect').waitFor();
+  await shot('06a-code');
+  for (const d of '1403') await viewer().getByRole('button', { name: d, exact: true }).click();
   await viewer().getByText('Maman, c’est moi.').waitFor();
   await shot('06-message');
   await closeViewer();
 });
 
 await check('Transmettre à sa mère : tout s’apaise, affaire résolue', async () => {
-  await dateTime();
-  await page.getByRole('switch', { name: 'Réglage automatique' }).click();
   await thread('Marc Dubois');
   await reply('J’ai retrouvé son dernier message. Pouvez-vous le faire parvenir à sa mère ?').click();
   await bubble('Elle dit merci.').waitFor({ timeout: 25000 });
@@ -236,6 +237,7 @@ await check('Transmettre à sa mère : tout s’apaise, affaire résolue', async
   await openApp('Notes');
   await page.locator('.row', { hasText: 'Merci. Tu peux fermer.' }).waitFor();
   assert((await page.locator('.row', { hasText: 'Ne m’efface pas.' }).count()) === 0, 'notes de Nora restantes');
+  await remplirRapport(page, 'Elle écrit dans mes notes', ['Nora Lemaire', '14 mars 2025', 'un message vocal', 'sa mère', 'le faire parvenir à sa mère']);
   const s = await save();
   assert(s.cases['elle-ecrit'].status === 'solved', 'non résolue');
   assert(Object.keys(s.cases['elle-ecrit'].hintsRevealed).length === 0, 'indice utilisé');

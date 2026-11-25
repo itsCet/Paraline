@@ -5,6 +5,7 @@
  *   npm run e2e:douze   # ~3 min (temps réel)
  */
 import { createRequire } from 'node:module';
+import { remplirRapport } from './rapport.mjs';
 import { mkdirSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
@@ -178,6 +179,7 @@ await check('Jean-Bouin et B-14 aux gendarmes : Léa est retrouvée, épilogue d
   await thread('Camille');
   await bubble('Elle va bien.').waitFor({ timeout: 60000 });
   await page.waitForTimeout(4000);
+  await remplirRapport(page, '12 %', ['la piscine Jean-Bouin', 'sa sœur Camille est sa seule famille.', 'l’avait enfermée']);
   const s = await save();
   assert(s.cases['douze-pourcent'].status === 'solved', 'affaire non résolue');
   await openApp('Dossiers');

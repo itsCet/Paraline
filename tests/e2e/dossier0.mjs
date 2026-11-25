@@ -5,6 +5,7 @@
  *   npm run e2e:dossier0   # ~3 min (dont 30 s d'immobilité)
  */
 import { createRequire } from 'node:module';
+import { remplirRapport } from './rapport.mjs';
 import { mkdirSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
@@ -313,6 +314,12 @@ await check('Tenir 30 secondes sans toucher : fin « Entendue »', async () => {
   await thread('Inconnu');
   await bubble('Tu peux éteindre.').waitFor({ timeout: 20000 });
   await page.waitForTimeout(18000);
+  // Rapport : un faux d'abord (le jeu dit seulement combien sont justes), puis le bon.
+  assert((await save()).cases['dossier-0'].flags.rapport === 'pret', 'pas de rapport demandé');
+  await remplirRapport(page, 'Dossier 0', ['Bernard Morand', 'un mini-dictaphone', 'effacé contre de l’argent', 'être entendue'], {
+    faux: ['Victor Hessel', 'son téléphone portable', 'remis à la gendarmerie', 'se venger de Victor'],
+  });
+  await shot('05b-rapport');
   const s = await save();
   assert(s.cases['dossier-0'].status === 'solved', 'non résolue');
   assert(Object.keys(s.cases['dossier-0'].hintsRevealed).length === 0, 'indice utilisé');

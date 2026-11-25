@@ -47,6 +47,52 @@ export const dossierZero: CaseDefinition = {
   title: 'Dossier 0',
   client: 'coord',
   weather: { city: 'Saint-Aubin', temp: 6, sky: 'brouillard' },
+  report: {
+    text: [
+      'Dans la nuit du 3 au 4 mars 1998, Sylvie Morand est morte dans l’incendie de sa maison. Sa porte avait été fermée à clé par {coupable}.',
+      'Sa fille Clara l’avait vu. Elle avait tout enregistré sur {support}.',
+      'En novembre 2024, Victor Hessel a retrouvé ce témoignage, puis il l’a {victor}.',
+      'Ce que voulait Clara : {but}.',
+    ],
+    blanks: {
+      coupable: {
+        answer: 'Bernard Morand',
+        options: [
+          { text: 'Bernard Morand', requires: { any: [{ mediaViewed: 'article' }, { mediaViewed: 'temoignage' }, { observationFound: 'cadre-mariage' }] } },
+          { text: 'Victor Hessel' },
+          { text: 'Agnès Ferrand' },
+          { text: 'Clara elle-même' },
+        ],
+      },
+      support: {
+        answer: 'un mini-dictaphone',
+        options: [
+          { text: 'un mini-dictaphone', requires: { observationFound: 'dictaphone' } },
+          { text: 'le poste-cassette de son bureau', requires: { observationFound: 'poste' } },
+          { text: 'le dos d’un cadre photo', requires: { observationFound: 'cadre-enfance' } },
+          { text: 'son téléphone portable' },
+        ],
+      },
+      victor: {
+        answer: 'effacé contre de l’argent',
+        options: [
+          { text: 'effacé contre de l’argent', requires: { any: [{ mediaViewed: 'victor-vocal' }, { noteWritten: 'v4' }, { noteWritten: 'v3' }, { mediaViewed: 'temoignage' }] } },
+          { text: 'remis à la gendarmerie' },
+          { text: 'envoyé à Agnès' },
+          { text: 'perdu dans la maison' },
+        ],
+      },
+      but: {
+        answer: 'être entendue',
+        options: [
+          { text: 'être entendue', requires: { any: [{ observationFound: 'entendue' }, { mediaViewed: 'temoignage' }] } },
+          { text: 'récupérer son dictaphone', requires: { observationFound: 'dictaphone' } },
+          { text: 'se venger de Victor' },
+          { text: 'qu’on retrouve sa mère' },
+        ],
+      },
+    },
+  },
   about: { duration: '~25 min', tone: 'Horreur · déconseillé aux âmes sensibles' },
   characters: [
     { id: 'coord', name: 'Coordination Paraline', initials: 'P', color: '#6b4f22', role: 'Réseau Paraline' },

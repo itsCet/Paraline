@@ -38,6 +38,51 @@ export const quatreVingtSept: CaseDefinition = {
   client: 'noemie',
   locked: true,
   weather: { city: 'Saint-Clair', temp: 3, sky: 'clair' },
+  report: {
+    text: [
+      'La voix de 87.6 est celle de {qui}, 8 ans, resté seul au micro de Radio Vallée.',
+      'La nuit du {date}, l’émetteur a brûlé pendant que son père, {pere}, s’était absenté.',
+      'Depuis, chaque nuit à 3 h, il attend que son père dise {phrase}',
+    ],
+    blanks: {
+      qui: {
+        answer: 'Théo Vasseur',
+        options: [
+          { text: 'Théo Vasseur', requires: { mediaViewed: 'article' } },
+          { text: 'Henri Vasseur', requires: { mediaViewed: 'article' } },
+          { text: 'un animateur de nuit' },
+          { text: 'un enfant du village' },
+        ],
+      },
+      date: {
+        answer: '14 mars 1987',
+        options: [
+          { text: '14 mars 1987', requires: { any: [{ mediaViewed: 'article' }, { observationFound: 'n-date' }] } },
+          { text: '3 mars 1987' },
+          { text: '14 mars 1997' },
+          { text: '8 juillet 1976' },
+        ],
+      },
+      pere: {
+        answer: 'Henri',
+        options: [
+          { text: 'Henri', requires: { mediaViewed: 'article' } },
+          { text: 'le directeur de la station' },
+          { text: 'le chef des pompiers' },
+          { text: 'Théo' },
+        ],
+      },
+      phrase: {
+        answer: '« Fin des émissions. »',
+        options: [
+          { text: '« Fin des émissions. »', requires: { any: [{ mediaViewed: 'emission' }, { observationFound: 'rituel' }] } },
+          { text: '« Bonne nuit, papa. »', requires: { observationFound: 'bonne-nuit' } },
+          { text: '« Tu reviens quand ? »', requires: { observationFound: 'papa' } },
+          { text: '« Ici Radio Vallée. »', requires: { observationFound: 'rituel' } },
+        ],
+      },
+    },
+  },
   about: { duration: '~20 min', tone: 'Étrange · casque conseillé' },
   characters: [{ id: 'noemie', name: 'Noémie Vasseur', initials: 'NV', color: '#5a6b4a', role: 'Petite-fille d’Henri Vasseur' }],
 

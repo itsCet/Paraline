@@ -152,6 +152,18 @@ export function validateCase(c: CaseDefinition): string[] {
     if (r.available) checkCond(r.available);
     (r.effects ?? []).forEach(checkEffect);
   }
+  if (c.report) {
+    const used = new Set([...c.report.text.map((t) => (typeof t === 'string' ? t : t.text)).join(' ').matchAll(/\{([\w-]+)\}/g)].map((m) => m[1]));
+    for (const t of c.report.text) if (typeof t !== 'string') checkCond(t.when);
+    for (const id of used) if (!c.report.blanks[id]) err(`rapport : trou inconnu {${id}}`);
+    for (const [id, b] of Object.entries(c.report.blanks)) {
+      if (!used.has(id)) err(`rapport : trou ${id} absent du texte`);
+      if (!b.options.some((o) => o.text === b.answer)) err(`rapport : la réponse de ${id} n’est pas parmi les choix`);
+      if (b.options.length < 3) err(`rapport : ${id} doit proposer au moins 3 choix`);
+      b.options.forEach((o) => o.requires && checkCond(o.requires));
+    }
+    if (!c.rules.some((r) => r.effects.some((e) => e.type === 'solveCase'))) err('rapport sans règle solveCase');
+  }
   return errors;
 }
 

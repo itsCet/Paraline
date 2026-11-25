@@ -729,6 +729,51 @@ export const leCinquieme: CaseDefinition = {
     },
   ],
 
+  report: {
+    text: [
+      'Le cinquième, sur les photos du chalet, c’est {qui}.',
+      'Dans la nuit du 14 au 15 février 2014, il a voulu {acte}, sur {pari}.',
+      'La glace a cédé. Sarah, Julien, Inès et Malik {fuite}.',
+    ],
+    blanks: {
+      qui: {
+        answer: 'Théo Marchand',
+        options: [
+          { text: 'Théo Marchand', requires: { any: [{ messageDelivered: 'ines-qui1' }, { observationFound: 'article-nuit' }] } },
+          { text: 'Léna Marchand', requires: { messageDelivered: 'ines-qui1' } },
+          { text: 'le propriétaire du chalet' },
+          { text: 'un randonneur égaré' },
+        ],
+      },
+      acte: {
+        answer: 'traverser le lac gelé jusqu’à l’île',
+        options: [
+          { text: 'traverser le lac gelé jusqu’à l’île', requires: { any: [{ messageDelivered: 'julien-pari1' }, { observationFound: 'gps-lac' }] } },
+          { text: 'nager jusqu’au ponton' },
+          { text: 'aller chercher du bois dans la forêt' },
+          { text: 'rentrer seul à pied' },
+        ],
+      },
+      pari: {
+        answer: 'un pari de Julien',
+        options: [
+          { text: 'un pari de Julien', requires: { messageDelivered: 'julien-pari2' } },
+          { text: 'un pari de Malik' },
+          { text: 'un défi de Sarah' },
+          { text: 'une idée à lui' },
+        ],
+      },
+      fuite: {
+        answer: 'sont partis sans rien dire',
+        options: [
+          { text: 'sont partis sans rien dire', requires: { any: [{ messageDelivered: 'julien-pari3' }, { observationFound: 'vous-partez' }] } },
+          { text: 'ont appelé les secours' },
+          { text: 'ont essayé de le rattraper' },
+          { text: 'ne s’étaient rendu compte de rien' },
+        ],
+      },
+    },
+  },
   about: { duration: '~20 min', tone: 'Enquête longue, trois fins' },
   conclusion: {
     title: 'Affaire résolue',

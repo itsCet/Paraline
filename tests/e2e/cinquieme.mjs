@@ -5,6 +5,7 @@
  *   npm run e2e:cinquieme   # BASE_URL=http://localhost:4173 par défaut (~3 min)
  */
 import { createRequire } from 'node:module';
+import { remplirRapport } from './rapport.mjs';
 import { mkdirSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
@@ -241,6 +242,7 @@ await check('Fin complète : ensemble, Léna, le reflet', async () => {
   await observe(0.82, 0.5, 'ils sont cinq');
   await shot('08-reflet');
   await page.keyboard.press('Escape');
+  await remplirRapport(page, 'Le cinquième', ['Théo Marchand', 'traverser le lac gelé jusqu’à l’île', 'un pari de Julien', 'sont partis sans rien dire']);
   const s = await save();
   assert(s.cases['le-cinquieme'].status === 'solved', 'non résolue');
   assert(Object.keys(s.cases['le-cinquieme'].hintsRevealed).length === 0, 'indice utilisé');

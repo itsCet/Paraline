@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { availableReplies, indexCases } from '../engine';
 import { createReducer, type Action } from '../reducer';
+import { withRapport } from './rapport-auto';
 import { deserialize, initialState, serialize } from '../save';
 import type { GameState, Settings } from '../types';
 import { elleEcrit as def } from '../../content/cases/elle-ecrit';
@@ -9,7 +10,7 @@ import { elleEcrit as def } from '../../content/cases/elle-ecrit';
 const ID = def.id;
 const cases = indexCases([def]);
 let now = 1_000_000;
-const reducer = createReducer(cases, () => now);
+const reducer = withRapport(createReducer(cases, () => now), cases);
 const run = (s: GameState, ...a: Action[]) => a.reduce(reducer, s);
 const flush = (s: GameState, rounds = 20) => {
   for (let i = 0; i < rounds; i++) {
@@ -84,22 +85,35 @@ describe('elle écrit dans mes notes', () => {
     expect(p(s).mediaVariants.enregistrement).toBe('son');
   });
 
-  it('la date et l’heure de l’accident remplissent le fichier, uniquement après la bascule', () => {
-    let s = set(s0, { clockAuto: false, manualDate: '2025-03-14', manualTime: '23:48' });
+  it('le fichier protégé : Nora donne l’énigme, l’heure 23:48 ne l’ouvre pas, le 14 mars (1403) oui', () => {
+    let s = view(s0, 'enregistrement');
+    s = flush(s);
+    expect(delivered(s, 'moi-code')).toBe(1);
+    // Régler la date et l'heure ne sert plus à rien.
+    s = set(s, { clockAuto: false, manualDate: '2025-03-14', manualTime: '23:48' });
     expect(p(s).mediaVariants['ne-pas-effacer']).toBeUndefined();
-    s = view(set(s, { manualTime: '23:47' }), 'enregistrement');
-    s = set(s, { manualTime: '23:48' });
+    // Faux indice : l'heure des notes. Puis la date de l'avis de décès.
+    s = run(s, { type: 'media/unlock', caseId: ID, mediaId: 'ne-pas-effacer', code: '2348' });
+    expect(p(s).flags['verrou:ne-pas-effacer']).toBeUndefined();
+    expect(p(s).flags['verrou:ne-pas-effacer:essais']).toBe(1);
+    s = flush(run(s, { type: 'media/unlock', caseId: ID, mediaId: 'ne-pas-effacer', code: '1403' }));
+    expect(p(s).flags['verrou:ne-pas-effacer']).toBe(true);
     expect(p(s).mediaVariants['ne-pas-effacer']).toBe('plein');
     expect(delivered(s, 'moi-ecoute')).toBe(1);
-    // Écouté vide auparavant : seule l'écoute de la version pleine débloque la fin.
     expect(availableReplies(def, s, 't-marc').map((r) => r.id)).not.toContain('r-transmettre');
     s = view(s, 'ne-pas-effacer');
     expect(availableReplies(def, s, 't-marc').map((r) => r.id)).toContain('r-transmettre');
   });
 
+  it('le code ne s’ouvre pas avant la bascule', () => {
+    const s = run(s0, { type: 'media/unlock', caseId: ID, mediaId: 'ne-pas-effacer', code: '1403' });
+    expect(p(s).mediaVariants['ne-pas-effacer']).toBeUndefined();
+  });
+
   it('garder puis transmettre : apaisement complet et réglage « Nora »', () => {
     let s = view(s0, 'enregistrement');
-    s = set(s, { clockAuto: false, manualDate: '2025-03-14', manualTime: '23:48' });
+    s = view(s, 'avis');
+    s = flush(run(s, { type: 'media/unlock', caseId: ID, mediaId: 'ne-pas-effacer', code: '1403' }));
     s = view(s, 'ne-pas-effacer');
     s = send(s, 'r-garder');
     expect(delivered(s, 'moi-garder')).toBe(1);

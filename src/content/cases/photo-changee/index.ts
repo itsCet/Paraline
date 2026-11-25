@@ -449,6 +449,42 @@ export const photoChangee: CaseDefinition = {
   ],
 
   weather: { city: 'Saint-Malo', temp: 11, sky: 'nuageux' },
+  report: {
+    text: [
+      'Paul n’est pas revenu : c’est {qui} qui l’ajoutait sur les nouvelles photos.',
+      'Elle utilisait {outil}.',
+      'Ce qui le prouve : {preuve}.',
+    ],
+    blanks: {
+      qui: {
+        answer: 'Léa',
+        options: [
+          { text: 'Léa', requires: { messageDelivered: 'a-ipad1' } },
+          { text: 'Anna' },
+          { text: 'quelqu’un qui a accès au compte de Paul', requires: { messageDelivered: 'a-acces' } },
+          { text: 'une application de l’album, toute seule' },
+        ],
+      },
+      outil: {
+        answer: 'Retouche+, sur l’iPad de Paul',
+        options: [
+          { text: 'Retouche+, sur l’iPad de Paul', requires: { observationFound: 'info-ipad' } },
+          { text: 'le compte de Paul, resté ouvert', requires: { messageDelivered: 'a-acces' } },
+          { text: 'le téléphone d’Anna' },
+          { text: 'un filtre de l’appareil photo' },
+        ],
+      },
+      preuve: {
+        answer: 'Paul n’a ni ombre ni reflet',
+        options: [
+          { text: 'Paul n’a ni ombre ni reflet', requires: { any: [{ observationFound: 'parc-ombre' }, { observationFound: 'anniv-reflet' }] } },
+          { text: 'un homme marche au loin sur la plage', requires: { observationFound: 'plage-silhouette' } },
+          { text: 'Paul sourit sur toutes les photos' },
+          { text: 'les photos sont floues' },
+        ],
+      },
+    },
+  },
   about: { duration: '~10 min', tone: 'Enquête rationnelle' },
   conclusion: {
     title: 'Affaire résolue',

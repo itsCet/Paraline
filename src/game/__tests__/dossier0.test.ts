@@ -1,7 +1,8 @@
 /** « Dossier 0 » : notes de Victor, absence du joueur, Récemment supprimés, épreuve « ne bouge plus ». */
 import { beforeEach, describe, expect, it } from 'vitest';
-import { availableReplies, indexCases } from '../engine';
+import { availableReplies, currentObstacle, evaluate, indexCases } from '../engine';
 import { createReducer, type Action } from '../reducer';
+import { withRapport } from './rapport-auto';
 import { initialState } from '../save';
 import type { GameState, Settings } from '../types';
 import { dossierZero as def } from '../../content/cases/dossier-0';
@@ -10,7 +11,7 @@ import { availableNews } from '../../content/news';
 const ID = def.id;
 const cases = indexCases([def]);
 let now = Date.parse('2026-11-22T22:00:00');
-const reducer = createReducer(cases, () => now);
+const reducer = withRapport(createReducer(cases, () => now), cases);
 const run = (s: GameState, ...a: Action[]) => a.reduce(reducer, s);
 const flush = (s: GameState, rounds = 30) => {
   for (let i = 0; i < rounds; i++) {
@@ -110,6 +111,39 @@ describe('dossier 0', () => {
     s = run(s, { type: 'stillness/result', result: 'touched' }, { type: 'stillness/result', result: 'touched' });
     expect(p(s).flags.sursauts).toBe(2);
     expect(s.overrides.stillness).toBeDefined();
+  });
+
+  it('rapport : l’affaire n’est résolue qu’avec un rapport juste ; les choix se découvrent', () => {
+    const brut = createReducer(cases, () => now);
+    let s = jusquALEpreuve(s0);
+    s = brut(s, { type: 'stillness/result', result: 'held' });
+    for (let i = 0; i < 30; i++) {
+      now += 4000;
+      s = brut(s, { type: 'tick' });
+    }
+    // Fin de l'histoire : l'affaire attend le rapport, le téléphone redevient normal, Le Fil ne parle pas encore.
+    expect(got(s, 'i-eteindre')).toBe(true);
+    expect(p(s).status).toBe('active');
+    expect(p(s).flags.rapport).toBe('pret');
+    expect(s.overrides).toEqual({});
+    expect(availableNews(s, cases).map((n) => n.id)).toEqual(['d0-hessel-un-an']);
+    expect(currentObstacle(def, s)?.id).toBe('rapport');
+    // Un choix n'apparaît que s'il a été découvert : le cadre d'enfance n'a pas été touché.
+    const support = def.report!.blanks.support.options.filter((o) => !o.requires || evaluate(o.requires, s, ID)).map((o) => o.text);
+    expect(support).toContain('un mini-dictaphone');
+    expect(support).not.toContain('le dos d’un cadre photo');
+    // Mauvais rapport : seulement le nombre de réponses justes.
+    const juste = Object.fromEntries(Object.entries(def.report!.blanks).map(([k, b]) => [k, b.answer]));
+    s = brut(s, { type: 'report/submit', caseId: ID, answers: { ...juste, coupable: 'Victor Hessel', but: 'se venger de Victor' } });
+    expect(p(s).status).toBe('active');
+    expect(p(s).flags['rapport:justes']).toBe(2);
+    expect(p(s).flags['rapport:essais']).toBe(1);
+    // Bon rapport : l'affaire est résolue et l'article paraît.
+    s = brut(s, { type: 'report/submit', caseId: ID, answers: juste });
+    expect(p(s).status).toBe('solved');
+    expect(p(s).flags.rapport).toBe('ok');
+    expect(availableNews(s, cases).map((n) => n.id)).toContain('d0-affaire-rouverte');
+    expect(s.activeCaseId).toBeNull();
   });
 
   it('tenir 30 secondes : fin complète', () => {

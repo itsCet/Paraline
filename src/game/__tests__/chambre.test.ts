@@ -4,6 +4,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { availableReplies, currentObstacle, indexCases } from '../engine';
 import { createReducer, type Action } from '../reducer';
+import { withRapport } from './rapport-auto';
 import { deserialize, initialState, serialize } from '../save';
 import type { GameState, Settings } from '../types';
 import { chambreCondamnee as def } from '../../content/cases/chambre-condamnee';
@@ -11,7 +12,7 @@ import { chambreCondamnee as def } from '../../content/cases/chambre-condamnee';
 const ID = def.id;
 const cases = indexCases([def]);
 let now = 1_000_000;
-const reducer = createReducer(cases, () => now);
+const reducer = withRapport(createReducer(cases, () => now), cases);
 const run = (s: GameState, ...a: Action[]) => a.reduce(reducer, s);
 /** Fait passer le temps fictif pour vider la file de livraison. */
 const flush = (s: GameState, rounds = 12) => {

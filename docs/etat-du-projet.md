@@ -32,6 +32,11 @@ Règle : villes et personnes fictives uniquement.
 - **Messages** : barre des contacts sur le côté dans une conversation (dès 2 conversations), onglets Conversations / Archivées, heure sur chaque bulle (`time` d'un message pour l'histoire, `frozenTime` d'un fil : Gabriel à 03:17), coches et « Lu / Distribué », « En ligne » / « écrit… », bouton Appeler (`callText` du fil), nom et taille des pièces jointes.
 - Thème doré essayé puis écarté : tag git local `theme-dore-test` (non poussé).
 
+## Résolution des enquêtes (25/11/2026)
+- **Rapport d'enquête** dans les 7 enquêtes : l'affaire n'est résolue qu'avec un rapport juste (phrases à trous dans Dossiers). Les réglages ouvrent l'accès aux indices, le rapport vérifie la compréhension. Détails : `docs/mecaniques-capteurs.md`.
+- **Elle écrit** : plus de date/heure ; le fichier de Nora est protégé par un code déduit (1403).
+- **Vidéo image par image** : prête (labo) ; prévue pour « Le cinquième » à la place de la date, en attente de la vidéo de l'auteur.
+
 ## Mécaniques du moteur (voir `docs/mecaniques-capteurs.md`)
 Batterie en temps réel (`battery`), radio FM (`radio.stations`, app Radio), spectre audio (`spectrogram`), lampe torche (`flashlight`), photo à 360° avec passages (`panorama.exits`), boussole (`compass`, app Boussole), condition `manualHour`, `flagAtMost`, effet `addFlag`, verrou par code (`locked`).
 

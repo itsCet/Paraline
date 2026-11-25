@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { availableReplies, indexCases } from '../engine';
 import { createReducer, type Action } from '../reducer';
+import { withRapport } from './rapport-auto';
 import { initialState } from '../save';
 import type { GameState } from '../types';
 import { douzePourcent as def } from '../../content/cases/douze-pourcent';
@@ -9,7 +10,7 @@ import { douzePourcent as def } from '../../content/cases/douze-pourcent';
 const ID = def.id;
 const cases = indexCases([def]);
 let now = Date.parse('2026-11-22T23:45:00');
-const reducer = createReducer(cases, () => now);
+const reducer = withRapport(createReducer(cases, () => now), cases);
 const run = (s: GameState, ...a: Action[]) => a.reduce(reducer, s);
 /** Avance le temps par pas de 2 s. */
 const wait = (s: GameState, ms: number) => {

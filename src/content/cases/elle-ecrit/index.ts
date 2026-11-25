@@ -12,7 +12,8 @@
  *   conversation « Moi » qui passe même en mode avion, Dictaphone qui apparaît) ;
  * - sons du jeu coupés → le passage « [inaudible] » de la transcription se lit ;
  * - numéro de série du carton → Marc retrouve Nora et son avis de décès ;
- * - 14/03/2025 23:48 (manuel) → le fichier vide du Dictaphone se remplit ;
+ * - le fichier du Dictaphone est protégé : Nora donne l'énigme (« Quatre chiffres. Le jour où je ne suis
+ *   pas rentrée. »), la date vient de l'avis de décès → 1403. Les notes de 23:48 sont un faux indice (une heure) ;
  * - transmettre le message à sa mère → toutes les intrusions cessent.
  * Rien n'est bloquant : le joueur garde toujours l'accueil, les réglages et le son.
  */
@@ -140,6 +141,7 @@ export const elleEcrit: CaseDefinition = {
       name: 'ne_pas_effacer.m4a',
       durationLabel: '00:12',
       album: 'Dictaphone',
+      lock: { code: '1403', title: 'Enregistrement protégé', prompt: 'Saisissez le code à quatre chiffres.' },
       defaultVariant: 'vide',
       variants: {
         vide: { src: '', transcript: '(aucun son)' },
@@ -203,6 +205,7 @@ export const elleEcrit: CaseDefinition = {
     { id: 'marc-mere', threadId: 't-marc', from: 'marc', text: 'Sa mère m’a écrit. Elle l’a écouté plusieurs fois. Elle dit merci.' },
     { id: 'moi-1', threadId: 't-moi', from: 'moi', text: 'Ne coupe pas.' },
     { id: 'moi-2', threadId: 't-moi', from: 'moi', text: 'Je suis toujours là.' },
+    { id: 'moi-code', threadId: 't-moi', from: 'moi', text: 'Quatre chiffres. Le jour où je ne suis pas rentrée.' },
     { id: 'moi-ecoute', threadId: 't-moi', from: 'moi', text: 'Écoute.' },
     { id: 'moi-garder', threadId: 't-moi', from: 'moi', text: 'Tu l’as toujours ?' },
   ],
@@ -330,9 +333,9 @@ export const elleEcrit: CaseDefinition = {
       id: 'message',
       solved: messageEntendu,
       hints: [
-        'Un fichier est apparu dans votre téléphone, mais il est vide.',
-        'Les notes arrivent toujours à la même heure. L’avis de décès donne une date.',
-        'Réglez la date sur le 14 mars 2025 et l’heure sur 23:48, puis ouvrez Dictaphone.',
+        'Un fichier est apparu dans votre Dictaphone, mais il est protégé. Nora vous a écrit comment l’ouvrir.',
+        'Elle parle d’un jour, pas d’une heure. Qui sait quand elle n’est pas rentrée ?',
+        'L’avis de décès donne le 14 mars : dans Dictaphone, ouvrez ne_pas_effacer.m4a et tapez 1403.',
       ],
     },
     {
@@ -377,6 +380,7 @@ export const elleEcrit: CaseDefinition = {
       effects: [
         { type: 'phoneOverride', key: 'extraApp', value: 'dictaphone' },
         { type: 'grantMedia', mediaId: 'ne-pas-effacer' },
+        { type: 'deliverMessage', messageId: 'moi-code', delayMs: 12000, ignoreAirplane: true, background: true },
       ],
     },
     /* Effacer ses notes ne sert à rien : elles reviennent, avec une phrase de plus. */
@@ -389,10 +393,10 @@ export const elleEcrit: CaseDefinition = {
       effects: [{ type: 'deliverMessage', messageId: 'moi-2', delayMs: 3000, ignoreAirplane: true }],
     },
 
-    /* Revenir à cette nuit-là remplit le fichier vide. */
+    /* Le bon code (le 14 mars : 1403) ouvre le fichier. */
     {
       id: 'retrouver',
-      when: { all: [hante, { manualDate: '2025-03-14' }, { manualTime: '23:48' }] },
+      when: { all: [hante, { flag: 'verrou:ne-pas-effacer' }] },
       effects: [
         { type: 'setMediaVariant', mediaId: 'ne-pas-effacer', variantId: 'plein' },
         { type: 'deliverMessage', messageId: 'moi-ecoute', delayMs: 2500, ignoreAirplane: true },
@@ -419,6 +423,60 @@ export const elleEcrit: CaseDefinition = {
     },
   ],
 
+  report: {
+    text: [
+      'Le téléphone de Marc appartenait à {qui}, morte le {date} sur la route des Étangs.',
+      'Ce soir-là, elle avait enregistré {quoi} pour {pour}, sans jamais l’envoyer.',
+      'Pour qu’elle cesse de chercher, il fallait {fin}.',
+    ],
+    blanks: {
+      qui: {
+        answer: 'Nora Lemaire',
+        options: [
+          { text: 'Nora Lemaire', requires: { any: [{ mediaViewed: 'avis' }, { messageDelivered: 'marc-serie2' }, { mediaViewed: 'ne-pas-effacer@plein' }] } },
+          { text: 'Hélène Lemaire', requires: { observationFound: 'avis-mere' } },
+          { text: 'la vendeuse du site' },
+          { text: 'l’ancienne compagne de Marc' },
+        ],
+      },
+      date: {
+        answer: '14 mars 2025',
+        options: [
+          { text: '14 mars 2025', requires: { any: [{ mediaViewed: 'avis' }, { observationFound: 'chuchotement' }] } },
+          { text: '12 octobre 2025', requires: { mediaViewed: 'notes-marc' } },
+          { text: '23 avril 2025' },
+          { text: '2 novembre 2025', requires: { mediaViewed: 'notes-marc' } },
+        ],
+      },
+      quoi: {
+        answer: 'un message vocal',
+        options: [
+          { text: 'un message vocal', requires: { any: [{ observationFound: 'message-nora' }, { mediaViewed: 'ne-pas-effacer@plein' }] } },
+          { text: 'une note' },
+          { text: 'une lettre' },
+          { text: 'une vidéo' },
+        ],
+      },
+      pour: {
+        answer: 'sa mère',
+        options: [
+          { text: 'sa mère', requires: { any: [{ observationFound: 'message-nora' }, { mediaViewed: 'ne-pas-effacer@plein' }, { mediaViewed: 'avis' }] } },
+          { text: 'Marc' },
+          { text: 'son petit ami' },
+          { text: 'sa sœur' },
+        ],
+      },
+      fin: {
+        answer: 'le faire parvenir à sa mère',
+        options: [
+          { text: 'le faire parvenir à sa mère', requires: { any: [{ observationFound: 'message-nora' }, { mediaViewed: 'ne-pas-effacer@plein' }] } },
+          { text: 'effacer toutes ses notes' },
+          { text: 'réinitialiser le téléphone' },
+          { text: 'rendre le téléphone au vendeur' },
+        ],
+      },
+    },
+  },
   about: { duration: '~10 min', tone: 'Hantise' },
   conclusion: {
     title: 'Affaire résolue',

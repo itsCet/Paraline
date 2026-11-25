@@ -22,7 +22,7 @@ function useMediaState(ref: React.RefObject<HTMLMediaElement | null>, volume: nu
       setPlaying(!el.paused);
     };
     const onErr = () => setError(true);
-    const evs = ['timeupdate', 'durationchange', 'loadedmetadata', 'play', 'pause', 'ended'];
+    const evs = ['timeupdate', 'durationchange', 'loadedmetadata', 'play', 'pause', 'ended', 'seeked'];
     evs.forEach((ev) => el.addEventListener(ev, on));
     el.addEventListener('error', onErr);
     return () => {
@@ -222,6 +222,7 @@ export function VideoPlayer({
           </div>
         )}
       </div>
+      <FrameScrubber m={m} video={ref} fps={variant.fps ?? 30} filmstrip={variant.filmstrip} />
       <Controls
         m={m}
         label={name}
@@ -239,6 +240,82 @@ export function VideoPlayer({
         }
       />
     </>
+  );
+}
+
+/**
+ * Lecture image par image, comme dans Photos sur iPhone : on glisse sur la frise (calée sur les images)
+ * ou on avance d'une image avec les flèches. Un détail peut n'exister que sur quelques images.
+ */
+function FrameScrubber({
+  m,
+  video,
+  fps,
+  filmstrip,
+}: {
+  m: ReturnType<typeof useMediaState>;
+  video: React.RefObject<HTMLVideoElement | null>;
+  fps: number;
+  filmstrip?: { src: string; count: number };
+}) {
+  const total = Math.max(1, Math.floor((m.dur || 0) * fps));
+  const frame = Math.min(total - 1, Math.floor(m.t * fps + 1e-3));
+  const strip = useRef<HTMLDivElement>(null);
+  const goto = (f: number) => {
+    const el = video.current;
+    if (!el) return;
+    if (!el.paused) el.pause();
+    const n = Math.max(0, Math.min(total - 1, f));
+    // Milieu de l'image : évite de retomber sur la précédente à cause des arrondis.
+    el.currentTime = (n + 0.5) / fps;
+  };
+  // Appuis rapides : on part de la position réelle de la vidéo, pas du dernier affichage.
+  const step = (d: number) => {
+    const el = video.current;
+    if (el) goto(Math.floor(el.currentTime * fps + 1e-3) + d);
+  };
+  const fromPointer = (clientX: number) => {
+    const r = strip.current?.getBoundingClientRect();
+    if (!r) return;
+    goto(Math.round(((clientX - r.left) / r.width) * (total - 1)));
+  };
+  const drag = useRef(false);
+  return (
+    <div className="frames" aria-label="Lecture image par image">
+      <button className="icon-btn" onClick={() => step(-1)} aria-label="Image précédente" disabled={!m.dur}>
+        <Icon.Back size={20} />
+      </button>
+      <div
+        ref={strip}
+        className="frames-strip"
+        style={filmstrip ? { backgroundImage: `url(${filmstrip.src})`, backgroundSize: '100% 100%' } : undefined}
+        role="slider"
+        aria-label="Position, image par image"
+        aria-valuemin={1}
+        aria-valuemax={total}
+        aria-valuenow={frame + 1}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowLeft') step(-1);
+          if (e.key === 'ArrowRight') step(1);
+        }}
+        onPointerDown={(e) => {
+          drag.current = true;
+          e.currentTarget.setPointerCapture(e.pointerId);
+          fromPointer(e.clientX);
+        }}
+        onPointerMove={(e) => drag.current && fromPointer(e.clientX)}
+        onPointerUp={() => (drag.current = false)}
+      >
+        <i style={{ left: `${(frame / Math.max(1, total - 1)) * 100}%` }} />
+      </div>
+      <button className="icon-btn" onClick={() => step(1)} aria-label="Image suivante" disabled={!m.dur}>
+        <Icon.Chevron size={20} />
+      </button>
+      <span className="frames-count" aria-live="polite">
+        {m.playing ? formatTime(m.t) : `Image ${frame + 1}/${total}`}
+      </span>
+    </div>
   );
 }
 

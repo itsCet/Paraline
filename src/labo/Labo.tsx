@@ -6,9 +6,13 @@ import { useState } from 'react';
 import { Flashlight } from '../components/Flashlight';
 import { Panorama } from '../components/Panorama';
 import { CompassDial } from '../components/CompassDial';
+import { VideoPlayer } from '../components/Players';
 import type { Hotspot } from '../game/types';
 
-type Tab = 'lampe' | '360' | 'boussole';
+type Tab = 'lampe' | '360' | 'boussole' | 'video';
+
+// Vidéo d'essai : la silhouette au bonnet rouge n'existe que sur 3 images (70 à 72), à 24 images/s.
+const VIDEO_ZONES: Hotspot[] = [{ id: 'theo', x: 0.81, y: 0.24, w: 0.07, h: 0.1, from: 70 / 24, to: 73 / 24, observationId: 'theo' }];
 
 const LAMPE_ZONES: Hotspot[] = [{ id: 'uv', x: 0.1, y: 0.58, w: 0.42, h: 0.16, observationId: 'uv' }];
 const PANOS: Record<string, { src: string; zones: Hotspot[]; found: Record<string, string>; exit: { x: number; y: number; to: string; label: string } }> = {
@@ -71,6 +75,7 @@ export function Labo() {
               ['lampe', 'Lampe torche'],
               ['360', 'Photo à 360°'],
               ['boussole', 'Boussole'],
+              ['video', 'Vidéo image par image'],
             ] as [Tab, string][]
           ).map(([t, l]) => (
             <button key={t} role="tab" className="chip" aria-selected={tab === t} aria-pressed={tab === t} onClick={() => (setTab(t), setMsg(''))}>
@@ -81,6 +86,7 @@ export function Labo() {
         <p className="labo-help">
           {tab === 'lampe' && 'Glissez le doigt (ou inclinez le téléphone) pour éclairer. Une écriture n’apparaît que dans le faisceau : touchez-la.'}
           {tab === '360' && 'Glissez, pincez, ou « Regarder avec le téléphone ». Chambre : dictaphone, poste-cassette, ours. Couloir : la porte brûlée.'}
+          {tab === 'video' && 'Lisez la vidéo : rien. Mettez en pause et avancez image par image (flèches ou frise) : sur trois images, quelqu’un est sur la glace. Touchez-le.'}
           {tab === 'boussole' && 'Activez la boussole et tournez-vous lentement : un signal vient du nord-est (45°). Tenez la direction 3 secondes.'}
         </p>
         <p className="labo-msg" role="status">{msg}</p>
@@ -108,6 +114,18 @@ export function Labo() {
             onHotspot={(h) => add(h.observationId, p.found[h.observationId] ?? 'Trouvé.')}
             exits={[{ ...p.exit, onGo: () => (setRoom(p.exit.to), setMsg(`Vous êtes dans : ${p.exit.label}`)) }]}
           />
+        )}
+        {tab === 'video' && (
+          <div className="labo-video">
+            <VideoPlayer
+              variant={{ src: '/media/labo/video-lac.mp4', width: 540, height: 720, fps: 24, filmstrip: { src: '/media/labo/video-lac-frise.jpg', count: 10 } }}
+              name="VID_0213.MOV"
+              volume={1}
+              muted
+              hotspots={VIDEO_ZONES}
+              onHotspot={() => add('theo', 'Trouvé : sur une seule seconde de la vidéo, quelqu’un au bonnet rouge est seul sur la glace.')}
+            />
+          </div>
         )}
         {tab === 'boussole' && (
           <div className="scroll">

@@ -56,6 +56,47 @@ export const douzePourcent: CaseDefinition = {
   client: 'coord',
   locked: true,
   weather: { city: 'Vernay-les-Eaux', temp: 4, sky: 'pluie' },
+  report: {
+    text: [
+      'Rapport de permanence. Léa Garnier était enfermée dans {lieu}, au sous-sol.',
+      // Seulement si le joueur a appris que Léa n'a pas de frère, puis seulement si « Hugo » est apparu.
+      { when: { any: [{ messageDelivered: 'l-soeur2' }, { messageDelivered: 'l-hugo1' }] }, text: 'Elle n’avait pas de frère : {preuve}' },
+      // « Hugo » apparu, et le joueur avait de quoi comprendre qui il était.
+      {
+        when: { all: [{ messageDelivered: 'h-1' }, { any: [{ messageDelivered: 'l-hugo1' }, { messageDelivered: 'l-soeur2' }, { messageDelivered: 'g-vide' }] }] },
+        text: 'Celui qui se faisait appeler « Hugo » {hugo}.',
+      },
+    ],
+    blanks: {
+      lieu: {
+        answer: 'la piscine Jean-Bouin',
+        options: [
+          { text: 'la piscine Jean-Bouin', requires: { any: [{ mediaViewed: 'plan' }, { replySent: 'g-r-bouin' }, { replySent: 'h-r-donner' }, { messageDelivered: 'g-ok' }, { messageDelivered: 'g-trouvee-matin' }, { messageDelivered: 'g-vide' }, { messageDelivered: 'c-2' }] } },
+          { text: 'la piscine L’Onde', requires: { mediaViewed: 'plan' } },
+          { text: 'le lycée Camus', requires: { mediaViewed: 'plan' } },
+          { text: 'la mairie de Vernay-les-Eaux', requires: { observationFound: 'mairie' } },
+        ],
+      },
+      preuve: {
+        answer: 'sa sœur Camille est sa seule famille.',
+        options: [
+          { text: 'sa sœur Camille est sa seule famille.', requires: { any: [{ messageDelivered: 'l-soeur2' }, { messageDelivered: 'l-hugo1' }] } },
+          { text: 'ses parents vivent à Vernay-les-Eaux.' },
+          { text: 'elle est fille unique, sans famille.' },
+          { text: 'son frère est à l’étranger.' },
+        ],
+      },
+      hugo: {
+        answer: 'l’avait enfermée',
+        options: [
+          { text: 'l’avait enfermée', requires: { any: [{ messageDelivered: 'l-hugo2' }, { messageDelivered: 'l-hugo1' }, { messageDelivered: 'l-soeur2' }, { messageDelivered: 'g-vide' }] } },
+          { text: 'était vraiment son frère' },
+          { text: 'travaillait à la gendarmerie' },
+          { text: 'était le gardien de la piscine' },
+        ],
+      },
+    },
+  },
   about: { duration: '~15 min', tone: 'Thriller · en temps réel' },
   characters: [
     { id: 'coord', name: 'Coordination Paraline', initials: 'P', color: '#6b4f22', role: 'Réseau Paraline' },

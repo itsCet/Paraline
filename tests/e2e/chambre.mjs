@@ -5,6 +5,7 @@
  *   npm run e2e:chambre        # BASE_URL=http://localhost:4173 par défaut
  */
 import { createRequire } from 'node:module';
+import { remplirRapport } from './rapport.mjs';
 import { mkdirSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
@@ -316,6 +317,10 @@ await check('Retour au réglage automatique → affaire résolue, épilogue', as
   await page.getByRole('switch', { name: 'Réglage automatique' }).click();
   await eliseThread();
   await bubble('Vous avez réussi à lui répondre ?').waitFor({ timeout: 15000 });
+  // L'histoire est finie : l'affaire attend le rapport avant l'épilogue.
+  assert((await reply('Il sait qu’ils sont sortis.').count()) === 0, 'épilogue avant le rapport');
+  await remplirRapport(page, 'La chambre condamnée', ['Gabriel Vannier', '18 novembre 2014', 'a tenu le passage ouvert', 'Aline et Hugo Mercier', '« Les deux sont sortis ? »']);
+  await eliseThread();
   await reply('Il sait qu’ils sont sortis.').click();
   await bubble('Merci.').waitFor();
   await openApp('Dossiers');

@@ -7,6 +7,7 @@ import { caseStatusLabel, character, resolveMedia, thumbOf } from '../game/selec
 import { TUTORIAL_END, TUTORIAL_FOLDER_TITLE, TUTORIAL_MEDIA, TUTORIAL_OBSERVATION } from '../content/tutorial';
 import { Empty, KindIcon, NavBar, formatDate } from '../components/ui';
 import { Icon } from '../components/icons';
+import { ReportCard } from './ReportCard';
 import type { CaseDefinition } from '../game/types';
 
 
@@ -154,6 +155,8 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
             <p>{step.objective}</p>
           </div>
         )}
+
+        {def.report && (p.flags.rapport === 'pret' || p.flags.rapport === 'ok') && <ReportCard def={def} />}
 
         {p.status === 'solved' && (
           <>
