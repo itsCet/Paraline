@@ -12,7 +12,8 @@
  * Acte 2 : livre d'or (empreinte), fils privés, confrontation par preuves ;
  *          Malik avoue, Inès nomme Théo, Julien nie et bloque.
  * Acte 3 : Théo se retourne sur toutes les photos ; app Téléphone (message de
- *          02:14) ; GPS au milieu du lac ; 15/02/2014 02:14 → dernière photo.
+ *          02:14) ; GPS au milieu du lac ; Sarah retrouve une vidéo de cette nuit-là :
+ *          image par image, sur 3 images, Théo est seul sur la glace → dernière photo.
  * Acte 4 : qui dit la vérité à Léna ? Trois fins.
  */
 import type { CaseDefinition, Condition, Effect, ObstacleDef } from '../../../game/types';
@@ -211,6 +212,28 @@ export const leCinquieme: CaseDefinition = {
       },
     },
     {
+      // Vidéo de la soirée (vidéo de l'auteur, Gemini). La silhouette de Théo sur la glace n'existe que sur
+      // 3 images (202 à 204, à 24 images/s) : invisible en lecture, visible image par image.
+      id: 'video-chalet',
+      kind: 'video',
+      name: 'VID_0213.MOV',
+      sizeLabel: '14 Mo',
+      durationLabel: '00:10',
+      defaultVariant: 'v',
+      variants: {
+        v: {
+          src: `${DIR}/vid-0213.mp4`,
+          poster: `${DIR}/vid-0213-poster.jpg`,
+          width: 720,
+          height: 1280,
+          fps: 24,
+          filmstrip: { src: `${DIR}/vid-0213-frise.jpg`, count: 10 },
+          alt: 'Vidéo filmée au téléphone dans le chalet, la nuit : quatre amis jouent aux cartes et rient. Au fond, le garçon au bonnet rouge sort ; la porte se referme. La caméra se tourne vers la fenêtre : le lac gelé sous la lune.',
+          hotspots: [{ id: 'v-glace', x: 240 / 720, y: 614 / 1280, w: 26 / 720, h: 44 / 1280, from: 8.41, to: 8.55, observationId: 'theo-glace' }],
+        },
+      },
+    },
+    {
       id: 'derniere-photo',
       kind: 'image',
       name: 'IMG_0214.jpg',
@@ -373,6 +396,8 @@ export const leCinquieme: CaseDefinition = {
     { id: 'sarah-tourne1', threadId: 't-groupe', from: 'sarah', text: 'Vous avez rouvert les photos ?' },
     { id: 'sarah-tourne2', threadId: 't-groupe', from: 'sarah', text: 'Il s’est retourné. Sur toutes.' },
     { id: 'ines-tourne', threadId: 't-groupe', from: 'ines', text: 'Il nous regarde.' },
+    { id: 'sarah-video1', threadId: 't-groupe', from: 'sarah', text: 'J’ai retrouvé une vidéo de cette nuit-là, sur mon vieux téléphone. Je ne l’avais jamais regardée jusqu’au bout.' },
+    { id: 'sarah-video2', threadId: 't-groupe', from: 'sarah', attachments: ['video-chalet'], notify: false },
     { id: 'julien-debloque1', threadId: 't-julien', from: 'julien', text: 'Je vous ai débloqué.' },
     { id: 'julien-debloque2', threadId: 't-julien', from: 'julien', text: 'Vous avez vu les photos ? C’est moi qu’il regarde.' },
     { id: 'julien-pari1', threadId: 't-julien', from: 'julien', text: 'C’était un pari. Traverser le lac jusqu’à l’île, de nuit. Il voulait nous prouver qu’il n’était plus un gamin.' },
@@ -567,6 +592,7 @@ export const leCinquieme: CaseDefinition = {
     { id: 'article-nuit', title: 'Théo Marchand s’est noyé dans le lac dans la nuit du 14 au 15 février 2014. Officiellement, il était seul.', mediaId: 'article', autoFile: true, actions: [] },
     { id: 'article-telephone', title: 'Le téléphone de Théo n’a jamais été retrouvé.', mediaId: 'article', autoFile: true, actions: [] },
     { id: 'il-regarde', title: 'Il s’est retourné. Il regarde l’objectif.', autoFile: true, actions: [] },
+    { id: 'theo-glace', title: 'Sur trois images seulement : le garçon au bonnet rouge, seul au milieu du lac gelé.', mediaId: 'video-chalet', autoFile: true, actions: [] },
     { id: 'gps-lac', title: 'La position GPS des photos a changé : le milieu du lac de Vaulx.', autoFile: true, actions: [] },
     { id: 'appel-0214', title: 'Message vocal d’un numéro masqué, « reçu à deux heures quatorze ».', mediaId: 'messagerie', autoFile: true, actions: [] },
     { id: 'vous-partez', title: '« Je vous vois… Vous partez ? … Vous êtes partis. »', mediaId: 'messagerie', autoFile: true, actions: [] },
@@ -625,12 +651,12 @@ export const leCinquieme: CaseDefinition = {
       ],
     ],
     [
-      'date',
+      'video',
       { mediaViewed: 'derniere-photo' },
       [
-        'Quelqu’un a appelé ce téléphone. Son propre téléphone n’a jamais été retrouvé.',
-        'Le message vocal donne une heure. Le livre d’or et l’article donnent une nuit.',
-        'Réglages › Date et heure : désactivez le réglage automatique, puis 15/02/2014 à 02:14. Ouvrez ensuite Photos.',
+        'Sarah a retrouvé une vidéo de cette nuit-là. Regardez-la jusqu’au bout.',
+        'Quand la caméra s’arrête sur la fenêtre, tout semble vide. Mettez en pause et avancez image par image.',
+        'Groupe : ouvrez VID_0213.MOV, mettez en pause vers 00:08, avancez image par image avec les flèches : sur trois images, quelqu’un est sur la glace. Touchez-le.',
       ],
     ],
     [
@@ -682,7 +708,7 @@ export const leCinquieme: CaseDefinition = {
       effects: [
         { type: 'setFlag', name: 'tourne', value: true },
         ...PHOTOS.map((m): Effect => ({ type: 'setMediaVariant', mediaId: m, variantId: 'face' })),
-        ...say(['sarah-tourne2', 2500], ['ines-tourne', 3000]),
+        ...say(['sarah-tourne2', 2500], ['ines-tourne', 3000], ['sarah-video1', 9000], ['sarah-video2', 1500]),
         { type: 'phoneOverride', key: 'extraApp', value: 'telephone' },
         { type: 'grantMedia', mediaId: 'messagerie' },
         { type: 'notify', title: 'Téléphone', body: 'Nouveau message vocal · Numéro masqué', app: 'phone' },
@@ -692,12 +718,10 @@ export const leCinquieme: CaseDefinition = {
     },
     { id: 'debloque', when: recu('julien-debloque1'), effects: say(['julien-debloque2', 2500]) },
 
-    /* Revenir à 02:14, cette nuit-là : la dernière photo du téléphone de Théo. */
+    /* Image par image, on le voit seul sur la glace : la dernière photo de son téléphone arrive. */
     {
       id: 'derniere',
-      when: {
-        all: [{ flag: 'tourne' }, { manualTime: '02:14' }, { any: [{ manualDate: '2014-02-15' }, { manualDate: '2014-02-14' }] }],
-      },
+      when: { all: [{ flag: 'tourne' }, { observationFound: 'theo-glace' }] },
       effects: [
         { type: 'grantMedia', mediaId: 'derniere-photo' },
         { type: 'notify', title: 'Photos', body: 'Nouvelle photo : IMG_0214.jpg', app: 'photos' },
@@ -748,7 +772,7 @@ export const leCinquieme: CaseDefinition = {
       acte: {
         answer: 'traverser le lac gelé jusqu’à l’île',
         options: [
-          { text: 'traverser le lac gelé jusqu’à l’île', requires: { any: [{ messageDelivered: 'julien-pari1' }, { observationFound: 'gps-lac' }] } },
+          { text: 'traverser le lac gelé jusqu’à l’île', requires: { any: [{ messageDelivered: 'julien-pari1' }, { observationFound: 'gps-lac' }, { observationFound: 'theo-glace' }] } },
           { text: 'nager jusqu’au ponton' },
           { text: 'aller chercher du bois dans la forêt' },
           { text: 'rentrer seul à pied' },

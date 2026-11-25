@@ -53,7 +53,7 @@ function jusquAuBlocage(s: GameState) {
 /** Jusqu'au choix de la fin, avec l'aveu de Julien. */
 function jusquAuChoix(s: GameState) {
   s = jusquAuBlocage(s);
-  s = set(s, { clockAuto: false, manualDate: '2014-02-15', manualTime: '02:14' });
+  s = find(s, 'video-chalet', 'theo-glace');
   s = send(s, 'j-pari');
   s = find(s, 'derniere-photo', 'ils-partent');
   return send(s, 'g-derniere');
@@ -100,12 +100,14 @@ describe('le cinquième', () => {
     expect(s.copies[0].variantId).toBe('dos');
   });
 
-  it('la dernière photo : uniquement après l’acte 3, à 02:14 le 15 (ou le 14) février 2014', () => {
+  it('la dernière photo : Sarah envoie la vidéo, Théo sur la glace image par image ; la date ne sert plus', () => {
     let s = set(s0, { clockAuto: false, manualDate: '2014-02-15', manualTime: '02:14' });
+    s = jusquAuBlocage(s);
+    expect(got(s, 'sarah-video2')).toBe(true);
     expect(p(s).grantedMedia).not.toContain('derniere-photo');
-    s = jusquAuBlocage(set(s, { manualTime: '02:15' }));
-    expect(p(s).grantedMedia).not.toContain('derniere-photo');
-    s = set(s, { manualDate: '2014-02-14', manualTime: '02:14' });
+    // Avant qu'il se retourne, voir la silhouette ne suffit pas (la règle attend l'acte 3).
+    expect(def.media.find((m) => m.id === 'video-chalet')!.variants.v.hotspots![0].from).toBeGreaterThan(8);
+    s = find(s, 'video-chalet', 'theo-glace');
     expect(p(s).grantedMedia).toContain('derniere-photo');
   });
 
@@ -122,7 +124,7 @@ describe('le cinquième', () => {
 
   it('sans l’aveu de Julien, la fin complète n’est pas proposée', () => {
     let s = jusquAuBlocage(s0);
-    s = set(s, { clockAuto: false, manualDate: '2014-02-15', manualTime: '02:14' });
+    s = find(s, 'video-chalet', 'theo-glace');
     s = send(find(s, 'derniere-photo', 'ils-partent'), 'g-derniere');
     expect(got(s, 'ines-lena2')).toBe(true);
     expect(currentObstacle(def, s)?.id).toBe('aveu');
@@ -152,7 +154,7 @@ describe('le cinquième', () => {
 describe('le cinquième — corrections après la revue joueur', () => {
   it('sans l’aveu de Julien, Inès le fait remarquer (une fois)', () => {
     let s = jusquAuBlocage(s0);
-    s = set(s, { clockAuto: false, manualDate: '2014-02-15', manualTime: '02:14' });
+    s = find(s, 'video-chalet', 'theo-glace');
     s = send(find(s, 'derniere-photo', 'ils-partent'), 'g-derniere');
     expect(got(s, 'ines-julien')).toBe(true);
   });
@@ -172,8 +174,11 @@ describe('le cinquième — corrections après la revue joueur', () => {
     expect(newReplies(def, s, 't-malik')).toEqual([]);
   });
 
-  it('rappel de remettre l’heure automatique à la résolution', () => {
-    const s = send(jusquAuChoix(s0), 'f-personne');
+  it('rappel de remettre l’heure automatique à la résolution (si le joueur l’a changée), sinon aucun', () => {
+    // L'enquête ne demande plus de changer l'heure : pas de rappel.
+    expect(send(jusquAuChoix(s0), 'f-personne').notifications.some((n) => n.app === 'settings')).toBe(false);
+    // Un joueur qui l'a changée quand même est prévenu.
+    const s = send(set(jusquAuChoix(s0), { clockAuto: false, manualDate: '2014-02-15' }), 'f-personne');
     expect(s.notifications.some((n) => n.app === 'settings')).toBe(true);
   });
 

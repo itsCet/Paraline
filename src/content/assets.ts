@@ -56,6 +56,9 @@ export const ASSETS: AssetEntry[] = [
   { path: '/media/cases/elle-ecrit/enregistrement-0412.mp3', kind: 'audio', usage: 'Enregistrement nocturne de Marc (13,8 s)', source: 'Audio fourni par l’auteur du jeu (ElevenLabs), extrait de sa vidéo' },
   { path: '/media/cases/elle-ecrit/ne-pas-effacer.mp3', kind: 'audio', usage: 'Dernier message vocal de Nora (12 s)', source: 'Audio fourni par l’auteur du jeu (ElevenLabs), extrait de sa vidéo' },
   // Enquête « Le cinquième »
+  { path: '/media/cases/le-cinquieme/vid-0213.mp4', kind: 'video', usage: 'VID_0213.MOV : la soirée au chalet ; Théo sur la glace sur 3 images', source: 'Vidéo de l’auteur (Gemini), silhouette ajoutée' },
+  { path: '/media/cases/le-cinquieme/vid-0213-poster.jpg', kind: 'image', usage: 'Aperçu de VID_0213.MOV', source: 'Extrait de la vidéo' },
+  { path: '/media/cases/le-cinquieme/vid-0213-frise.jpg', kind: 'image', usage: 'Frise image par image de VID_0213.MOV', source: 'Extrait de la vidéo' },
   { path: '/media/cases/le-cinquieme/groupe.jpg', kind: 'image', usage: 'IMG_2041.jpg — selfie devant la cheminée, Théo de dos', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/le-cinquieme/groupe-face.jpg', kind: 'image', usage: 'IMG_2041.jpg après l’acte 3 — Théo de face', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/le-cinquieme/cartes.jpg', kind: 'image', usage: 'IMG_2043.jpg — partie de cartes, Théo de dos dans l’embrasure', source: 'Image fournie par l’auteur du jeu' },

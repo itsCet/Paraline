@@ -261,13 +261,31 @@ function FrameScrubber({
   const total = Math.max(1, Math.floor((m.dur || 0) * fps));
   const frame = Math.min(total - 1, Math.floor(m.t * fps + 1e-3));
   const strip = useRef<HTMLDivElement>(null);
+  // Sur mobile (et Safari iPhone), une vidéo jamais lancée n'est pas chargée : changer de position n'affiche
+  // rien. Au premier geste, on la lance une fraction de seconde en silence, puis on la met en pause.
+  const primed = useRef(false);
+  const prime = async (el: HTMLVideoElement) => {
+    if (primed.current || el.readyState >= 2) return;
+    primed.current = true;
+    const muted = el.muted;
+    el.muted = true;
+    try {
+      await el.play();
+    } catch {
+      /* lecture refusée : la position changera quand même dès que les données arriveront */
+    }
+    el.pause();
+    el.muted = muted;
+  };
   const goto = (f: number) => {
     const el = video.current;
     if (!el) return;
-    if (!el.paused) el.pause();
     const n = Math.max(0, Math.min(total - 1, f));
-    // Milieu de l'image : évite de retomber sur la précédente à cause des arrondis.
-    el.currentTime = (n + 0.5) / fps;
+    void prime(el).then(() => {
+      if (!el.paused) el.pause();
+      // Milieu de l'image : évite de retomber sur la précédente à cause des arrondis.
+      el.currentTime = (n + 0.5) / fps;
+    });
   };
   // Appuis rapides : on part de la position réelle de la vidéo, pas du dernier affichage.
   const step = (d: number) => {

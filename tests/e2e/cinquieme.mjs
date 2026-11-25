@@ -215,12 +215,29 @@ await check('Julien débloque et raconte le pari', async () => {
   await say('Julien', 'Que s’est-il passé cette nuit-là ?', 'rejoint l’autre rive');
 });
 
-await check('15/02/2014 02:14 : la dernière photo', async () => {
-  await settingsRoot();
-  await page.getByRole('button', { name: /Date et heure/ }).click();
-  await page.getByRole('switch', { name: 'Réglage automatique' }).click();
-  await page.locator('input[type=date]').fill('2014-02-15');
-  await setTime(2, 14);
+await check('La vidéo de Sarah, image par image : Théo seul sur la glace, puis la dernière photo', async () => {
+  await thread('Chalet 🌲');
+  await openMedia('VID_0213.MOV');
+  await viewer().locator('video').evaluate((v) => new Promise((r) => (v.readyState >= 1 ? r() : v.addEventListener('loadedmetadata', r, { once: true }))));
+  // Lecture normale : rien. Frise jusqu'à la fin, puis image par image jusqu'à l'image 203.
+  const strip = await viewer().locator('.frames-strip').boundingBox();
+  await page.mouse.click(strip.x + strip.width * (200 / 239), strip.y + strip.height / 2);
+  await page.waitForTimeout(400);
+  const label = async () => Number(((await viewer().locator('.frames-count').textContent()) ?? '').match(/Image (\d+)/)?.[1] ?? 0);
+  for (let i = 0; i < 12 && (await label()) !== 203; i++) {
+    const before = await label();
+    await viewer().getByRole('button', { name: before < 203 ? 'Image suivante' : 'Image précédente' }).click();
+    await page.waitForFunction((b) => !document.querySelector('.frames-count')?.textContent?.includes(`Image ${b}/`), before, { timeout: 3000 }).catch(() => {});
+    if (process.env.DEBUG_FRAMES) console.log(before, '→', await label(), await viewer().locator('video').evaluate((v) => v.currentTime));
+  }
+  assert((await label()) === 203, `image ${await label()}`);
+  await shot('06b-video-theo');
+  const box = await viewer().locator('.video-box').boundingBox();
+  await page.mouse.click(box.x + box.width * (253 / 720), box.y + box.height * (636 / 1280));
+  await page.locator('.sheet h2', { hasText: 'seul au milieu du lac gelé' }).waitFor();
+  await page.getByRole('button', { name: 'Fermer', exact: true }).click();
+  await closeViewer();
+  await page.locator('.banner', { hasText: 'IMG_0214.jpg' }).waitFor({ timeout: 15000 }).catch(() => {});
   await openApp('Photos');
   await page.getByRole('tab', { name: 'Pièces reçues' }).click();
   await openMedia('IMG_0214.jpg');
