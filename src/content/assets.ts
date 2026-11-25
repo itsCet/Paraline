@@ -77,6 +77,8 @@ export const ASSETS: AssetEntry[] = [
   { path: '/media/cases/dossier-0/bureau-matin.jpg', kind: 'image', usage: 'IMG_0003.jpg — fin complète', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/dossier-0/victor.jpg', kind: 'image', usage: 'Avis de disparition de Victor Hessel', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/dossier-0/clara-1998.jpg', kind: 'image', usage: 'Photo de classe de Clara (article 1998)', source: 'Image fournie par l’auteur du jeu' },
+  { path: '/media/cases/dossier-0/presse-tilleuls-nuit.jpg', kind: 'image', usage: 'Le Fil : la maison de nuit, une fenêtre éclairée (article sur Victor)', source: 'Image fournie par l’auteur du jeu' },
+  { path: '/media/cases/dossier-0/presse-tilleuls-matin.jpg', kind: 'image', usage: 'Le Fil : gendarmes devant la maison au matin (affaire rouverte)', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/dossier-0/jumpscare-v2.jpg', kind: 'image', usage: 'Visage du sursaut (épreuve « Ne bouge plus »)', source: 'Image fournie par l’auteur du jeu' },
   { path: '/media/cases/dossier-0/temoignage-clara.mp3', kind: 'audio', usage: 'Témoignage de Clara + chuchotement à gauche', source: 'Généré avec ElevenLabs (compte de l’auteur)' },
   { path: '/media/cases/dossier-0/victor-messagerie.mp3', kind: 'audio', usage: 'Dernier message vocal de Victor', source: 'Généré avec ElevenLabs (compte de l’auteur)' },
