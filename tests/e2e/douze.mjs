@@ -183,6 +183,8 @@ await check('Jean-Bouin et B-14 aux gendarmes : Léa est retrouvée, épilogue d
   const s = await save();
   assert(s.cases['douze-pourcent'].status === 'solved', 'affaire non résolue');
   await openApp('Dossiers');
+  const back = page.locator('section.app-layer:not([hidden]) .navbar-back');
+  if (await back.isVisible()) await back.click();
   await page.locator('.row, .mail-row, button', { hasText: '12 %' }).first().click();
   await page.getByText('interpellé', { exact: false }).waitFor();
   await shot('04-conclusion');

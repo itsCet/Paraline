@@ -318,6 +318,7 @@ await check('Tenir 30 secondes sans toucher : fin « Entendue »', async () => {
   assert((await save()).cases['dossier-0'].flags.rapport === 'pret', 'pas de rapport demandé');
   await remplirRapport(page, 'Dossier 0', ['Bernard Morand', 'un mini-dictaphone', 'effacé contre de l’argent', 'être entendue'], {
     faux: ['Victor Hessel', 'son téléphone portable', 'remis à la gendarmerie', 'se venger de Victor'],
+    shot: (n) => shot(n),
   });
   await shot('05b-rapport');
   const s = await save();

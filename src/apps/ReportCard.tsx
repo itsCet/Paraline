@@ -63,7 +63,7 @@ export function ReportCard({ def }: { def: CaseDefinition }) {
         <>
           {tries > 0 && right < ids.length && (
             <div className="callout neutral" role="status">
-              {right} réponse{right > 1 ? 's' : ''} sur {ids.length} {right > 1 ? 'sont justes' : 'est juste'}. Relisez vos observations et les pièces.
+              {right === 0 ? `Aucune réponse juste sur ${ids.length}.` : `${right} réponse${right > 1 ? 's' : ''} sur ${ids.length} ${right > 1 ? 'sont justes' : 'est juste'}.`} Relisez vos observations et les pièces.
             </div>
           )}
           <button className="btn btn-primary btn-block" disabled={!complete} onClick={submit}>
