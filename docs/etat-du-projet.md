@@ -27,6 +27,11 @@ Articles dans `src/content/news.ts` : date fixe (`date`) ou parution quand une e
 Pour l'instant : « Un an après, l'enquêteur Victor Hessel reste introuvable » (teaser de Dossier 0, visible dès le début) et « Incendie de 1998 : l'affaire Morand est rouverte » (seulement après la fin « Entendue », annoncé par une notification). Fin sombre : pas d'article.
 Règle : villes et personnes fictives uniquement.
 
+## Écran verrouillé et Messages (25/11/2026)
+- **Écran verrouillé** (`src/phone/LockScreen.tsx`) : à l'ouverture et au retour après 30 s d'absence (pas pendant « Ne bouge plus »). Heure, météo de la ville de l'enquête (`weather` dans l'enquête, sinon Saint-Aubin ; `src/game/weather.ts`), notifications empilées, lampe torche (écran blanc) et appareil photo. Les tests automatisés le passent (`navigator.webdriver`) ; `?verrou` le force.
+- **Messages** : barre des contacts sur le côté dans une conversation (dès 2 conversations), onglets Conversations / Archivées, heure sur chaque bulle (`time` d'un message pour l'histoire, `frozenTime` d'un fil : Gabriel à 03:17), coches et « Lu / Distribué », « En ligne » / « écrit… », bouton Appeler (`callText` du fil), nom et taille des pièces jointes.
+- Thème doré essayé puis écarté : tag git local `theme-dore-test` (non poussé).
+
 ## Mécaniques du moteur (voir `docs/mecaniques-capteurs.md`)
 Batterie en temps réel (`battery`), radio FM (`radio.stations`, app Radio), spectre audio (`spectrogram`), lampe torche (`flashlight`), photo à 360° avec passages (`panorama.exits`), boussole (`compass`, app Boussole), condition `manualHour`, `flagAtMost`, effet `addFlag`, verrou par code (`locked`).
 

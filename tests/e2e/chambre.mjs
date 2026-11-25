@@ -80,13 +80,18 @@ const eliseThread = async () => {
   await openApp('Messages');
   const back = page.locator('section.app-layer:not([hidden]) .navbar-back');
   if (await back.isVisible()) await back.click();
+  await page.getByRole('button', { name: 'Conversations', exact: true }).click();
   await page.locator('.mail-row', { hasText: 'Élise Morel' }).click();
 };
 const gabrielThread = async () => {
   await openApp('Messages');
   const back = page.locator('section.app-layer:not([hidden]) .navbar-back');
   if (await back.isVisible()) await back.click();
-  await page.locator('.mail-row', { hasText: 'G. Vannier' }).click();
+  // Une fois l'affaire close, la conversation passe dans l'onglet « Archivées ».
+  await page.getByRole('button', { name: 'Conversations', exact: true }).click();
+  const row = page.locator('.mail-row', { hasText: 'G. Vannier' });
+  if (!(await row.isVisible())) await page.getByRole('button', { name: /^Archivées/ }).click();
+  await row.click();
 };
 const bubble = (t) => page.locator('section.app-layer:not([hidden]) .bubble', { hasText: t });
 const reply = (t) => page.getByRole('button', { name: t, exact: true });
