@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useGame } from '../game/store';
 import { useNav } from './nav';
 import { inbox, pendingReplyThreads, unreadMessages } from '../game/selectors';
@@ -8,6 +9,23 @@ import type { PhoneTime } from '../game/clock';
 import type { AppId } from '../game/types';
 
 export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime }) {
+  // L'accueil ne défile jamais : s'il manque de place, l'horloge se resserre (sinon elle était coupée en haut).
+  const ref = useRef<HTMLDivElement>(null);
+  const [tight, setTight] = useState(false);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || hidden) return;
+    el.scrollTop = 0;
+    const check = () => {
+      if (!el.classList.contains('tight') && el.scrollHeight > el.clientHeight + 1) setTight(true);
+      // Assez de place pour l'horloge normale (le mode serré gagne environ 80 px) : on la rend.
+      else if (el.classList.contains('tight') && el.scrollHeight + 90 < el.clientHeight) setTight(false);
+    };
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  });
   const { state, dispatch, cases } = useGame();
   const nav = useNav();
   const mails = inbox(state, cases);
@@ -43,7 +61,7 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
   );
 
   return (
-    <div className={`home${state.introDone && t.status === 'pending' ? ' has-offer' : ''}`} hidden={hidden}>
+    <div ref={ref} className={`home${state.introDone && t.status === 'pending' ? ' has-offer' : ''}${tight ? ' tight' : ''}`} hidden={hidden}>
       <div className="home-clock">
         <div className="home-time">{time.hhmm}</div>
         <div className="home-date">{time.dayLabel}</div>

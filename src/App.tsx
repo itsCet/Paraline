@@ -9,8 +9,17 @@ import { SAVE_KEY } from './game/save';
 function useViewportHeight() {
   useEffect(() => {
     const vv = window.visualViewport;
+    // App installée sur l'écran d'accueil (iPhone) : Safari annonce un écran trop court (il manque la hauteur
+    // de la barre d'état), ce qui laissait une bande noire en bas. On prend alors la vraie hauteur de l'écran,
+    // sauf quand le clavier est ouvert (hauteur visible nettement plus petite).
+    const standalone =
+      (navigator as Navigator & { standalone?: boolean }).standalone === true || window.matchMedia?.('(display-mode: standalone)').matches;
     const apply = () => {
-      const h = vv ? vv.height : window.innerHeight;
+      const visible = vv ? vv.height : window.innerHeight;
+      const portrait = window.innerHeight >= window.innerWidth;
+      const full = Math.max(window.innerHeight, standalone && portrait ? Math.max(screen.height, screen.width) : 0);
+      const keyboard = full > 0 && visible < full * 0.75;
+      const h = keyboard ? visible : Math.max(visible, full);
       document.documentElement.style.setProperty('--app-height', `${Math.round(h)}px`);
       // iOS fait défiler la page quand le clavier s'ouvre : on la ramène.
       if (window.scrollY) window.scrollTo(0, 0);

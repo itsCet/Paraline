@@ -1272,3 +1272,12 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
   .lock-time { font-size: 64px; }
   .lock-weather { margin-top: 10px; padding: 10px 14px; }
 }
+
+/* Accueil à l'étroit : l'horloge se resserre au lieu de faire défiler l'écran. */
+.home.tight .home-clock { margin-top: 0; }
+.home.tight .home-time { font-size: 50px; }
+.home.tight .home-date { font-size: 15px; margin-top: 2px; }
+.home.tight .widget { margin-top: 10px; padding: 10px 14px; }
+.home.tight .grid { padding-top: 10px; gap: 8px 6px; }
+.home.tight .offer { margin-top: 10px; padding: 12px 14px; }
+.home.tight .offer p { margin-bottom: 8px; }
