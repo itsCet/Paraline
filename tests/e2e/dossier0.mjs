@@ -105,8 +105,7 @@ const openMedia = async (name) => {
 const setVisibility = (state) => page.evaluate((st) => { Object.defineProperty(document, 'visibilityState', { value: st, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); }, state);
 
 await page.goto(BASE);
-await page.getByRole('button', { name: 'Passer l’introduction' }).click();
-await page.getByRole('button', { name: 'Plus tard' }).click();
+await page.getByRole('button', { name: 'Prendre mon téléphone' }).click();
 
 await check('Le Fil : un seul article (Victor), le bouton ouvre le dossier', async () => {
   await page.getByRole('button', { name: 'Le Fil, 1 non lu' }).click();

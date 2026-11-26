@@ -82,7 +82,10 @@ const eliseThread = async () => {
   const back = page.locator('section.app-layer:not([hidden]) .navbar-back');
   if (await back.isVisible()) await back.click();
   await page.getByRole('button', { name: 'Conversations', exact: true }).click();
-  await page.locator('.mail-row', { hasText: 'Élise Morel' }).click();
+  // Une fois l'affaire close et l'échange terminé, la conversation passe dans « Archivées ».
+  const row = page.locator('.mail-row', { hasText: 'Élise Morel' });
+  if (!(await row.isVisible())) await page.getByRole('button', { name: /^Archivées/ }).click();
+  await row.click();
 };
 const gabrielThread = async () => {
   await openApp('Messages');
@@ -121,8 +124,7 @@ await page.addInitScript(() => {
   } catch {}
 });
 await page.goto(BASE);
-await page.getByRole('button', { name: 'Passer l’introduction' }).click();
-await page.getByRole('button', { name: 'Plus tard' }).click();
+await page.getByRole('button', { name: 'Prendre mon téléphone' }).click();
 await page.waitForTimeout(800);
 await page.reload();
 

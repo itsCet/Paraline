@@ -309,6 +309,8 @@ export const dossierZero: CaseDefinition = {
     { id: 'a-fin', threadId: 't-agnes', from: 'agnes', text: 'Ils ont rouvert le dossier de 1998. Ils cherchent Clara. Enfin.' },
 
     /* L'inconnu */
+    // Premier signe, 25 s après l'acceptation : une notification « Tu… », puis plus rien qu'un message supprimé.
+    { id: 'i-0', threadId: 't-inconnu', from: 'inconnu', text: 'Ce message a été supprimé.', system: true },
     { id: 'i-1', threadId: 't-inconnu', from: 'inconnu', text: 'Tu as son téléphone.' },
     { id: 'i-vu', threadId: 't-inconnu', from: 'inconnu', text: 'Je te regarde.' },
     { id: 'i-viens', threadId: 't-inconnu', from: 'inconnu', text: 'Je viens.' },
@@ -488,8 +490,10 @@ export const dossierZero: CaseDefinition = {
         { type: 'writeNote', noteId: 'v1' },
         { type: 'writeNote', noteId: 'v2' },
         ...say(['sys-auj', 2500], ['a-now1', 2500]),
+        elle('i-0', 25000, true),
       ],
     },
+    { id: 'premier-signe', when: recu('i-0'), effects: [{ type: 'notify', title: 'Inconnu', body: 'Tu…', app: 'messages' }] },
     { id: 'note-morand', when: { any: [{ observationFound: 'fugue' }, { observationFound: 'porte-fermee' }, { observationFound: 'cle-serrure' }] }, effects: [{ type: 'writeNote', noteId: 'v3', delayMs: 4000 }] },
     { id: 'note-supprime', when: { mediaViewed: 'victor-vocal' }, effects: [{ type: 'writeNote', noteId: 'v4', delayMs: 6000 }] },
     { id: 'note-supprime-vue', when: { noteWritten: 'v4' }, effects: [{ type: 'notify', title: 'Notes', body: 'Note restaurée · 16 nov. 2024, 22:31', app: 'notes' }] },

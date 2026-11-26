@@ -60,37 +60,22 @@ const openApp = (label) => page.getByRole('button', { name: new RegExp(`^${label
 
 await page.goto(BASE);
 
-await check('Première ouverture : écran 1/3', async () => {
+await check('Première ouverture : un seul écran, puis le téléphone', async () => {
   await page.getByText('Certaines histoires méritent qu’on les examine.').waitFor();
-  assert(await page.getByText('1 / 3').isVisible(), 'indicateur 1/3 absent');
-  await shot(page, '01-intro-1');
-});
-
-await check('Navigation intro : continuer, retour, 3/3', async () => {
-  await page.getByRole('button', { name: 'Continuer' }).click();
-  await page.getByText('Votre téléphone est votre outil de travail.').waitFor();
-  assert(await page.getByText('2 / 3').isVisible(), '2/3 absent');
-  await shot(page, '02-intro-2');
-  await page.getByRole('button', { name: 'Écran précédent' }).click();
-  await page.getByText('1 / 3').waitFor();
-  await page.getByRole('button', { name: 'Continuer' }).click();
-  await page.getByRole('button', { name: 'Continuer' }).click();
-  await page.getByText('Touchez tout. Les indices se cachent.').waitFor();
-  assert(await page.getByText('3 / 3').isVisible(), '3/3 absent');
-  assert(await page.getByText('Passer l’introduction').isVisible(), 'passer absent');
-  await shot(page, '03-intro-3');
+  await page.getByText('Touchez les photos', { exact: false }).waitFor();
+  await shot(page, '01-intro');
   await page.getByRole('button', { name: 'Prendre mon téléphone' }).click();
 });
 
-await check('Accueil : widget Mail (nouvelle demande) et proposition d’exercice', async () => {
+await check('Accueil : widget Mail (nouvelle demande), pas de carte d’exercice', async () => {
   await page.locator('.widget', { hasText: 'Nouveau message' }).waitFor();
-  await page.getByText('Une minute pour prendre vos marques').waitFor();
+  assert((await page.getByText('Une minute pour prendre vos marques').count()) === 0, 'carte d’exercice encore là');
   await shot(page, '04-home');
 });
 
 await check('Introduction mémorisée après rechargement', async () => {
   await page.reload();
-  await page.getByText('Une minute pour prendre vos marques').waitFor();
+  await page.locator('.widget', { hasText: 'Nouveau message' }).waitFor();
   assert(!(await page.getByText('Certaines histoires').isVisible()), 'intro réaffichée');
 });
 
@@ -123,8 +108,10 @@ await check('Enquêtes réservées : seul Dossier 0 est ouvert, code 1234', asyn
   await home();
 });
 
-await check('Exercice : lancement et ouverture du message', async () => {
-  await page.getByRole('button', { name: 'Faire l’essai' }).click();
+await check('Exercice : lancement depuis Réglages › Aide et ouverture du message', async () => {
+  await openApp('Réglages');
+  await page.getByRole('button', { name: /Aide/ }).click();
+  await page.getByRole('button', { name: /Faire l’exercice de prise en main/ }).click();
   assert((await coach().textContent()).includes('Ouvrez l’application Mail'), 'guide initial');
   await openApp('Mail');
   await page.locator('.mail-row', { hasText: 'Votre première observation' }).click();
@@ -330,7 +317,7 @@ await check('Réinitialisation avec confirmation', async () => {
   await page.getByText('Certaines histoires méritent qu’on les examine.').waitFor();
   await page.reload();
   await page.getByText('Certaines histoires méritent qu’on les examine.').waitFor();
-  await page.getByRole('button', { name: 'Passer l’introduction' }).click();
+  await page.getByRole('button', { name: 'Prendre mon téléphone' }).click();
   await openApp('Notes');
   await page.getByText('Aucune note', { exact: false }).waitFor();
 });
@@ -358,7 +345,7 @@ await check('Ordinateur (1440×900) : téléphone centré et lisible', async () 
   const desk = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'fr-FR' });
   const p = await desk.newPage();
   await p.goto(BASE);
-  await p.getByRole('button', { name: 'Passer l’introduction' }).click();
+  await p.getByRole('button', { name: 'Prendre mon téléphone' }).click();
   const b = await p.locator('.phone').boundingBox();
   assert(Math.abs(b.x + b.width / 2 - 720) < 2 && b.width === 402, `cadre ${JSON.stringify(b)}`);
   await p.keyboard.press('Tab');

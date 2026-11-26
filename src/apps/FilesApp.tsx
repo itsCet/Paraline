@@ -134,6 +134,8 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
   const copies = state.copies.filter((c) => c.caseId === def.id);
   const client = character(def, def.client);
   const conclusion = def.endings?.find((e) => evaluate(e.when, state, def.id)) ?? def.conclusion;
+  // Fiche en trois onglets : l'enquête (objectif, rapport, aide), les indices relevés, le journal.
+  const [tab, setTab] = useState<'enquete' | 'indices' | 'journal'>('enquete');
 
   return (
     <>
@@ -151,16 +153,30 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
           </div>
         </div>
 
-        {p.status === 'active' && step && (
+        <div className="seg case-tabs" role="tablist" aria-label="Sections du dossier">
+          {(
+            [
+              ['enquete', 'Enquête'],
+              ['indices', `Indices${observations.length ? ` (${observations.length})` : ''}`],
+              ['journal', 'Journal'],
+            ] as const
+          ).map(([id, label]) => (
+            <button key={id} role="tab" aria-selected={tab === id} aria-pressed={tab === id} onClick={() => setTab(id)}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {tab === 'enquete' && p.status === 'active' && step && (
           <div className="objective">
             <small>Objectif actuel</small>
             <p>{step.objective}</p>
           </div>
         )}
 
-        {def.report && (p.flags.rapport === 'pret' || p.flags.rapport === 'ok') && <ReportCard def={def} />}
+        {tab === 'enquete' && def.report && (p.flags.rapport === 'pret' || p.flags.rapport === 'ok') && <ReportCard def={def} />}
 
-        {p.status === 'solved' && (
+        {tab === 'enquete' && p.status === 'solved' && (
           <>
             <h2 className="section-title">Conclusion</h2>
             <div className="end-card" style={{ marginTop: 0 }}>
@@ -192,6 +208,8 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
           </>
         )}
 
+        {tab === 'indices' && (
+          <>
         <h2 className="section-title">Observations</h2>
         {observations.length === 0 ? (
           <div className="note-box">Aucune observation pour l’instant. Examinez les pièces jointes et touchez les détails qui vous intriguent.</div>
@@ -248,14 +266,18 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
           </>
         )}
 
-        {p.status === 'active' && help && (
+          </>
+        )}
+
+        {tab === 'enquete' && p.status === 'active' && help && (
           <>
             <h2 className="section-title">Aide</h2>
             <HintList def={def} />
           </>
         )}
 
-        {p.log.length > 0 && (
+        {tab === 'journal' && p.log.length === 0 && <div className="note-box" style={{ marginTop: 18 }}>Rien pour l’instant.</div>}
+        {tab === 'journal' && p.log.length > 0 && (
           <>
             <h2 className="section-title">Historique</h2>
             <ul className="list group log">
@@ -268,6 +290,8 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
           </>
         )}
 
+        {tab === 'enquete' && (
+          <>
         <h2 className="section-title">Échanges</h2>
         <div className="group">
           {/* Seules les conversations déjà commencées : un contact à venir ne doit pas être dévoilé. */}
@@ -289,6 +313,8 @@ function CaseFile({ def, onBack }: { def: CaseDefinition; onBack: () => void }) 
             <Icon.Chevron className="chev" size={18} />
           </button>
         </div>
+          </>
+        )}
       </div>
     </>
   );

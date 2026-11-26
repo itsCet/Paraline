@@ -44,7 +44,7 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
   const [view, setView] = useState({ z: 1, x: 0, y: 0 });
   const viewRef = useRef(view);
   viewRef.current = view;
-  const [ripple, setRipple] = useState<{ x: number; y: number; id: number } | null>(null);
+  const [ripple, setRipple] = useState<{ x: number; y: number; id: number; heat?: 'chaud' | 'tiede' | 'froid' } | null>(null);
 
   useLayoutEffect(() => {
     const el = areaRef.current;
@@ -135,7 +135,15 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
       const d = Math.hypot(rx - (h.x + h.w / 2), ry - (h.y + h.h / 2));
       if (!best || d < best.d) best = { h, d };
     }
-    if (best) onHotspot(best.h);
+    if (best) {
+      onHotspot(best.h);
+      return undefined;
+    }
+    // Raté : chaud-froid selon la distance au détail non relevé le plus proche (aide à savoir où chercher).
+    const left = hotspots.filter((h) => !found.includes(h.observationId));
+    if (!left.length) return undefined;
+    const d = Math.min(...left.map((h) => Math.hypot(rx - (h.x + h.w / 2), ry - (h.y + h.h / 2))));
+    return d < 0.12 ? 'chaud' : d < 0.25 ? 'tiede' : 'froid';
   };
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -203,8 +211,15 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
     }
     lastTap.current = { t: now, x: e.clientX, y: e.clientY };
     const r = areaRef.current!.getBoundingClientRect();
-    setRipple({ x: e.clientX - r.left, y: e.clientY - r.top, id: now });
-    hitTest(e.clientX, e.clientY);
+    const heat = hitTest(e.clientX, e.clientY);
+    setRipple({ x: e.clientX - r.left, y: e.clientY - r.top, id: now, heat });
+    if (heat === 'chaud') {
+      try {
+        navigator.vibrate?.(15);
+      } catch {
+        /* sans vibreur */
+      }
+    }
   };
 
   useEffect(() => {
@@ -307,7 +322,7 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
             })}
           </div>
         )}
-        {ripple && <span key={ripple.id} className="tap-ripple" style={{ left: ripple.x, top: ripple.y }} />}
+        {ripple && <span key={ripple.id} className={`tap-ripple${ripple.heat ? ` ${ripple.heat}` : ''}`} style={{ left: ripple.x, top: ripple.y }} />}
       </div>
       </div>
       {controls && (

@@ -1335,3 +1335,15 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .gauge.done .gauge-fill { background: var(--green); }
 .gauge-pct { font-size: 13px; font-weight: 700; color: var(--amber); min-width: 40px; text-align: right; }
 .gauge.done .gauge-pct { color: var(--green); }
+
+/* Messages : une section par enquête */
+.msg-case + .msg-case { margin-top: 8px; }
+.msg-case-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 18px; }
+.msg-case:first-of-type .msg-case-title { margin-top: 6px; }
+.case-tabs { margin: 4px 0 6px; }
+
+/* Chaud-froid : en touchant à côté d'un détail, l'onde dit si l'on s'en approche. */
+.tap-ripple.froid { border-color: rgba(140, 190, 255, 0.55); }
+.tap-ripple.tiede { border-color: rgba(239, 179, 92, 0.7); width: 52px; height: 52px; margin: -26px 0 0 -26px; }
+.tap-ripple.chaud { border: 2.5px solid rgba(255, 120, 60, 0.95); width: 64px; height: 64px; margin: -32px 0 0 -32px; box-shadow: 0 0 16px rgba(255, 120, 60, 0.6), inset 0 0 12px rgba(255, 120, 60, 0.4); animation-duration: 650ms; }
+.viewer-heat { margin-top: 2px; font-size: 13px; color: var(--text-3); }

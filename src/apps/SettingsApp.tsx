@@ -156,7 +156,13 @@ export function SettingsApp() {
               }}
             >
               <span className="row-main">
-                <div className="row-title">{state.tutorial.status === 'dismissed' && state.tutorial.step !== 'openMail' ? 'Reprendre l’exercice' : 'Refaire l’exercice de prise en main'}</div>
+                <div className="row-title">
+                  {state.tutorial.status === 'dismissed' && state.tutorial.step !== 'openMail'
+                    ? 'Reprendre l’exercice'
+                    : state.tutorial.status === 'completed'
+                      ? 'Refaire l’exercice de prise en main'
+                      : 'Faire l’exercice de prise en main'}
+                </div>
                 <div className="row-sub">Un exemple, sans lien avec les enquêtes.</div>
               </span>
               <Icon.Chevron className="chev" size={18} />

@@ -166,6 +166,11 @@ describe('dossier 0', () => {
     expect(run(s, { type: 'news/read', articleId: 'd0-affaire-rouverte' }).readNews).toEqual(['d0-affaire-rouverte']);
   });
 
+  it('premier signe : 25 s après l’acceptation, « Tu… » puis un message supprimé', () => {
+    expect(got(s0, 'i-0')).toBe(true);
+    expect(got(s0, 'i-1')).toBe(false);
+  });
+
   it('Le Fil : seul l’article sur Victor au début', () => {
     expect(availableNews(s0, cases).map((n) => n.id)).toEqual(['d0-hessel-un-an']);
   });

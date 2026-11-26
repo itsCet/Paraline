@@ -44,7 +44,7 @@ const openApp = (l) => page.getByRole('button', { name: new RegExp(`^${l}(,|$)`)
 const bubbles = (t) => page.locator('.bubble', { hasText: t }).count();
 
 await page.goto(BASE);
-await page.getByRole('button', { name: 'Passer l’introduction' }).click();
+await page.getByRole('button', { name: 'Prendre mon téléphone' }).click();
 
 await check('Widget Mail : dernière demande non lue', async () => {
   await page.locator('.widget', { hasText: 'Client Test' }).waitFor();

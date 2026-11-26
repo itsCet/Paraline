@@ -309,6 +309,9 @@ function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compa
                     <>
                       <h3>Un détail vous intrigue ?</h3>
                       <p>Touchez l’image · {left === 1 ? '1 détail' : `${left} détails`} à relever</p>
+                      {r.media.kind === 'image' && !r.variant.panorama && !r.variant.flashlight && (
+                        <p className="viewer-heat">Plus l’onde est chaude, plus vous êtes près.</p>
+                      )}
                     </>
                   );
                 })()

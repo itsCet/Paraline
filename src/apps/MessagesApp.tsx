@@ -30,7 +30,15 @@ export function MessagesApp() {
       .filter((t) => (p.threads[t.id]?.length ?? 0) > 0 || availableReplies(def, state, t.id).length > 0)
       .map((t) => ({ def, t, entries: p.threads[t.id] ?? [], unread: (p.threads[t.id]?.length ?? 0) - (p.threadRead[t.id] ?? 0), fresh: newReplies(def, state, t.id).length > 0 }));
   });
-  const archived = (d: CaseDefinition, t: CaseDefinition['threads'][number]) => !!t.archivedWhen && evaluate(t.archivedWhen, state, d.id);
+  // Archivée : condition propre au fil, ou enquête résolue sans plus rien à lire, à répondre ni à recevoir.
+  const archived = (d: CaseDefinition, t: CaseDefinition['threads'][number]) => {
+    if (t.archivedWhen && evaluate(t.archivedWhen, state, d.id)) return true;
+    const p = state.cases[d.id];
+    if (p?.status !== 'solved') return false;
+    const unread = (p.threads[t.id]?.length ?? 0) - (p.threadRead[t.id] ?? 0);
+    const pending = state.queue.some((q) => q.caseId === d.id && q.kind === 'message' && d.messages.find((m) => m.id === q.id)?.threadId === t.id);
+    return unread <= 0 && !pending && availableReplies(d, state, t.id).length === 0;
+  };
   threads.sort(
     (a, b) =>
       Number(archived(a.def, a.t)) - Number(archived(b.def, b.t)) ||
@@ -95,8 +103,17 @@ export function MessagesApp() {
         ) : threads.length === 0 ? (
           <Empty>Aucune conversation. Acceptez une enquête : vos témoins vous écriront ici.</Empty>
         ) : (
+          groupByCase(shown)
+            // L'enquête en cours d'abord.
+            .sort((a, b) => Number(state.cases[b[0].id]?.status === 'active') - Number(state.cases[a[0].id]?.status === 'active'))
+            .map(([d, items]) => (
+          <section key={d.id} className="msg-case" aria-label={d.title}>
+            <h2 className="section-title msg-case-title">
+              <span>{d.title}</span>
+              <span className={`tag${state.cases[d.id]?.status === 'solved' ? ' ok' : ''}`}>{state.cases[d.id]?.status === 'solved' ? 'Résolue' : 'En cours'}</span>
+            </h2>
           <ul className="list">
-            {shown.map(({ def: d, t, entries, unread, fresh }) => {
+            {items.map(({ def: d, t, entries, unread, fresh }) => {
               const who = character(d, t.contact);
               const last = entries[entries.length - 1];
               const msg = last && resolveEntry(d, last.messageId);
@@ -123,20 +140,29 @@ export function MessagesApp() {
                     : `${t.members && !msg.system ? `${character(d, msg.from).name} : ` : ''}${msg.text ?? 'Pièce jointe'}`
                   : 'Nouvelle conversation'}
                       </div>
-                      <span className="mail-meta">
-                        {d.title}
-                        {archived(d, t) && <span className="tag neutral">Archivée</span>}
-                      </span>
                     </span>
                   </button>
                 </li>
               );
             })}
           </ul>
+          </section>
+          ))
         )}
       </div>
     </>
   );
+}
+
+/** Regroupe les conversations par enquête, dans l'ordre où elles arrivent (la plus récente d'abord). */
+function groupByCase<T extends { def: CaseDefinition }>(items: T[]): [CaseDefinition, T[]][] {
+  const groups = new Map<string, [CaseDefinition, T[]]>();
+  for (const x of items) {
+    const g = groups.get(x.def.id) ?? [x.def, []];
+    g[1].push(x);
+    groups.set(x.def.id, g);
+  }
+  return [...groups.values()];
 }
 
 function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; onBack: () => void }) {

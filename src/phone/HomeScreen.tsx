@@ -4,7 +4,7 @@ import { useNav } from './nav';
 import { inbox, pendingReplyThreads, unreadMessages } from '../game/selectors';
 import { unreadNews } from '../content/news';
 import { albumItems } from '../apps/VoiceApp';
-import { APP_LABELS, AppGlyph, Icon, LogoMark } from '../components/icons';
+import { APP_LABELS, AppGlyph, Icon } from '../components/icons';
 import type { PhoneTime } from '../game/clock';
 import type { AppId } from '../game/types';
 
@@ -61,7 +61,7 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
   );
 
   return (
-    <div ref={ref} className={`home${state.introDone && t.status === 'pending' ? ' has-offer' : ''}${tight ? ' tight' : ''}`} hidden={hidden}>
+    <div ref={ref} className={`home${tight ? ' tight' : ''}`} hidden={hidden}>
       <div className="home-clock">
         <div className="home-time">{time.hhmm}</div>
         <div className="home-date">{time.dayLabel}</div>
@@ -101,23 +101,6 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
         {state.overrides.extraApp?.value === 'radio' && icon('radio')}
         {state.overrides.extraApp?.value === 'boussole' && icon('compass')}
       </nav>
-      {state.introDone && t.status === 'pending' && (
-        <section className="offer glass" aria-label="Exercice de prise en main">
-          <h2>
-            <LogoMark size={22} /> Une minute pour prendre vos marques
-          </h2>
-          <p>Ouvrez un message, examinez une pièce jointe et enregistrez votre première observation.</p>
-          <div className="offer-actions">
-            <button className="btn btn-primary btn-sm" style={{ minHeight: 40 }} onClick={() => dispatch({ type: 'tutorial/start' })}>
-              Faire l’essai
-            </button>
-            <button className="btn btn-ghost btn-sm" onClick={() => dispatch({ type: 'tutorial/dismiss' })}>
-              Plus tard
-            </button>
-          </div>
-        </section>
-      )}
-
       <div className="home-spacer" />
       <nav className="dock glass" aria-label="Dock">
         {icon('mail', true)}

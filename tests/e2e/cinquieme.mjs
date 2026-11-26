@@ -127,8 +127,7 @@ await page.addInitScript(() => {
   } catch {}
 });
 await page.goto(BASE);
-await page.getByRole('button', { name: 'Passer l’introduction' }).click();
-await page.getByRole('button', { name: 'Plus tard' }).click();
+await page.getByRole('button', { name: 'Prendre mon téléphone' }).click();
 await page.waitForTimeout(800);
 await page.reload();
 
