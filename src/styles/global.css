@@ -1347,3 +1347,4 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .tap-ripple.tiede { border-color: rgba(239, 179, 92, 0.7); width: 52px; height: 52px; margin: -26px 0 0 -26px; }
 .tap-ripple.chaud { border: 2.5px solid rgba(255, 120, 60, 0.95); width: 64px; height: 64px; margin: -32px 0 0 -32px; box-shadow: 0 0 16px rgba(255, 120, 60, 0.6), inset 0 0 12px rgba(255, 120, 60, 0.4); animation-duration: 650ms; }
 .viewer-heat { margin-top: 2px; font-size: 13px; color: var(--text-3); }
+@media (max-height: 700px) { .viewer-heat { display: none; } }
