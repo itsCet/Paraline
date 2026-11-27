@@ -400,7 +400,7 @@ export type Effect =
 /* État sauvegardé                                                      */
 /* ------------------------------------------------------------------ */
 
-export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone' | 'locate' | 'radio' | 'compass' | 'news';
+export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone' | 'locate' | 'radio' | 'compass' | 'news' | 'casier';
 
 export type CaseStatus = 'new' | 'postponed' | 'active' | 'solved';
 

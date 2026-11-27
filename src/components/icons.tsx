@@ -190,6 +190,14 @@ export function AppGlyph({ app }: { app: AppId }) {
           <path d="M30 45l-5-15h10z" fill="#fff" />
         </Tile>
       );
+    case 'casier':
+      return (
+        <Tile from="#5a3d26" to="#2b1c11">
+          <rect x="14" y="15" width="32" height="30" rx="3" fill="none" stroke="#e8dcc1" strokeWidth="2.6" />
+          <path d="M14 30h32" stroke="#e8dcc1" strokeWidth="2.6" />
+          <path d="M26 22.5h8M26 37.5h8" stroke="#efb35c" strokeWidth="3" strokeLinecap="round" />
+        </Tile>
+      );
     case 'news':
       return (
         <Tile from="#f4f1ea" to="#d9d4c7">
@@ -243,4 +251,5 @@ export const APP_LABELS: Record<AppId, string> = {
   radio: 'Radio',
   compass: 'Boussole',
   news: 'Le Fil',
+  casier: 'Casier',
 };

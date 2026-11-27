@@ -38,6 +38,8 @@ const APPS: Record<AppId, () => ReactNode> = {
   radio: () => <RadioApp />,
   compass: () => <CompassApp />,
   news: () => <NewsApp />,
+  // Pas une vraie app : l'icône ramène au casier (voir HomeScreen).
+  casier: () => null,
 };
 
 export function Phone() {

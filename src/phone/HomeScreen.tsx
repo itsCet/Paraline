@@ -47,6 +47,11 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
       key={id}
       className={`app-icon${coachTarget === id ? ' pulse' : ''}`}
       onClick={() => {
+        // Casier : on repose le téléphone et on revient au choix des saisons.
+        if (id === 'casier') {
+          location.href = '/?casier';
+          return;
+        }
         if (id === 'mail') dispatch({ type: 'tutorial/step', step: 'openMessage' });
         nav.open(id);
       }}
@@ -94,7 +99,7 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
       </button>
 
       <nav className="grid" aria-label="Applications">
-        {(['mail', 'messages', 'news', 'photos', 'files', 'notes', 'settings'] as AppId[]).map((id) => icon(id))}
+        {(['mail', 'messages', 'news', 'photos', 'files', 'notes', 'settings', 'casier'] as AppId[]).map((id) => icon(id))}
         {state.overrides.extraApp?.value === 'dictaphone' && icon('voice')}
         {state.overrides.extraApp?.value === 'telephone' && icon('phone')}
         {state.overrides.extraApp?.value === 'localiser' && icon('locate')}
