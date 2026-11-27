@@ -289,6 +289,8 @@ export function applyEffect(state: GameState, def: CaseDefinition, effect: Effec
     }
     case 'notify':
       return pushNotification(state, { app: effect.app ?? 'files', title: effect.title, body: effect.body });
+    case 'incomingCall':
+      return enqueue(state, def, 'call', effect.callId, effect.delayMs ?? 0, now, effect.ignoreAirplane);
     case 'log':
       return updateCase(state, cid, (p) => ({ ...p, log: [...p.log, { at: now, text: effect.text }] }));
     case 'alterCopies':
@@ -400,12 +402,19 @@ export function processQueue(state: GameState, cases: CaseIndex, now: number): G
       remaining.push(q);
       continue;
     }
+    // Un seul appel à la fois : un appel attend que le téléphone soit libre.
+    if (q.kind === 'call' && (next.ringing || next.inCall)) {
+      remaining.push(q);
+      continue;
+    }
     next =
       q.kind === 'message'
         ? deliverMessageNow(next, def, q.id, now)
         : q.kind === 'note'
           ? writeNoteNow(next, def, q.id, now)
-          : deliverMailNow(next, def, q.id);
+          : q.kind === 'call'
+            ? { ...next, ringing: { caseId: def.id, callId: q.id, since: now } }
+            : deliverMailNow(next, def, q.id);
     delivered = true;
   }
   next = { ...next, queue: remaining };

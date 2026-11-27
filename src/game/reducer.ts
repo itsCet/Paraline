@@ -18,7 +18,9 @@ import {
   type CaseIndex,
 } from './engine';
 import { initialState } from './save';
-import type { CaseDefinition, GameState, Id, Note, Settings, TutorialStep } from './types';
+import type { CallRecord, Capture, CaseDefinition, GameState, Id, Note, Settings, TutorialStep } from './types';
+
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 import { ACCESS_CODE } from './selectors';
 
 export type Action =
@@ -34,6 +36,13 @@ export type Action =
   | { type: 'news/read'; articleId: Id }
   | { type: 'report/submit'; caseId: Id; answers: Record<Id, string> }
   | { type: 'media/unlock'; caseId: Id; mediaId: Id; code: string }
+  | { type: 'call/answer' }
+  | { type: 'call/decline' }
+  | { type: 'call/choose'; choiceId: Id }
+  | { type: 'call/end'; natural: boolean }
+  | { type: 'call/log'; contact: string; caseId?: Id }
+  | { type: 'calls/seen' }
+  | { type: 'capture/take'; capture: DistributiveOmit<Capture, 'id' | 'at'> }
   | { type: 'case/accept'; caseId: Id }
   | { type: 'case/postpone'; caseId: Id }
   | { type: 'media/view'; caseId: Id; mediaId: Id }
@@ -382,8 +391,72 @@ function reduce(state: GameState, action: Action, cases: CaseIndex, now: number)
     }
     case 'notification/dismiss':
       return { ...state, notifications: state.notifications.filter((n) => n.id !== action.id) };
-    case 'tick':
-      return processQueue(drainBattery(state, cases, now), cases, now);
+    case 'tick': {
+      // Personne ne répond : l'appel devient « manqué ».
+      const ring = state.ringing;
+      const ringDef = ring && cases.byId.get(ring.caseId);
+      const ringCall = ringDef?.calls?.find((c) => c.id === ring!.callId);
+      let next = state;
+      if (ring && ringDef && ringCall && now - ring.since > (ringCall.ringSeconds ?? 25) * 1000) next = missCall(next, ringDef, ringCall.id, now, cases);
+      return processQueue(drainBattery(next, cases, now), cases, now);
+    }
+
+    case 'call/answer': {
+      const ring = state.ringing;
+      const def = ring && cases.byId.get(ring.caseId);
+      const call = def?.calls?.find((c) => c.id === ring!.callId);
+      if (!ring || !def || !call) return { ...state, ringing: undefined };
+      const next = patchCase({ ...state, ringing: undefined, inCall: { caseId: def.id, callId: call.id, node: call.start, since: now } }, def.id, (q) => ({
+        ...q,
+        flags: { ...q.flags, [`appel:${call.id}`]: 'repondu' },
+      }));
+      return settle(next, cases, now);
+    }
+
+    case 'call/decline': {
+      const ring = state.ringing;
+      const def = ring && cases.byId.get(ring.caseId);
+      if (!ring || !def) return { ...state, ringing: undefined };
+      return processQueue(missCall(state, def, ring.callId, now, cases), cases, now);
+    }
+
+    case 'call/choose': {
+      const c = state.inCall;
+      const def = c && cases.byId.get(c.caseId);
+      const call = def?.calls?.find((x) => x.id === c!.callId);
+      const choice = call?.nodes[c!.node]?.choices?.find((x) => x.id === action.choiceId);
+      if (!c || !def || !call || !choice) return state;
+      let next = patchCase(state, def.id, (q) => ({ ...q, flags: { ...q.flags, [`appel:${call.id}:${choice.id}`]: true } }));
+      for (const e of choice.effects ?? []) next = applyEffect(next, def, e, now);
+      next = choice.next ? { ...next, inCall: { ...c, node: choice.next } } : endCall(next, def, now, false);
+      return processQueue(settle(next, cases, now), cases, now);
+    }
+
+    case 'call/end': {
+      const c = state.inCall;
+      const def = c && cases.byId.get(c.caseId);
+      if (!c || !def) return { ...state, inCall: undefined };
+      let next = state;
+      const node = def.calls?.find((x) => x.id === c.callId)?.nodes[c.node];
+      if (action.natural) for (const e of node?.end ?? []) next = applyEffect(next, def, e, now);
+      next = patchCase(next, def.id, (q) => ({ ...q, flags: { ...q.flags, [`appel:${c.callId}:fin`]: action.natural ? 'fin' : 'raccroche' } }));
+      return processQueue(settle(endCall(next, def, now, false), cases, now), cases, now);
+    }
+
+    case 'call/log':
+      return addCall(state, { id: `appel-${now}`, caseId: action.caseId, contact: action.contact, kind: 'passe', at: now, seen: true });
+
+    case 'calls/seen':
+      return (state.calls ?? []).some((c) => !c.seen) ? { ...state, calls: (state.calls ?? []).map((c) => ({ ...c, seen: true })) } : state;
+
+    case 'capture/take': {
+      const cap = { ...action.capture, id: `capture-${now}`, at: now } as Capture;
+      let next: GameState = { ...state, captures: [...(state.captures ?? []), cap] };
+      // Les enquêtes peuvent réagir à une capture (preuve conservée).
+      if (cap.kind === 'thread') next = patchCase(next, cap.caseId, (q) => ({ ...q, flags: { ...q.flags, [`capture:${cap.threadId}`]: true } }));
+      if (cap.kind === 'media') next = patchCase(next, cap.caseId, (q) => ({ ...q, flags: { ...q.flags, [`capture:${cap.mediaId}`]: true, [`capture:${cap.mediaId}@${cap.variantId}`]: true } }));
+      return settle(next, cases, now);
+    }
     case 'reset':
       return initialState(cases);
   }
@@ -400,3 +473,27 @@ export function resolveEntry(def: Parameters<typeof findMessage>[0], messageId: 
 }
 
 export { emptyProgress, clearOverridesOf };
+
+/** Journal des appels : ajoute une ligne (les 60 dernières sont gardées). */
+function addCall(state: GameState, rec: CallRecord): GameState {
+  return { ...state, calls: [...(state.calls ?? []), rec].slice(-60) };
+}
+
+/** Fin de la conversation : journal « reçu » avec sa durée. */
+function endCall(state: GameState, def: CaseDefinition, now: number, _missed: boolean): GameState {
+  const c = state.inCall;
+  if (!c) return state;
+  const call = def.calls?.find((x) => x.id === c.callId);
+  const who = call?.label ?? def.characters.find((x) => x.id === call?.from)?.name ?? 'Inconnu';
+  return addCall({ ...state, inCall: undefined }, { id: `${c.callId}-${now}`, caseId: def.id, contact: who, kind: 'recu', at: c.since, durationSec: Math.max(1, Math.round((now - c.since) / 1000)), seen: true });
+}
+
+/** Refusé ou sans réponse : appel manqué, conséquences prévues par l'enquête. */
+function missCall(state: GameState, def: CaseDefinition, callId: Id, now: number, cases: CaseIndex): GameState {
+  const call = def.calls?.find((x) => x.id === callId);
+  const who = call?.label ?? def.characters.find((x) => x.id === call?.from)?.name ?? 'Inconnu';
+  let next = addCall({ ...state, ringing: undefined }, { id: `${callId}-${now}`, caseId: def.id, contact: who, kind: 'manque', at: now, seen: false });
+  next = patchCase(next, def.id, (q) => ({ ...q, flags: { ...q.flags, [`appel:${callId}`]: 'manque' } }));
+  for (const e of call?.onMissed ?? []) next = applyEffect(next, def, e, now);
+  return settle(next, cases, now);
+}

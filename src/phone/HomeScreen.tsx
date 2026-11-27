@@ -36,7 +36,7 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
     mail: unreadMail.length,
     messages: unreadMessages(state) + pendingReplyThreads(state, cases),
     news: unreadNews(state, cases),
-    phone: albumItems(state, cases, 'Messagerie').filter((i) => !i.viewed).length,
+    phone: albumItems(state, cases, 'Messagerie').filter((i) => !i.viewed).length + (state.calls ?? []).filter((c) => c.kind === 'manque' && !c.seen).length,
   };
   const t = state.tutorial;
   const coachTarget: AppId | null =
@@ -100,17 +100,17 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
 
       <nav className="grid" aria-label="Applications">
         {(['mail', 'messages', 'news', 'photos', 'files', 'notes', 'settings', 'casier'] as AppId[]).map((id) => icon(id))}
+        {state.activeCaseId && cases.byId.get(state.activeCaseId)?.map && icon('plans')}
         {state.overrides.extraApp?.value === 'dictaphone' && icon('voice')}
-        {state.overrides.extraApp?.value === 'telephone' && icon('phone')}
         {state.overrides.extraApp?.value === 'localiser' && icon('locate')}
         {state.overrides.extraApp?.value === 'radio' && icon('radio')}
         {state.overrides.extraApp?.value === 'boussole' && icon('compass')}
       </nav>
       <div className="home-spacer" />
       <nav className="dock glass" aria-label="Dock">
-        {icon('mail', true)}
+        {icon('phone', true)}
         {icon('messages', true)}
-        {icon('files', true)}
+        {icon('mail', true)}
       </nav>
     </div>
   );

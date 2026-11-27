@@ -6,6 +6,7 @@ export type ViewerSource =
   | { kind: 'case'; caseId: Id; mediaId: Id; focus?: { x: number; y: number; scale: number } }
   | { kind: 'copy'; copyId: Id }
   | { kind: 'tutorial' }
+  | { kind: 'capture'; captureId: Id }
   | { kind: 'compare'; caseId: Id; left: CompareSide; right: CompareSide; back: Exclude<ViewerSource, { kind: 'compare' }> };
 
 export type CompareSide = { label: string; src: string; overlay?: import('../game/types').ImageOverlay };
@@ -41,6 +42,9 @@ interface Nav {
   /** Écran secondaire courant de chaque application (pour le guide). */
   screens: Partial<Record<AppId, string>>;
   setScreen: (app: AppId, screen: string) => void;
+  /** Ce qu'une capture d'écran figerait (conversation ouverte…), déclaré par l'app visible. */
+  capturable: { kind: 'thread'; caseId: Id; threadId: Id } | null;
+  setCapturable: (c: { kind: 'thread'; caseId: Id; threadId: Id } | null) => void;
 }
 
 const Ctx = createContext<Nav | null>(null);
@@ -52,6 +56,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
   const [viewer, setViewer] = useState<ViewerSource | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
   const [screens, setScreens] = useState<Partial<Record<AppId, string>>>({});
+  const [capturable, setCapturable] = useState<Nav['capturable']>(null);
   const seq = useRef(0);
   const toastTimer = useRef<number | undefined>(undefined);
 
@@ -91,8 +96,10 @@ export function NavProvider({ children }: { children: ReactNode }) {
       hideToast,
       screens,
       setScreen,
+      capturable,
+      setCapturable,
     }),
-    [app, opened, open, home, intent, viewer, toast, showToast, hideToast, screens, setScreen],
+    [app, opened, open, home, intent, viewer, toast, showToast, hideToast, screens, setScreen, capturable],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

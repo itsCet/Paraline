@@ -196,6 +196,12 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
   const sending = useRef<string | null>(null);
 
   useEffect(() => {
+    if (!visible) return;
+    nav.setCapturable({ kind: 'thread', caseId: def.id, threadId });
+    return () => nav.setCapturable(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, def.id, threadId]);
+  useEffect(() => {
     if (visible) dispatch({ type: 'thread/read', caseId: def.id, threadId });
   }, [visible, entries.length, replies.length, def.id, threadId, dispatch]);
   useEffect(() => {
@@ -233,6 +239,7 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
       nav.showToast(thread?.callText ?? `${who.name} : numéro injoignable.`);
       return;
     }
+    dispatch({ type: 'call/log', contact: who.name, caseId: def.id });
     nav.showToast(`Appel de ${who.name}…`);
     window.setTimeout(() => nav.showToast(thread?.callText ?? `${who.name} ne répond pas.`), 1800);
   };

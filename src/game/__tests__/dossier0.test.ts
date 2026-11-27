@@ -166,6 +166,56 @@ describe('dossier 0', () => {
     expect(run(s, { type: 'news/read', articleId: 'd0-affaire-rouverte' }).readNews).toEqual(['d0-affaire-rouverte']);
   });
 
+  describe('l’appel de Clara', () => {
+    const jusquALAppel = () => {
+      let s = flush(jusquALaBascule(s0), 30);
+      // Voir la photo, puis attendre que ça sonne (« Je viens », le reflet, 35 s).
+      s = run(s, { type: 'media/view', caseId: ID, mediaId: 'bureau-derriere' });
+      return flush(s, 12);
+    };
+    const brut = createReducer(cases, () => now);
+
+    it('elle appelle après le reflet ; bien questionnée, elle donne la date', () => {
+      let s = jusquALAppel();
+      expect(s.ringing?.callId).toBe('appel-clara');
+      s = run(s, { type: 'call/answer' });
+      expect(s.ringing).toBeUndefined();
+      expect(s.inCall?.node).toBe('n1');
+      s = run(s, { type: 'call/choose', choiceId: 'qui' }, { type: 'call/choose', choiceId: 'suite' }, { type: 'call/choose', choiceId: 'comment' });
+      expect(s.inCall?.node).toBe('n4');
+      s = run(s, { type: 'call/end', natural: true });
+      expect(s.inCall).toBeUndefined();
+      expect(p(s).flags['appel-indice']).toBe(true);
+      expect(p(s).flags['appel:appel-clara']).toBe('repondu');
+      expect(s.calls?.at(-1)).toMatchObject({ kind: 'recu', contact: 'Numéro masqué' });
+    });
+
+    it('refuser : appel manqué, elle écrit', () => {
+      let s = run(jusquALAppel(), { type: 'call/decline' });
+      expect(s.ringing).toBeUndefined();
+      expect(s.calls?.at(-1)).toMatchObject({ kind: 'manque', seen: false });
+      s = flush(s, 4);
+      expect(got(s, 'i-appel-manque')).toBe(true);
+    });
+
+    it('sans réponse pendant 25 s : manqué aussi', () => {
+      let s = jusquALAppel();
+      for (let i = 0; i < 8; i++) {
+        now += 4000;
+        s = brut(s, { type: 'tick' });
+      }
+      expect(s.ringing).toBeUndefined();
+      expect(p(s).flags['appel:appel-clara']).toBe('manque');
+    });
+
+    it('raccrocher en cours de route : pas d’indice', () => {
+      let s = run(jusquALAppel(), { type: 'call/answer' });
+      s = run(s, { type: 'call/end', natural: false });
+      expect(p(s).flags['appel-indice']).toBeUndefined();
+      expect(p(s).flags['appel:appel-clara:fin']).toBe('raccroche');
+    });
+  });
+
   it('premier signe : 25 s après l’acceptation, « Tu… » puis un message supprimé', () => {
     expect(got(s0, 'i-0')).toBe(true);
     expect(got(s0, 'i-1')).toBe(false);

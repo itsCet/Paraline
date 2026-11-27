@@ -5,7 +5,7 @@ import { resolveMedia, thumbOf } from '../game/selectors';
 import { Empty, KindIcon, NavBar } from '../components/ui';
 import { Icon } from '../components/icons';
 
-type Tab = 'received' | 'copies';
+type Tab = 'received' | 'copies' | 'captures';
 
 export function PhotosApp() {
   const { state, cases } = useGame();
@@ -40,6 +40,9 @@ export function PhotosApp() {
           </button>
           <button className="chip" role="tab" aria-selected={tab === 'copies'} aria-pressed={tab === 'copies'} onClick={() => setTab('copies')}>
             Copies conservées
+          </button>
+          <button className="chip" role="tab" aria-selected={tab === 'captures'} aria-pressed={tab === 'captures'} onClick={() => setTab('captures')}>
+            Captures d’écran
           </button>
         </div>
         {tab === 'received' &&
@@ -77,6 +80,22 @@ export function PhotosApp() {
                   <img src={c.src} alt="" loading="lazy" />
                 </button>
               ))}
+            </div>
+          ))}
+        {tab === 'captures' &&
+          ((state.captures ?? []).length === 0 ? (
+            <Empty icon={<Icon.Image size={40} />}>Aucune capture. Glissez depuis le haut de l’écran : le Centre de contrôle permet de figer ce qui est affiché.</Empty>
+          ) : (
+            <div className="photo-grid">
+              {[...(state.captures ?? [])].reverse().map((c) => {
+                const def = c.kind !== 'app' ? cases.byId.get(c.caseId) : undefined;
+                const who = c.kind === 'thread' && def ? def.characters.find((x) => x.id === def.threads.find((t) => t.id === c.threadId)?.contact)?.name : undefined;
+                return (
+                  <button key={c.id} className="photo-cell capture-cell" onClick={() => nav.openViewer({ kind: 'capture', captureId: c.id })} aria-label={`Ouvrir la capture${who ? ` de la conversation avec ${who}` : ''}`}>
+                    {c.kind === 'media' ? <img src={c.src} alt="" loading="lazy" /> : <span className="capture-label">{c.kind === 'thread' ? <><Icon.Message size={22} />{who}</> : c.label}</span>}
+                  </button>
+                );
+              })}
             </div>
           ))}
       </div>

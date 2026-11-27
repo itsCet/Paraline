@@ -18,8 +18,13 @@ import { LocateApp } from '../apps/LocateApp';
 import { RadioApp } from '../apps/RadioApp';
 import { CompassApp } from '../apps/CompassApp';
 import { NewsApp } from '../apps/NewsApp';
+import { MapApp } from '../apps/MapApp';
 import { Stillness } from './Stillness';
 import { LockScreen } from './LockScreen';
+import { CallScreen } from './CallScreen';
+import { ControlCenter } from './ControlCenter';
+import { resolveMedia } from '../game/selectors';
+import { APP_LABELS } from '../components/icons';
 import { HintBulb } from '../components/Hints';
 import { unlockAudio } from '../game/sound';
 import { WALLPAPER } from '../content/assets';
@@ -40,6 +45,7 @@ const APPS: Record<AppId, () => ReactNode> = {
   news: () => <NewsApp />,
   // Pas une vraie app : l'icône ramène au casier (voir HomeScreen).
   casier: () => null,
+  plans: () => <MapApp />,
 };
 
 export function Phone() {
@@ -48,12 +54,37 @@ export function Phone() {
   const s = state.settings;
   const time = usePhoneTime(s);
   const onHome = nav.app === null && !nav.viewer;
+  // Centre de contrôle, lampe torche, capture d'écran.
+  const [cc, setCc] = useState(false);
+  const [torch, setTorch] = useState(false);
+  const [flash, setFlash] = useState(0);
+  const swipe = useRef<number | null>(null);
+  const capture = () => {
+    setCc(false);
+    const v = nav.viewer;
+    let cap: Parameters<typeof dispatch>[0] | null = null;
+    if (v?.kind === 'case') {
+      const def = cases.byId.get(v.caseId);
+      const res = def && resolveMedia(def, state, v.mediaId);
+      if (def && res && res.def.kind === 'image' && res.variant.src)
+        cap = { type: 'capture/take', capture: { kind: 'media', caseId: def.id, mediaId: res.def.id, variantId: res.variantId, src: res.variant.src, name: res.def.name } };
+    } else if (nav.app === 'messages' && nav.capturable) {
+      const { caseId, threadId } = nav.capturable;
+      const entries = (state.cases[caseId]?.threads[threadId] ?? []).map((e) => ({ messageId: e.messageId, at: e.at }));
+      cap = { type: 'capture/take', capture: { kind: 'thread', caseId, threadId, entries } };
+    }
+    window.setTimeout(() => {
+      dispatch(cap ?? { type: 'capture/take', capture: { kind: 'app', label: nav.app ? APP_LABELS[nav.app] : 'Écran d’accueil' } });
+      setFlash(Date.now());
+      nav.showToast('Capture enregistrée dans Photos', { label: 'Voir', run: () => nav.open('photos') });
+    }, 250);
+  };
   // Écran verrouillé : à l'ouverture et au retour après 30 s d'absence. Les tests automatisés le passent (sauf `?verrou`).
   const lockable = () => !navigator.webdriver || new URLSearchParams(location.search).has('verrou');
   const [locked, setLocked] = useState(() => state.introDone && lockable());
 
   // Le jeu remarque quand le joueur le quitte (onglet caché, écran verrouillé) et combien de temps.
-  const { dispatch } = useGame();
+  const { dispatch, cases } = useGame();
   const leftAt = useRef<number | null>(null);
   useEffect(() => {
     const onVis = () => {
@@ -93,12 +124,19 @@ export function Phone() {
           </button>
         </div>
       )}
-      <div className="statusbar">
+      <div
+        className="statusbar"
+        onPointerDown={(e) => (swipe.current = e.clientY)}
+        onPointerUp={(e) => {
+          if (swipe.current !== null && e.clientY - swipe.current > 24 && state.introDone) setCc(true);
+          swipe.current = null;
+        }}
+      >
         <span aria-label={`Heure du téléphone ${time.hhmm}`}>{time.hhmm}</span>
-        <span className="status-icons">
+        <button className="status-icons" onClick={() => state.introDone && setCc(true)} aria-label="Centre de contrôle">
           {s.airplane && <span className="sr-only">Mode avion activé</span>}
           <StatusIcons airplane={s.airplane} />
-        </span>
+        </button>
       </div>
       {state.introDone && state.tutorial.status === 'active' && <Coach />}
       <main className="screen">
@@ -119,6 +157,16 @@ export function Phone() {
       {/* Assombrissement voulu par une enquête (la lumière baisse). */}
       {state.overrides.dim && <div className="phone-dim" aria-hidden="true" style={{ opacity: Math.min(0.7, Number(state.overrides.dim.value) || 0) }} />}
       <Stillness />
+      <CallScreen />
+      {/* Luminosité réglée dans le Centre de contrôle. */}
+      {(s.brightness ?? 1) < 1 && <div className="phone-dim" aria-hidden="true" style={{ opacity: (1 - (s.brightness ?? 1)) * 0.8, zIndex: 125 }} />}
+      {cc && <ControlCenter onClose={() => setCc(false)} onCapture={capture} torch={torch} onTorch={() => setTorch((t) => !t)} />}
+      {torch && (
+        <button className="torch-light" style={{ zIndex: 140 }} aria-label="Éteindre la lampe torche" onClick={() => setTorch(false)}>
+          <span>Touchez pour éteindre</span>
+        </button>
+      )}
+      {flash > 0 && <div key={flash} className="capture-flash" aria-hidden="true" />}
       <Banner />
       <ToastView />
       {!state.introDone && <Intro />}

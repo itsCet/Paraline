@@ -11,6 +11,7 @@ import { resolveEntry } from '../game/reducer';
 import { character } from '../game/selectors';
 import { availableNews } from '../content/news';
 import { currentWeather, forecast, SKY_LABEL } from '../game/weather';
+import { evaluate } from '../game/engine';
 import { WeatherIcon } from '../components/WeatherIcon';
 import { AppGlyph, Icon } from '../components/icons';
 import type { PhoneTime } from '../game/clock';
@@ -79,10 +80,30 @@ export function LockScreen({ time, onUnlock }: { time: PhoneTime; onUnlock: () =
   const hours = forecast(w, time.date);
   const [leaving, setLeaving] = useState(false);
   const [torch, setTorch] = useState(false);
+  // Face ID simulé : une enquête peut faire reconnaître un autre visage (aucune caméra utilisée).
+  const active = state.activeCaseId ? cases.byId.get(state.activeCaseId) : undefined;
+  const face = active?.faceId && state.cases[active.id]?.status === 'active' && evaluate(active.faceId.when, state, active.id) ? active.faceId.name : null;
+  const [faceStep, setFaceStep] = useState<null | 'scan' | 'non' | 'scan2' | 'ok'>(null);
   const startY = useRef<number | null>(null);
 
   const unlock = (then?: () => void) => {
-    if (leaving) return;
+    if (leaving || faceStep) return;
+    if (face) {
+      const steps: ['scan' | 'non' | 'scan2' | 'ok', number][] = [['scan', 0], ['non', 900], ['scan2', 1900], ['ok', 2700]];
+      steps.forEach(([st, t]) => window.setTimeout(() => setFaceStep(st), t));
+      window.setTimeout(() => {
+        try {
+          navigator.vibrate?.([30, 60, 30]);
+        } catch {
+          /* sans vibreur */
+        }
+        finish(then);
+      }, 3900);
+      return;
+    }
+    finish(then);
+  };
+  const finish = (then?: () => void) => {
     if (state.settings.reduceMotion) {
       onUnlock();
       then?.();
@@ -164,6 +185,15 @@ export function LockScreen({ time, onUnlock }: { time: PhoneTime; onUnlock: () =
           <Icon.Camera size={24} />
         </button>
       </div>
+      {faceStep && (
+        <div className="faceid" role="status" aria-live="assertive">
+          <svg className={`faceid-icon ${faceStep}`} viewBox="0 0 60 60" aria-hidden="true">
+            <path d="M6 18V10a4 4 0 014-4h8M42 6h8a4 4 0 014 4v8M54 42v8a4 4 0 01-4 4h-8M18 54h-8a4 4 0 01-4-4v-8" />
+            <path d="M22 22v4M38 22v4M30 24v9h-3M22 40c4 4 12 4 16 0" />
+          </svg>
+          <span>{faceStep === 'non' ? 'Visage non reconnu' : faceStep === 'ok' ? `Visage reconnu : ${face}` : 'Face ID'}</span>
+        </div>
+      )}
       {torch && (
         <button className="torch-light" aria-label="Éteindre la lampe torche" onClick={() => setTorch(false)}>
           <span>Touchez pour éteindre</span>

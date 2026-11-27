@@ -97,6 +97,17 @@ export const douzePourcent: CaseDefinition = {
       },
     },
   },
+  map: {
+    title: 'Vernay-les-Eaux',
+    terrain: 'ville',
+    places: [
+      { id: 'onde', label: 'Centre aquatique L’Onde', detail: 'Au bord de la rocade. Ouvert jusqu’à 22 h.', x: 0.82, y: 0.38, when: { mediaViewed: 'plan' } },
+      { id: 'camus', label: 'Lycée Camus', detail: 'Bassin couvert, sans toboggan.', x: 0.2, y: 0.24, when: { mediaViewed: 'plan' } },
+      { id: 'bouin', label: 'Piscine Jean-Bouin', detail: 'Fermée depuis 2024. Toboggan extérieur, locaux au sous-sol.', x: 0.42, y: 0.66, when: { mediaViewed: 'plan' } },
+      { id: 'eglise', label: 'Église Saint-Martin', detail: 'Son clocher domine tout le quartier.', x: 0.47, y: 0.6, tone: 'danger', when: { any: [{ observationFound: 'clocher' }, { observationFound: 'cloches' }] } },
+      { id: 'gend', label: 'Gendarmerie', detail: 'La brigade de nuit.', x: 0.7, y: 0.14 },
+    ],
+  },
   about: { duration: '~15 min', tone: 'Thriller · en temps réel' },
   characters: [
     { id: 'coord', name: 'Coordination Paraline', initials: 'P', color: '#6b4f22', role: 'Réseau Paraline' },

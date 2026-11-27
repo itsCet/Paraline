@@ -135,6 +135,8 @@ export function normalize(raw: Raw, cases: CaseIndex): GameState {
     notes: arr<GameState['notes'][number]>(raw.notes).filter((n) => isObj(n) && typeof n.id === 'string'),
     ...(raw.unlocked === true ? { unlocked: true } : {}),
     ...(Array.isArray(raw.readNews) ? { readNews: arr<string>(raw.readNews).filter((x) => typeof x === 'string') } : {}),
+    ...(Array.isArray(raw.calls) ? { calls: arr<NonNullable<GameState['calls']>[number]>(raw.calls).filter((c) => isObj(c) && typeof c.id === 'string') } : {}),
+    ...(Array.isArray(raw.captures) ? { captures: arr<NonNullable<GameState['captures']>[number]>(raw.captures).filter((c) => isObj(c) && typeof c.id === 'string') } : {}),
     ...(isObj(raw.away) ? { away: raw.away as GameState['away'] } : {}),
     notifications: [],
   };

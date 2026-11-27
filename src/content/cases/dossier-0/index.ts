@@ -93,6 +93,64 @@ export const dossierZero: CaseDefinition = {
       },
     },
   },
+  /* Elle appelle (voix enregistrée, réponses au choix). Bien questionnée, elle donne la date. */
+  calls: [
+    {
+      id: 'appel-clara',
+      from: 'inconnu',
+      label: 'Numéro masqué',
+      start: 'n1',
+      ringSeconds: 25,
+      nodes: {
+        n1: {
+          audio: `${DIR}/appel-clara-n1.mp3`,
+          text: '(Une respiration.) … Tu me vois ?',
+          choices: [
+            { id: 'qui', label: 'Qui êtes-vous ?', next: 'n2a' },
+            { id: 'clara', label: 'Clara ?', next: 'n2b' },
+            { id: 'laisse', label: 'Laissez-moi tranquille.', next: 'n2c' },
+          ],
+        },
+        n2a: { audio: `${DIR}/appel-clara-n2a.mp3`, text: 'Tu as son téléphone. Tu sais qui je suis.', choices: [{ id: 'suite', label: 'Que voulez-vous ?', next: 'n3' }] },
+        n2b: { audio: `${DIR}/appel-clara-n2b.mp3`, text: 'Plus personne ne m’appelle comme ça.', choices: [{ id: 'suite', label: 'Que voulez-vous ?', next: 'n3' }] },
+        n2c: { audio: `${DIR}/appel-clara-n2c.mp3`, text: 'Il disait ça, lui aussi. Avant.', choices: [{ id: 'suite', label: 'Avant quoi ?', next: 'n3' }] },
+        n3: {
+          audio: `${DIR}/appel-clara-n3.mp3`,
+          text: 'Il a effacé ma voix. Mais rien ne disparaît tout de suite.',
+          choices: [
+            { id: 'comment', label: 'Comment je la retrouve ?', next: 'n4' },
+            { id: 'refus', label: 'Je ne peux pas vous aider.', next: 'n5' },
+          ],
+        },
+        n4: { audio: `${DIR}/appel-clara-n4.mp3`, text: 'Le jour où il l’a fait. Le seize novembre. Ramène-moi.', end: [{ type: 'setFlag', name: 'appel-indice', value: true }] },
+        n5: { audio: `${DIR}/appel-clara-n5.mp3`, text: 'Alors je reste.', end: [dim(0.3)] },
+      },
+      // Personne ne répond : elle écrit.
+      onMissed: [elle('i-appel-manque', 4000)],
+    },
+  ],
+
+  /* Journal des appels de Victor (son téléphone). */
+  callLog: [
+    { id: 'j-morand', contact: 'B. Morand', kind: 'passe', time: '15 nov. 2024, 18:02', duration: '4 min 12' },
+    { id: 'j-agnes1', contact: 'Agnès Ferrand', kind: 'manque', time: '17 nov. 2024, 08:41' },
+    { id: 'j-agnes2', contact: 'Agnès Ferrand', kind: 'manque', time: '17 nov. 2024, 12:15' },
+    { id: 'j-agnes3', contact: 'Agnès Ferrand', kind: 'manque', time: '18 nov. 2024, 21:30' },
+  ],
+
+  /* Une fois qu'elle est là, le téléphone la reconnaît. */
+  faceId: { when: { flag: 'hante' }, name: 'Clara' },
+
+  map: {
+    title: 'Saint-Aubin',
+    terrain: 'ville',
+    places: [
+      { id: 'maison', label: '12 rue des Tilleuls', detail: 'La maison des Morand. Vide depuis l’incendie de 1998.', x: 0.36, y: 0.42 },
+      { id: 'agnes', label: 'Agnès Ferrand', detail: 'Au 10, juste à côté. Elle entend pleurer la nuit.', x: 0.58, y: 0.33 },
+      { id: 'gendarmerie', label: 'Gendarmerie', detail: 'L’avis de recherche de Victor Hessel a été lancé ici.', x: 0.74, y: 0.2, when: { mediaViewed: 'avis' } },
+      { id: 'vous', label: 'Vous', detail: 'Votre bureau. La photo IMG_0001 a été prise ici, cette nuit.', x: 0.62, y: 0.8, tone: 'vous', when: { mediaViewed: 'bureau-derriere' }, mediaId: 'bureau-derriere' },
+    ],
+  },
   about: { duration: '~25 min', tone: 'Horreur · déconseillé aux âmes sensibles' },
   characters: [
     { id: 'coord', name: 'Coordination Paraline', initials: 'P', color: '#6b4f22', role: 'Réseau Paraline' },
@@ -312,6 +370,7 @@ export const dossierZero: CaseDefinition = {
     // Premier signe, 25 s après l'acceptation : une notification « Tu… », puis plus rien qu'un message supprimé.
     { id: 'i-0', threadId: 't-inconnu', from: 'inconnu', text: 'Ce message a été supprimé.', system: true },
     { id: 'i-1', threadId: 't-inconnu', from: 'inconnu', text: 'Tu as son téléphone.' },
+    { id: 'i-appel-manque', threadId: 't-inconnu', from: 'inconnu', text: 'Pourquoi tu ne réponds pas ?' },
     { id: 'i-vu', threadId: 't-inconnu', from: 'inconnu', text: 'Je te regarde.' },
     { id: 'i-viens', threadId: 't-inconnu', from: 'inconnu', text: 'Je viens.' },
     { id: 'i-16', threadId: 't-inconnu', from: 'inconnu', text: 'Le 16 novembre. Ramène-moi au 16 novembre.' },
@@ -498,7 +557,7 @@ export const dossierZero: CaseDefinition = {
     { id: 'note-supprime', when: { mediaViewed: 'victor-vocal' }, effects: [{ type: 'writeNote', noteId: 'v4', delayMs: 6000 }] },
     { id: 'note-supprime-vue', when: { noteWritten: 'v4' }, effects: [{ type: 'notify', title: 'Notes', body: 'Note restaurée · 16 nov. 2024, 22:31', app: 'notes' }] },
     // Elle pousse le joueur vers la date (sans dire « Réglages ») une fois qu'il sait que l'enregistrement a été supprimé.
-    { id: 'ramene-moi', when: { all: [hante, { noteWritten: 'v4' }, { not: { mediaViewed: 'temoignage' } }] }, effects: [elle('i-16', 20000)] },
+    { id: 'ramene-moi', when: { all: [hante, { any: [{ noteWritten: 'v4' }, { flag: 'appel-indice' }] }, { not: { mediaViewed: 'temoignage' } }] }, effects: [elle('i-16', 20000)] },
 
     /* Bascule : la chambre change ; quand on la voit, elle est là. */
     { id: 'chambre-change', when: { all: [{ observationFound: 'dictaphone' }, recu('a-dicta2')] }, effects: [{ type: 'setMediaVariant', mediaId: 'visite-chambre', variantId: 'elle' }, { type: 'notify', title: 'Photos', body: 'VISITE_360_chambre.jpg · modifiée à l’instant', app: 'photos' }] },
@@ -533,6 +592,8 @@ export const dossierZero: CaseDefinition = {
       effects: [
         { type: 'setMediaVariant', mediaId: 'bureau-derriere', variantId: 'elle' },
         { type: 'notify', title: 'Photos', body: 'IMG_0001.jpg · modifiée à l’instant', app: 'photos' },
+        // Puis elle appelle.
+        { type: 'incomingCall', callId: 'appel-clara', delayMs: 35000, ignoreAirplane: true },
       ],
     },
 

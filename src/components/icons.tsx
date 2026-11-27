@@ -57,6 +57,7 @@ export const Icon = {
   Call: (p: P) => (<svg {...base(p)}><path d="M8.2 3.8c-.6-.6-1.6-.5-2.1.1L4.6 5.5c-.8.9-.9 2.2-.3 3.2 2.4 4.6 6.1 8.3 10.7 10.7 1 .6 2.3.5 3.2-.3l1.6-1.5c.6-.6.7-1.5.1-2.1l-2.2-2.4c-.6-.6-1.5-.7-2.2-.3l-1.6 1c-1.9-1-3.5-2.6-4.5-4.5l1-1.6c.4-.7.3-1.6-.3-2.2z" /></svg>),
   Torch: (p: P) => (<svg {...base(p)}><path d="M8 3h8v4l-2 3v10a1 1 0 01-1 1h-2a1 1 0 01-1-1V10L8 7z" /><path d="M12 13v2" /></svg>),
   Camera: (p: P) => (<svg {...base(p)}><path d="M4 8.5a2 2 0 012-2h2l1.5-2h5L16 6.5h2a2 2 0 012 2V17a2 2 0 01-2 2H6a2 2 0 01-2-2z" /><circle cx="12" cy="12.5" r="3.5" /></svg>),
+  Map: (p: P) => (<svg {...base(p)}><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z" /><path d="M9 4v14M15 6v14" /></svg>),
   Message: (p: P) => (<svg {...base(p)}><path d="M20 12a7.5 7.5 0 01-11 6.6L4 20l1.4-4.3A7.5 7.5 0 1120 12z" /></svg>),
 };
 
@@ -190,6 +191,16 @@ export function AppGlyph({ app }: { app: AppId }) {
           <path d="M30 45l-5-15h10z" fill="#fff" />
         </Tile>
       );
+    case 'plans':
+      return (
+        <Tile from="#e9efe6" to="#c9d6c4">
+          <path d="M0 40 L60 22" stroke="#f2c94c" strokeWidth="5" />
+          <path d="M14 0 L24 60" stroke="#ffffff" strokeWidth="4" />
+          <path d="M40 0 C36 20 50 34 44 60" stroke="#8fc0e6" strokeWidth="5" fill="none" />
+          <path d="M30 16c-5.5 0-9.5 4.2-9.5 9.4 0 7 9.5 16.6 9.5 16.6s9.5-9.6 9.5-16.6C39.5 20.2 35.5 16 30 16z" fill="#ff3b30" />
+          <circle cx="30" cy="25.5" r="3.4" fill="#fff" />
+        </Tile>
+      );
     case 'casier':
       return (
         <Tile from="#5a3d26" to="#2b1c11">
@@ -252,4 +263,5 @@ export const APP_LABELS: Record<AppId, string> = {
   compass: 'Boussole',
   news: 'Le Fil',
   casier: 'Casier',
+  plans: 'Plans',
 };

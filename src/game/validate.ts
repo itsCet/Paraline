@@ -108,6 +108,7 @@ export function validateCase(c: CaseDefinition): string[] {
     }
     if ((e.type === 'deliverMessage' || e.type === 'deliverMail') && e.holdUntil) checkCond(e.holdUntil);
     if ((e.type === 'writeNote' || e.type === 'removeNote') && !noteIds.has(e.noteId)) err(`effet : note inconnue ${e.noteId}`);
+    if (e.type === 'incomingCall' && !(c.calls ?? []).some((x) => x.id === e.callId)) err(`effet : appel inconnu ${e.callId}`);
   };
   for (const o of c.obstacles ?? []) checkCond(o.solved);
   for (const e of c.endings ?? []) checkCond(e.when);
@@ -152,6 +153,25 @@ export function validateCase(c: CaseDefinition): string[] {
     if (r.available) checkCond(r.available);
     (r.effects ?? []).forEach(checkEffect);
   }
+  for (const call of c.calls ?? []) {
+    if (!c.characters.some((x) => x.id === call.from)) err(`appel ${call.id} : personnage inconnu ${call.from}`);
+    if (!call.nodes[call.start]) err(`appel ${call.id} : réplique de départ inconnue`);
+    for (const [nid, n] of Object.entries(call.nodes)) {
+      for (const ch of n.choices ?? []) {
+        if (ch.next && !call.nodes[ch.next]) err(`appel ${call.id}/${nid} : réplique ${ch.next} inconnue`);
+        (ch.effects ?? []).forEach(checkEffect);
+      }
+      (n.end ?? []).forEach(checkEffect);
+    }
+    (call.onMissed ?? []).forEach(checkEffect);
+  }
+  for (const pl of c.map?.places ?? []) {
+    if (pl.when) checkCond(pl.when);
+    if (pl.observationId && !c.observations.some((o) => o.id === pl.observationId)) err(`plan : observation inconnue ${pl.observationId}`);
+    if (pl.mediaId && !c.media.some((m) => m.id === pl.mediaId)) err(`plan : média inconnu ${pl.mediaId}`);
+  }
+  for (const l of c.callLog ?? []) if (l.when) checkCond(l.when);
+  if (c.faceId) checkCond(c.faceId.when);
   if (c.report) {
     const used = new Set([...c.report.text.map((t) => (typeof t === 'string' ? t : t.text)).join(' ').matchAll(/\{([\w-]+)\}/g)].map((m) => m[1]));
     for (const t of c.report.text) if (typeof t !== 'string') checkCond(t.when);

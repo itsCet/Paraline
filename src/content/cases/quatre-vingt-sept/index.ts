@@ -83,6 +83,15 @@ export const quatreVingtSept: CaseDefinition = {
       },
     },
   },
+  map: {
+    title: 'Vallée de Saint-Clair',
+    terrain: 'vallee',
+    places: [
+      { id: 'henri', label: 'Chez Henri', detail: 'Le radio-réveil s’allume ici, chaque nuit à 3 h.', x: 0.3, y: 0.7 },
+      { id: 'emetteur', label: 'Émetteur de Radio Vallée', detail: 'Détruit par l’incendie du 14 mars 1987.', x: 0.66, y: 0.22, tone: 'danger', when: { mediaViewed: 'article' } },
+      { id: 'cafe', label: 'Le café d’en face', detail: 'Henri y était « dix minutes », cette nuit-là.', x: 0.72, y: 0.3, when: { messageDelivered: 'n-nuit1' } },
+    ],
+  },
   about: { duration: '~20 min', tone: 'Étrange · casque conseillé' },
   characters: [{ id: 'noemie', name: 'Noémie Vasseur', initials: 'NV', color: '#5a6b4a', role: 'Petite-fille d’Henri Vasseur' }],
 

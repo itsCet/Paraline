@@ -3,6 +3,7 @@ import { useGame } from '../game/store';
 import { fillTemplate } from '../game/engine';
 import { useNav, type ViewerSource } from './nav';
 import { character, resolveMedia } from '../game/selectors';
+import { resolveEntry } from '../game/reducer';
 import { TUTORIAL_MEDIA, TUTORIAL_OBSERVATION } from '../content/tutorial';
 import { ZoomableImage } from '../components/ZoomableImage';
 import { Flashlight } from '../components/Flashlight';
@@ -74,10 +75,59 @@ export function MediaViewer() {
   const { viewer } = useNav();
   if (!viewer) return null;
   if (viewer.kind === 'compare') return <CompareView source={viewer} />;
+  if (viewer.kind === 'capture') return <CaptureViewer captureId={viewer.captureId} />;
   return <SingleViewer key={JSON.stringify(viewer)} source={viewer} />;
 }
 
-function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compare' }> }) {
+/** Capture d'écran : ce qui était affiché, figé (photo, conversation). */
+function CaptureViewer({ captureId }: { captureId: string }) {
+  const { state, cases } = useGame();
+  const nav = useNav();
+  const c = (state.captures ?? []).find((x) => x.id === captureId);
+  const when = c ? new Date(c.at).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+  const def = c && c.kind !== 'app' ? cases.byId.get(c.caseId) : undefined;
+  const thread = c?.kind === 'thread' ? def?.threads.find((t) => t.id === c.threadId) : undefined;
+  const who = thread && def ? character(def, thread.contact).name : undefined;
+  return (
+    <div className="viewer" role="dialog" aria-label="Capture d’écran">
+      <NavBar back="Retour" onBack={nav.closeViewer} title={`Capture · ${when}`} />
+      {!c ? (
+        <div className="empty">Cette capture n’existe plus.</div>
+      ) : c.kind === 'media' ? (
+        <ZoomableImage
+          src={c.src}
+          alt={`Capture d’écran de ${c.name}`}
+          width={def?.media.find((m) => m.id === c.mediaId)?.variants[c.variantId]?.width ?? 1086}
+          height={def?.media.find((m) => m.id === c.mediaId)?.variants[c.variantId]?.height ?? 1448}
+        />
+      ) : c.kind === 'thread' && def ? (
+        <div className="scroll capture-thread">
+          <div className="capture-head">{who}</div>
+          <div className="bubbles">
+            {c.entries.map((e) => {
+              const m = resolveEntry(def, e.messageId);
+              if (!m) return null;
+              if (m.system) return <div key={e.messageId} className="stamp">{m.text}</div>;
+              return m.text ? (
+                <div key={e.messageId} className={`bubble${m.from === 'player' ? ' me' : ''}`}>
+                  {m.text}
+                </div>
+              ) : (
+                <div key={e.messageId} className={`bubble${m.from === 'player' ? ' me' : ''}`}>
+                  <i>Pièce jointe</i>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div className="empty">{c.kind === 'app' ? c.label : ''}</div>
+      )}
+    </div>
+  );
+}
+
+function SingleViewer({ source }: { source: Exclude<ViewerSource, { kind: 'compare' } | { kind: 'capture' }> }) {
   const { state, dispatch, cases } = useGame();
   const nav = useNav();
   const [sheet, setSheet] = useState<string | null>(null);

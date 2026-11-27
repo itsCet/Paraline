@@ -1411,3 +1411,64 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
     box-shadow: 0 0 0 1px #2a2a2f, 0 0 0 7px #0d0d10, 0 0 0 8px #26262b, 0 40px 120px rgba(0, 0, 0, 0.7);
   }
 }
+
+/* Plans */
+.map-app { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+.map-head { padding: 0 calc(16px + var(--safe-right)) 10px calc(16px + var(--safe-left)); }
+.map-canvas { position: relative; flex: 1; min-height: 0; margin: 0 12px 12px; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); }
+.map-terrain { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map-pin { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.map-dot { width: 18px; height: 18px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--amber); box-shadow: 0 2px 6px rgba(0, 0, 0, .6), inset 0 0 0 4px rgba(0,0,0,.18); }
+.map-pin.danger .map-dot { background: var(--red); }
+.map-pin.vous .map-dot { border-radius: 50%; transform: none; background: #0a84ff; box-shadow: 0 0 0 4px rgba(10, 132, 255, .3); animation: map-pulse 2s infinite; }
+@keyframes map-pulse { 50% { box-shadow: 0 0 0 9px rgba(10, 132, 255, .08); } }
+.map-label { font-size: 11px; font-weight: 600; color: #fff; background: rgba(0, 0, 0, .55); padding: 1px 6px; border-radius: 6px; white-space: nowrap; }
+.map-pin.on .map-label { background: var(--amber); color: var(--amber-ink); }
+.map-card { position: absolute; left: 20px; right: 20px; bottom: 24px; background: rgba(28, 29, 34, .96); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; font-size: 14px; }
+.map-card p { margin: 4px 0 6px; color: var(--text-2); }
+
+/* Appel entrant / en cours */
+.call { position: absolute; inset: 0; z-index: 108; display: flex; flex-direction: column; padding: calc(64px + var(--safe-top)) 24px calc(30px + var(--safe-bottom)); background: linear-gradient(180deg, rgba(30, 32, 40, .97), rgba(10, 10, 14, .99)); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); animation: call-in 300ms var(--ease); color: #fff; }
+@keyframes call-in { from { opacity: 0; transform: translateY(-14px); } }
+.call-top { text-align: center; }
+.call-avatar .avatar { width: 84px; height: 84px; font-size: 34px; margin: 0 auto 12px; }
+.call-name { font-size: 32px; font-weight: 600; letter-spacing: -0.02em; }
+.call-sub { font-size: 16px; color: rgba(255, 255, 255, .7); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.call-line { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px 0; }
+.call-text { font-size: 19px; line-height: 1.4; text-align: center; color: rgba(255, 255, 255, .92); margin: 0; font-style: italic; }
+.call-choices { display: flex; flex-direction: column; gap: 0; min-height: 60px; }
+.call-choices .reply { background: rgba(255, 255, 255, .06); animation: call-in 300ms var(--ease); }
+.call-actions { display: flex; justify-content: space-between; margin-top: auto; padding: 0 18px; }
+.call.live .call-actions { margin-top: 14px; }
+.call-actions.single { justify-content: center; }
+.call-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; color: #fff; }
+.call-btn svg { width: 72px; height: 72px; padding: 20px; border-radius: 50%; box-sizing: border-box; }
+.call-btn.accept svg { background: #30d158; }
+.call-btn.decline svg { background: #ff453a; transform: rotate(135deg); }
+.call.ringing .call-btn.accept svg { animation: call-shake 1.6s infinite; }
+@keyframes call-shake { 0%, 60%, 100% { transform: none; } 65%, 75%, 85% { transform: rotate(-12deg); } 70%, 80%, 90% { transform: rotate(12deg); } }
+
+/* Face ID simulé */
+.faceid { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); z-index: 3; width: 150px; height: 150px; border-radius: 34px; background: rgba(20, 22, 28, .82); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; font-size: 13px; font-weight: 600; text-align: center; padding: 10px; animation: lock-in 200ms; }
+.faceid-icon { width: 58px; height: 58px; fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.faceid-icon.scan, .faceid-icon.scan2 { animation: face-scan 0.9s ease-in-out infinite; }
+@keyframes face-scan { 50% { opacity: .45; transform: scale(.94); } }
+.faceid-icon.non { stroke: #ff453a; animation: shake 360ms; }
+.faceid-icon.ok { stroke: #30d158; }
+
+/* Centre de contrôle */
+.statusbar button.status-icons { color: inherit; padding: 6px 0 6px 12px; }
+.cc-backdrop { position: absolute; inset: 0; z-index: 130; background: rgba(0, 0, 0, .35); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); animation: lock-in 180ms; }
+.cc { position: absolute; top: calc(52px + var(--safe-top)); left: 18px; right: 18px; animation: cc-in 260ms var(--ease); }
+@keyframes cc-in { from { opacity: 0; transform: translateY(-24px) scale(.97); } }
+.cc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cc-tile { display: flex; flex-direction: column; justify-content: space-between; gap: 18px; min-height: 92px; padding: 14px; border-radius: 22px; background: rgba(40, 42, 50, .82); color: #fff; text-align: left; font-size: 14px; font-weight: 600; }
+.cc-tile.on { background: #fff; color: #111; }
+.cc-tile.on:first-child { background: #ff9f0a; color: #fff; }
+.cc-slider input { width: 100%; accent-color: #fff; }
+.cc-close { display: block; margin: 18px auto 0; color: rgba(255, 255, 255, .8); font-size: 15px; padding: 8px 16px; }
+.capture-flash { position: absolute; inset: 0; z-index: 150; background: #fff; pointer-events: none; animation: capture-flash 420ms ease-out forwards; }
+@keyframes capture-flash { from { opacity: .9; } to { opacity: 0; } }
+.capture-cell { background: var(--surface-2); }
+.capture-label { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); padding: 6px; text-align: center; }
+.capture-head { text-align: center; font-weight: 700; padding: 8px 0 0; }

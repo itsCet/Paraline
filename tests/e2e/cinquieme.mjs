@@ -204,6 +204,7 @@ await check('Il se tourne : photos de face, GPS au milieu du lac, app Téléphon
   await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   await closeViewer();
   await openApp('Téléphone');
+  await page.getByRole('tab', { name: 'Messagerie' }).click();
   await page.getByRole('button', { name: /Ouvrir Numéro masqué/ }).click();
   await viewer().getByText('Vous êtes partis.').waitFor();
   await shot('06-messagerie');
@@ -263,7 +264,7 @@ await check('Fin complète : ensemble, Léna, le reflet', async () => {
   assert(s.cases['le-cinquieme'].status === 'solved', 'non résolue');
   assert(Object.keys(s.cases['le-cinquieme'].hintsRevealed).length === 0, 'indice utilisé');
   await home();
-  assert((await page.getByRole('button', { name: /^Téléphone/ }).count()) === 0, 'Téléphone encore là');
+  // Le Téléphone reste dans le dock (journal des appels) : il n'est plus ajouté par l'enquête.
 });
 
 await check('Dossier : conclusion de la fin complète', async () => {

@@ -798,6 +798,16 @@ export const leCinquieme: CaseDefinition = {
       },
     },
   },
+  map: {
+    title: 'Lac de Vaulx',
+    terrain: 'lac',
+    places: [
+      { id: 'chalet', label: 'Chalet des Pins', detail: 'Loué du 14 au 16 février 2014.', x: 0.2, y: 0.88 },
+      { id: 'ponton', label: 'Ponton', detail: 'Le ponton privé du chalet.', x: 0.3, y: 0.79 },
+      { id: 'ile', label: 'L’île', detail: 'La traversée de nuit, jusqu’ici : c’était le pari.', x: 0.6, y: 0.44, when: { messageDelivered: 'julien-pari1' } },
+      { id: 'milieu', label: 'Position des photos', detail: '45,6184° N · 5,8921° E. Au milieu du lac, à 400 m de la rive.', x: 0.5, y: 0.58, tone: 'danger', when: { observationFound: 'gps-lac' } },
+    ],
+  },
   about: { duration: '~20 min', tone: 'Enquête longue, trois fins' },
   conclusion: {
     title: 'Affaire résolue',

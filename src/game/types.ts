@@ -288,6 +288,14 @@ export interface CaseDefinition {
    *  qu'elle soit déclarée résolue. Les réglages et manipulations ouvrent l'accès aux indices ; le rapport
    *  vérifie qu'il a compris (qui, quand, pourquoi). */
   report?: ReportDef;
+  /** Appels entrants (dialogue à choix, voix enregistrée). Déclenchés par l'effet `incomingCall`. */
+  calls?: CallDef[];
+  /** Appels déjà dans le journal du téléphone (historique fictif de l'enquête). */
+  callLog?: { id: Id; contact: string; kind: 'manque' | 'recu' | 'passe'; time: string; duration?: string; when?: Condition }[];
+  /** App Plans : carte stylisée et lieux de l'enquête (épingles qui se débloquent). */
+  map?: { title: string; terrain: 'ville' | 'lac' | 'vallee'; places: MapPlace[] };
+  /** Déverrouillage « Face ID » simulé : une fois `when` vraie, le téléphone reconnaît un autre visage. */
+  faceId?: { when: Condition; name: string };
   /** Météo de la ville de l'enquête (écran verrouillé, widget de l'accueil). */
   weather?: Weather;
   /** Durée et ton annoncés au joueur dans Mail (ex. « ~20 min », « Enquête longue »). */
@@ -297,6 +305,51 @@ export interface CaseDefinition {
 /* ------------------------------------------------------------------ */
 /* Conditions                                                           */
 /* ------------------------------------------------------------------ */
+
+export interface CallChoice {
+  id: Id;
+  label: string;
+  /** Réplique suivante (absente : l'appel se termine). */
+  next?: Id;
+  effects?: Effect[];
+}
+export interface CallNode {
+  /** Voix enregistrée (fichier) et sous-titre. */
+  audio?: string;
+  text: string;
+  choices?: CallChoice[];
+  /** Fin de l'appel après cette réplique (sans choix) : effets. */
+  end?: Effect[];
+}
+export interface CallDef {
+  id: Id;
+  /** Personnage qui appelle. */
+  from: Id;
+  /** Libellé affiché (ex. « Numéro masqué »). Par défaut : nom du personnage. */
+  label?: string;
+  start: Id;
+  nodes: Record<Id, CallNode>;
+  /** Refusé ou sans réponse : effets. */
+  onMissed?: Effect[];
+  /** Durée de sonnerie avant « appel manqué » (secondes, 25 par défaut). */
+  ringSeconds?: number;
+}
+
+export interface MapPlace {
+  id: Id;
+  label: string;
+  detail?: string;
+  /** Position sur la carte (0 → 1). */
+  x: number;
+  y: number;
+  /** L'épingle n'apparaît que si la condition est vraie. */
+  when?: Condition;
+  /** Toucher l'épingle relève cette observation. */
+  observationId?: Id;
+  /** Pièce de l'enquête liée (photo prise ici…). */
+  mediaId?: Id;
+  tone?: 'lieu' | 'danger' | 'vous';
+}
 
 export interface ReportDef {
   /** Paragraphes ; `{id}` marque un trou à remplir. Un paragraphe `{ when, text }` n'est demandé que si
@@ -388,6 +441,8 @@ export type Effect =
   | { type: 'phoneOverride'; key: PhoneOverrideKey; value: string; until?: Condition }
   | { type: 'clearPhoneOverride'; key: PhoneOverrideKey }
   | { type: 'notify'; title: string; body?: string; app?: AppId }
+  /** Le téléphone sonne (après `delayMs`) : appel entrant de l'enquête. */
+  | { type: 'incomingCall'; callId: Id; delayMs?: number; ignoreAirplane?: boolean }
   | { type: 'log'; text: string }
   /** Une note apparaît dans l'app Notes du joueur (définie dans `notes`). */
   | { type: 'writeNote'; noteId: Id; delayMs?: number }
@@ -400,7 +455,7 @@ export type Effect =
 /* État sauvegardé                                                      */
 /* ------------------------------------------------------------------ */
 
-export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone' | 'locate' | 'radio' | 'compass' | 'news' | 'casier';
+export type AppId = 'mail' | 'messages' | 'photos' | 'files' | 'notes' | 'settings' | 'voice' | 'phone' | 'locate' | 'radio' | 'compass' | 'news' | 'casier' | 'plans';
 
 export type CaseStatus = 'new' | 'postponed' | 'active' | 'solved';
 
@@ -410,7 +465,7 @@ export interface ThreadEntry {
 }
 
 export interface QueuedDelivery {
-  kind: 'message' | 'mail' | 'note';
+  kind: 'message' | 'mail' | 'note' | 'call';
   id: Id;
   caseId: Id;
   notBefore: number;
@@ -504,6 +559,8 @@ export interface Settings {
   reduceMotion: boolean;
   reduceFlashes: boolean;
   largeText: boolean;
+  /** Luminosité de l'écran (Centre de contrôle), 0,3 → 1. */
+  brightness?: number;
 }
 
 export interface Notification {
@@ -513,6 +570,21 @@ export interface Notification {
   body?: string;
   target?: { caseId?: Id; mailId?: Id; threadId?: Id };
 }
+
+export interface CallRecord {
+  id: Id;
+  caseId?: Id;
+  contact: string;
+  kind: 'manque' | 'recu' | 'passe';
+  at: number;
+  durationSec?: number;
+  seen?: boolean;
+}
+
+export type Capture =
+  | { id: Id; at: number; kind: 'thread'; caseId: Id; threadId: Id; entries: { messageId: Id; at: number }[] }
+  | { id: Id; at: number; kind: 'media'; caseId: Id; mediaId: Id; variantId: Id; src: string; name: string }
+  | { id: Id; at: number; kind: 'app'; label: string };
 
 export interface GameState {
   version: number;
@@ -534,6 +606,13 @@ export interface GameState {
   unlocked?: boolean;
   /** Articles du Fil déjà ouverts. */
   readNews?: Id[];
+  /** Journal des appels du joueur (passés, reçus, manqués). */
+  calls?: CallRecord[];
+  /** Captures d'écran (Photos › Captures d'écran). */
+  captures?: Capture[];
+  /** Appel en cours : sonnerie, puis conversation. Transitoire (non sauvegardé). */
+  ringing?: { caseId: Id; callId: Id; since: number };
+  inCall?: { caseId: Id; callId: Id; node: Id; since: number };
   /** Transitoire : non sauvegardé. */
   notifications: Notification[];
 }
