@@ -2,7 +2,6 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { Labo } from './labo/Labo';
-import { Casier } from './labo/Casier';
 import './styles/global.css';
 import { ASSETS } from './content/assets';
 
@@ -31,6 +30,6 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {new URLSearchParams(location.search).has('labo') ? <Labo /> : new URLSearchParams(location.search).has('casier') ? <Casier /> : <App />}
+    {new URLSearchParams(location.search).has('labo') ? <Labo /> : <App />}
   </StrictMode>,
 );

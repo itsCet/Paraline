@@ -49,7 +49,7 @@ export function HomeScreen({ hidden, time }: { hidden: boolean; time: PhoneTime 
       onClick={() => {
         // Casier : on repose le téléphone et on revient au choix des saisons.
         if (id === 'casier') {
-          location.href = '/?casier';
+          window.dispatchEvent(new Event('paraline:casier'));
           return;
         }
         if (id === 'mail') dispatch({ type: 'tutorial/step', step: 'openMessage' });

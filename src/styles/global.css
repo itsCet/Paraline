@@ -1350,7 +1350,7 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 @media (max-height: 700px) { .viewer-heat { display: none; } }
 
 /* MAQUETTE : casier de la Coordination (/?casier) */
-.casier { position: fixed; inset: 0; overflow: hidden; display: flex; flex-direction: column; color: #e9e4d8;
+.casier { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; color: #e9e4d8;
   background:
     repeating-linear-gradient(92deg, rgba(0,0,0,.08) 0 2px, transparent 2px 9px),
     repeating-linear-gradient(88deg, rgba(255,255,255,.025) 0 1px, transparent 1px 23px),
@@ -1359,9 +1359,9 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .casier-head { position: relative; display: flex; align-items: center; gap: 10px; padding: calc(18px + env(safe-area-inset-top)) 20px 6px; }
 .casier-title { font-size: 13px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; }
 .casier-sub { font-size: 12px; color: rgba(233, 228, 216, 0.55); letter-spacing: 0.04em; }
-.casier-track { position: relative; flex: 1; min-height: 0; display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 18px calc(50% - 31vw) 10px; scrollbar-width: none; align-items: center; }
+.casier-track { position: relative; flex: 1; min-height: 0; display: flex; gap: 18px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; padding: 10px calc(50% - var(--pw, 220px) / 2) 6px; scrollbar-width: none; align-items: center; }
 .casier-track::-webkit-scrollbar { display: none; }
-.casier-slot { flex: none; width: 62vw; max-width: 270px; scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; transition: transform 700ms cubic-bezier(.2,.8,.2,1), opacity 500ms; }
+.casier-slot { flex: none; width: var(--pw, 220px); scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; transition: transform 700ms cubic-bezier(.2,.8,.2,1), opacity 500ms; }
 .casier-slot.opening { transform: scale(1.6) translateY(4%); z-index: 5; }
 .casier-slot.opening .casier-tag { opacity: 0; }
 .casier-phone { width: 100%; aspect-ratio: 9 / 19; border-radius: 34px; padding: 8px; background: linear-gradient(145deg, #2d2e33, #0d0d10); box-shadow: 0 30px 50px rgba(0,0,0,.6), 0 4px 10px rgba(0,0,0,.5), inset 0 0 0 1.5px #3a3b41; transform: rotate(-2deg); }
@@ -1370,12 +1370,12 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .casier-screen { position: relative; display: flex; flex-direction: column; align-items: center; height: 100%; border-radius: 27px; overflow: hidden; background: #050506 url('/media/system/wallpaper.jpg') center / cover; padding-top: 18%; }
 .casier-phone.actif .casier-screen::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.15), rgba(0,0,0,.45)); }
 .cs-time, .cs-date, .cs-notif, .cs-progress { position: relative; z-index: 1; }
-.cs-time { font-size: 46px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; color: #fff; }
-.cs-date { font-size: 12px; color: rgba(255,255,255,.85); margin-top: 4px; }
-.cs-notif { margin-top: 18%; width: 86%; background: rgba(22,24,31,.78); border-radius: 14px; padding: 8px 10px; text-align: left; display: flex; flex-direction: column; font-size: 11.5px; color: #fff; animation: cs-pulse 2.4s ease-in-out infinite; }
+.cs-time { font-size: calc(var(--pw, 220px) * 0.19); font-weight: 700; letter-spacing: -0.02em; line-height: 1; color: #fff; }
+.cs-date { font-size: calc(var(--pw, 220px) * 0.05); color: rgba(255,255,255,.85); margin-top: 4px; }
+.cs-notif { margin-top: 18%; width: 86%; background: rgba(22,24,31,.78); border-radius: 14px; padding: 8px 10px; text-align: left; display: flex; flex-direction: column; font-size: calc(var(--pw, 220px) * 0.048); color: #fff; animation: cs-pulse 2.4s ease-in-out infinite; }
 .cs-notif span { color: rgba(255,255,255,.8); }
 @keyframes cs-pulse { 50% { box-shadow: 0 0 0 2px rgba(239, 179, 92, .35); } }
-.cs-progress { margin-top: auto; margin-bottom: 14%; width: 80%; font-size: 10.5px; color: rgba(255,255,255,.8); display: flex; flex-direction: column; gap: 5px; }
+.cs-progress { margin-top: auto; margin-bottom: 14%; width: 80%; font-size: calc(var(--pw, 220px) * 0.044); color: rgba(255,255,255,.8); display: flex; flex-direction: column; gap: 5px; }
 .cs-progress > i { display: block; height: 4px; border-radius: 2px; background: rgba(255,255,255,.2); }
 .cs-progress > i > i { display: block; height: 100%; border-radius: 2px; background: var(--amber); }
 .cs-off { position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, #1c1e24, #050506 70%); }
@@ -1384,7 +1384,7 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .cs-crack { position: absolute; inset: 0; width: 100%; height: 100%; }
 .cs-crack path { fill: none; stroke: rgba(220,225,235,.55); stroke-width: .7; stroke-linejoin: round; }
 .casier-phone.secret { filter: grayscale(.3) brightness(.85); }
-.casier-tag { position: relative; margin-top: 16px; width: 88%; background: #e8dcc1; color: #2a2013; border-radius: 4px 4px 8px 8px; padding: 10px 12px 34px; font-family: 'Courier New', Courier, monospace; box-shadow: 0 6px 14px rgba(0,0,0,.45); transform: rotate(1.2deg); transition: opacity 300ms; }
+.casier-tag { position: relative; margin-top: 12px; width: min(100%, 250px); background: #e8dcc1; color: #2a2013; border-radius: 4px 4px 8px 8px; padding: 10px 12px 34px; font-family: 'Courier New', Courier, monospace; box-shadow: 0 6px 14px rgba(0,0,0,.45); transform: rotate(1.2deg); transition: opacity 300ms; }
 .casier-slot:nth-child(2) .casier-tag { transform: rotate(-1.5deg); }
 .tag-hole { position: absolute; top: 6px; right: 10px; width: 9px; height: 9px; border-radius: 50%; background: #1d140e; box-shadow: inset 0 1px 2px rgba(0,0,0,.6); }
 .tag-piece { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #7a6646; }
@@ -1399,5 +1399,15 @@ input[type='range'].volume { width: 100%; accent-color: var(--amber); }
 .casier-dots { display: flex; justify-content: center; gap: 8px; padding: 6px 0 4px; }
 .casier-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(233,228,216,.3); }
 .casier-dots i.on { background: var(--amber); }
-.casier-foot { position: relative; padding: 8px 22px calc(18px + env(safe-area-inset-bottom)); min-height: 96px; text-align: center; }
+.casier-foot { position: relative; padding: 6px 22px calc(14px + env(safe-area-inset-bottom)); min-height: 84px; text-align: center; }
 .casier-note { margin: 8px 0 0; font-size: 13px; color: rgba(233,228,216,.65); }
+
+/* Sur ordinateur, le casier a la taille du téléphone. */
+@media (min-width: 720px) and (min-height: 640px) {
+  .casier {
+    width: 402px;
+    height: min(874px, calc(var(--app-height, 100dvh) - 48px));
+    border-radius: 46px;
+    box-shadow: 0 0 0 1px #2a2a2f, 0 0 0 7px #0d0d10, 0 0 0 8px #26262b, 0 40px 120px rgba(0, 0, 0, 0.7);
+  }
+}

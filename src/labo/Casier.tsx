@@ -1,9 +1,12 @@
 /**
- * MAQUETTE (adresse `/?casier`) : le casier de la Coordination, où chaque saison est un téléphone.
- * Rien n'est branché au jeu : sert à valider l'idée et le rendu avant de coder la vraie version.
+ * Le casier de la Coordination : premier écran du jeu, chaque saison est un téléphone.
+ * Saison 1 = le jeu actuel. Saison 2 et le téléphone secret sont encore des aperçus.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { LogoMark } from '../components/icons';
+import { useGame } from '../game/store';
+import { usePhoneTime } from '../game/clock';
+import { WALLPAPER } from '../content/assets';
 
 interface Phone {
   id: string;
@@ -20,10 +23,29 @@ const PHONES: Phone[] = [
   { id: 's3', piece: '??', saison: '', label: 'Aucune étiquette', detail: 'Origine inconnue', state: 'secret' },
 ];
 
-export function Casier() {
+export function Casier({ onOpen }: { onOpen: () => void }) {
+  const { state, cases } = useGame();
+  const time = usePhoneTime(state.settings);
+  const solved = cases.list.filter((d) => state.cases[d.id]?.status === 'solved').length;
+  const total = cases.list.length;
   const [current, setCurrent] = useState(0);
+  // Taille des téléphones calée sur la hauteur disponible (sinon ils débordent sur les écrans courts).
+  const [phoneW, setPhoneW] = useState(220);
   const [opening, setOpening] = useState<string | null>(null);
   const track = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const el = track.current;
+    if (!el) return;
+    const fit = () => {
+      const h = el.clientHeight - 150; // place de l'étiquette sous le téléphone
+      setPhoneW(Math.round(Math.max(120, Math.min(el.clientWidth * 0.62, 290, (h * 9) / 19))));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // Téléphone au centre du défilement.
   useEffect(() => {
@@ -40,7 +62,7 @@ export function Casier() {
   const open = (p: Phone) => {
     if (p.state !== 'actif') return;
     setOpening(p.id);
-    window.setTimeout(() => (location.href = '/'), 900);
+    window.setTimeout(onOpen, state.settings.reduceMotion ? 0 : 750);
   };
 
   const p = PHONES[current];
@@ -55,23 +77,25 @@ export function Casier() {
         </div>
       </header>
 
-      <div className="casier-track" ref={track}>
+      <div className="casier-track" ref={track} style={{ ['--pw' as string]: `${phoneW}px` }}>
         {PHONES.map((ph) => (
           <div key={ph.id} className={`casier-slot${opening === ph.id ? ' opening' : ''}`}>
             <button className={`casier-phone ${ph.state}`} onClick={() => open(ph)} aria-label={`${ph.saison || 'Téléphone inconnu'} : ${ph.label}`}>
-              <span className="casier-screen">
+              <span className="casier-screen" style={ph.state === 'actif' ? { backgroundImage: `url(${state.overrides.wallpaper?.value ?? WALLPAPER})` } : undefined}>
                 {ph.state === 'actif' && (
                   <>
-                    <span className="cs-time">23:48</span>
-                    <span className="cs-date">Mercredi 17 novembre</span>
+                    <span className="cs-time">{time.hhmm}</span>
+                    <span className="cs-date">{time.dayLabel}</span>
                     <span className="cs-notif">
                       <b>Inconnu</b>
                       <span>Tu…</span>
                     </span>
                     <span className="cs-progress">
-                      <span>3 enquêtes sur 16</span>
+                      <span>
+                        {solved} enquête{solved > 1 ? 's' : ''} résolue{solved > 1 ? 's' : ''} sur {total}
+                      </span>
                       <i>
-                        <i style={{ width: '19%' }} />
+                        <i style={{ width: `${Math.round((solved / Math.max(1, total)) * 100)}%` }} />
                       </i>
                     </span>
                   </>

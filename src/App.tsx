@@ -1,7 +1,8 @@
-import { Component, useEffect, type ReactNode } from 'react';
+import { Component, useEffect, useState, type ReactNode } from 'react';
 import { GameProvider } from './game/store';
 import { NavProvider } from './phone/nav';
 import { Phone } from './phone/Phone';
+import { Casier } from './labo/Casier';
 import { LogoMark } from './components/icons';
 import { SAVE_KEY } from './game/save';
 
@@ -86,9 +87,24 @@ class Boundary extends Component<{ children: ReactNode }, { error: Error | null 
   }
 }
 
+/** Le jeu s'ouvre sur le casier (choix du téléphone / de la saison). Les tests automatisés vont directement
+ *  au téléphone, sauf avec `?casier`. L'app « Casier » du téléphone y ramène (évènement `paraline:casier`). */
+function useScreen() {
+  const [screen, setScreen] = useState<'casier' | 'phone'>(() =>
+    new URLSearchParams(location.search).has('casier') || !navigator.webdriver ? 'casier' : 'phone',
+  );
+  useEffect(() => {
+    const back = () => setScreen('casier');
+    window.addEventListener('paraline:casier', back);
+    return () => window.removeEventListener('paraline:casier', back);
+  }, []);
+  return [screen, setScreen] as const;
+}
+
 export function App() {
   useViewportHeight();
   usePortraitLock();
+  const [screen, setScreen] = useScreen();
   return (
     <Boundary>
       <div className="rotate-lock" role="alert">
@@ -109,9 +125,13 @@ export function App() {
       </div>
       <div className="stage">
         <GameProvider>
-          <NavProvider>
-            <Phone />
-          </NavProvider>
+          {screen === 'casier' ? (
+            <Casier onOpen={() => setScreen('phone')} />
+          ) : (
+            <NavProvider>
+              <Phone />
+            </NavProvider>
+          )}
         </GameProvider>
       </div>
       <div className="desk-hint" aria-hidden="true">
