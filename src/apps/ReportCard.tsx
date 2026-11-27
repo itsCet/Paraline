@@ -32,7 +32,10 @@ export function ReportCard({ def }: { def: CaseDefinition }) {
   };
 
   const blank = picking ? r.blanks[picking] : undefined;
-  const options = blank?.options.filter((o) => !o.requires || evaluate(o.requires, state, def.id)) ?? [];
+  // Ordre mélangé (la bonne réponse est écrite en premier dans le contenu), mais stable d'une ouverture à l'autre.
+  const options = (blank?.options.filter((o) => !o.requires || evaluate(o.requires, state, def.id)) ?? []).sort(
+    (a, b) => hash(`${def.id}:${picking}:${a.text}`) - hash(`${def.id}:${picking}:${b.text}`),
+  );
 
   return (
     <section className="report" aria-label="Rapport d’enquête">
@@ -93,4 +96,14 @@ export function ReportCard({ def }: { def: CaseDefinition }) {
       )}
     </section>
   );
+}
+
+/** Petit hachage de chaîne (FNV-1a) pour un ordre mélangé mais stable. */
+function hash(str: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
 }

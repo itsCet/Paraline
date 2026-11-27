@@ -255,7 +255,7 @@ await check('Fin complète : ensemble, Léna, le reflet', async () => {
   await viewer().getByText('Il aurait voulu ça.').waitFor();
   await closeViewer();
   await openMedia('IMG_8812.jpg');
-  await observe(0.82, 0.5, 'ils sont cinq');
+  await observe(0.83, 0.29, 'ils sont cinq');
   await shot('08-reflet');
   await page.keyboard.press('Escape');
   await remplirRapport(page, 'Le cinquième', ['Théo Marchand', 'traverser le lac gelé jusqu’à l’île', 'un pari de Julien', 'sont partis sans rien dire']);

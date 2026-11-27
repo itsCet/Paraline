@@ -222,7 +222,7 @@ export const leCinquieme: CaseDefinition = {
       defaultVariant: 'v',
       variants: {
         v: {
-          src: `${DIR}/vid-0213.mp4`,
+          src: `${DIR}/vid-0213-muet.mp4`,
           poster: `${DIR}/vid-0213-poster.jpg`,
           width: 720,
           height: 1280,
@@ -286,7 +286,7 @@ export const leCinquieme: CaseDefinition = {
           ...IMG,
           maxZoom: 8,
           alt: 'Les quatre amis, douze ans plus tard, à la terrasse d’un café parisien. Dans le reflet de la vitrine, derrière eux, un jeune homme au bonnet rouge sourit.',
-          hotspots: [{ id: 'r-reflet', x: 0.72, y: 0.41, w: 0.2, h: 0.3, observationId: 'reflet-theo' }],
+          hotspots: [{ id: 'r-reflet', x: 0.75, y: 0.22, w: 0.17, h: 0.16, observationId: 'reflet-theo' }],
         },
       },
     },
