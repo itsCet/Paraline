@@ -8,6 +8,7 @@ import { useNav } from '../phone/nav';
 import { evaluate } from '../game/engine';
 import { Empty, NavBar } from '../components/ui';
 import { Icon } from '../components/icons';
+import { playCue } from '../game/sound';
 import type { CaseDefinition, MapPlace } from '../game/types';
 
 export function MapApp() {
@@ -30,7 +31,10 @@ export function MapApp() {
   const place = places.find((p) => p.id === sel);
   const tap = (p: MapPlace) => {
     setSel(p.id);
-    if (p.observationId) dispatch({ type: 'observation/found', caseId: def.id, observationId: p.observationId });
+    if (p.observationId) {
+      if (!state.cases[def.id]?.foundObservations.includes(p.observationId)) playCue('found', state.settings);
+      dispatch({ type: 'observation/found', caseId: def.id, observationId: p.observationId });
+    }
   };
   return (
     <>

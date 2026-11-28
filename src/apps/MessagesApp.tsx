@@ -1,3 +1,4 @@
+import { buzz, playSfx } from '../game/sound';
 import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../game/store';
 import { useIntent, useNav } from '../phone/nav';
@@ -220,6 +221,8 @@ function Thread({ def, threadId, onBack }: { def: CaseDefinition; threadId: Id; 
     }
     sending.current = replyId;
     dispatch({ type: 'reply/send', caseId: def.id, replyId });
+    playSfx('envoi', state.settings);
+    buzz(8);
   };
 
   const status = p?.status === 'solved' ? 'Affaire résolue' : 'Enquête en cours';

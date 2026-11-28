@@ -3,6 +3,7 @@
  * Heure, météo de la ville de l'enquête, notifications empilées (toucher : déverrouille et ouvre),
  * lampe torche (l'écran s'allume en blanc) et appareil photo (ouvre Photos).
  */
+import { buzz, playSfx } from '../game/sound';
 import { useRef, useState } from 'react';
 import { useGame } from '../game/store';
 import { useNav } from './nav';
@@ -92,11 +93,11 @@ export function LockScreen({ time, onUnlock }: { time: PhoneTime; onUnlock: () =
       const steps: ['scan' | 'non' | 'scan2' | 'ok', number][] = [['scan', 0], ['non', 900], ['scan2', 1900], ['ok', 2700]];
       steps.forEach(([st, t]) => window.setTimeout(() => setFaceStep(st), t));
       window.setTimeout(() => {
-        try {
-          navigator.vibrate?.([30, 60, 30]);
-        } catch {
-          /* sans vibreur */
-        }
+        playSfx('glitch', state.settings);
+        buzz([40, 30, 40]);
+      }, 900);
+      window.setTimeout(() => playSfx('souffle', state.settings), 2500);
+      window.setTimeout(() => {
         finish(then);
       }, 3900);
       return;
@@ -104,6 +105,8 @@ export function LockScreen({ time, onUnlock }: { time: PhoneTime; onUnlock: () =
     finish(then);
   };
   const finish = (then?: () => void) => {
+    playSfx('deverrouillage', state.settings);
+    buzz(10);
     if (state.settings.reduceMotion) {
       onUnlock();
       then?.();

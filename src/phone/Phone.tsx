@@ -26,7 +26,7 @@ import { ControlCenter } from './ControlCenter';
 import { resolveMedia } from '../game/selectors';
 import { APP_LABELS } from '../components/icons';
 import { HintBulb } from '../components/Hints';
-import { unlockAudio } from '../game/sound';
+import { buzz, playSfx, setSoundContext, unlockAudio } from '../game/sound';
 import { WALLPAPER } from '../content/assets';
 import type { AppId } from '../game/types';
 
@@ -49,11 +49,25 @@ const APPS: Record<AppId, () => ReactNode> = {
 };
 
 export function Phone() {
-  const { state, warning, dismissWarning } = useGame();
+  const { state, warning, dismissWarning, cases: caseIndex } = useGame();
   const nav = useNav();
   const s = state.settings;
   const time = usePhoneTime(s);
   const onHome = nav.app === null && !nav.viewer;
+  // Sons hantés : murmure du chaud-froid dans les enquêtes surnaturelles, souffle quand l'écran s'assombrit.
+  const activeDef = state.activeCaseId ? caseIndex.byId.get(state.activeCaseId) : undefined;
+  const haunted = /Horreur|Hantise|Surnaturel/.test(activeDef?.about?.tone ?? '');
+  useEffect(() => setSoundContext(state.settings, haunted), [state.settings, haunted]);
+  const dimLevel = Number(state.overrides.dim?.value ?? 0);
+  const prevDim = useRef(dimLevel);
+  useEffect(() => {
+    if (dimLevel > prevDim.current) {
+      playSfx('souffle', state.settings);
+      buzz([60, 80, 140]);
+    }
+    prevDim.current = dimLevel;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dimLevel]);
   // Centre de contrôle, lampe torche, capture d'écran.
   const [cc, setCc] = useState(false);
   const [torch, setTorch] = useState(false);
@@ -76,6 +90,8 @@ export function Phone() {
     window.setTimeout(() => {
       dispatch(cap ?? { type: 'capture/take', capture: { kind: 'app', label: nav.app ? APP_LABELS[nav.app] : 'Écran d’accueil' } });
       setFlash(Date.now());
+      playSfx('obturateur', state.settings);
+      buzz(10);
       nav.showToast('Capture enregistrée dans Photos', { label: 'Voir', run: () => nav.open('photos') });
     }, 250);
   };
@@ -93,7 +109,10 @@ export function Phone() {
         const at = leftAt.current;
         leftAt.current = null;
         if (state.introDone) dispatch({ type: 'app/return', leftAt: at, awayMs: Date.now() - at });
-        if (state.introDone && Date.now() - at >= 30_000 && !state.overrides.stillness && lockable()) setLocked(true);
+        if (state.introDone && Date.now() - at >= 30_000 && !state.overrides.stillness && lockable()) {
+          setLocked(true);
+          playSfx('verrou', state.settings);
+        }
       }
     };
     document.addEventListener('visibilitychange', onVis);

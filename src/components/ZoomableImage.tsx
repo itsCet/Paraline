@@ -9,6 +9,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import type { Hotspot, ImageOverlay } from '../game/types';
 import { SheetWriting } from './SheetWriting';
 import { Icon } from './icons';
+import { whisperHeat } from '../game/sound';
 
 interface Props {
   src: string;
@@ -213,6 +214,7 @@ export function ZoomableImage({ src, alt, width, height, hotspots = [], found = 
     const r = areaRef.current!.getBoundingClientRect();
     const heat = hitTest(e.clientX, e.clientY);
     setRipple({ x: e.clientX - r.left, y: e.clientY - r.top, id: now, heat });
+    if (heat) whisperHeat(heat);
     if (heat === 'chaud') {
       try {
         navigator.vibrate?.(15);

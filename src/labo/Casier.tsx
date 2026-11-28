@@ -7,6 +7,7 @@ import { LogoMark } from '../components/icons';
 import { useGame } from '../game/store';
 import { usePhoneTime } from '../game/clock';
 import { WALLPAPER } from '../content/assets';
+import { playSfxSoon, unlockAudio } from '../game/sound';
 
 interface Phone {
   id: string;
@@ -62,6 +63,8 @@ export function Casier({ onOpen }: { onOpen: () => void }) {
   const open = (p: Phone) => {
     if (p.state !== 'actif') return;
     setOpening(p.id);
+    unlockAudio();
+    playSfxSoon('signature', state.settings);
     window.setTimeout(onOpen, state.settings.reduceMotion ? 0 : 750);
   };
 
